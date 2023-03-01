@@ -1,0 +1,164 @@
+@import url(https://fonts.googleapis.com/css?family=Montserrat);
+/* @-webkit-keyframes pulse {
+  0%,
+  to {
+    -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=40)';
+    filter: alpha(opacity=40);
+    opacity: 0.4;
+    top: 0;
+  }
+  50% {
+    -ms-filter: none;
+    -webkit-filter: none;
+    filter: none;
+    opacity: 1;
+    top: -10px;
+  }
+}
+@keyframes pulse {
+  0%,
+  to {
+    -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=40)';
+    filter: alpha(opacity=40);
+    opacity: 0.4;
+    top: 0;
+  }
+  50% {
+    -ms-filter: none;
+    -webkit-filter: none;
+    filter: none;
+    opacity: 1;
+    top: -10px;
+  }
+} */
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  overflow: hidden;
+  margin: 0px;
+  padding: 0px;
+  width: 100%;
+  height: 100%;
+  font-size: 100%;
+}
+
+h1 {
+  margin: 0px;
+}
+
+#particles-js {
+  background-image: url('../images/bg-mesh.webp');
+  position: relative;
+  display: block;
+  vertical-align: bottom;
+  width: 100vw;
+  min-height: 100vh;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+#particles-js .particles-js-canvas-el {
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+.content {
+  width: 100%;
+  z-index: 1;
+  color: #fff;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin-inline: auto;
+  text-align: center;
+}
+
+.content .content-container {
+  padding-inline: 1rem;
+}
+
+.content .site-title {
+  font-size: 4.5rem;
+  display: block;
+  line-height: 1.2;
+}
+
+@media only screen and (min-width: 768px) {
+  .content .site-title {
+    font-size: 4.5rem;
+  }
+}
+
+@media only screen and (min-width: 1200px) {
+  .content .site-title {
+    font-size: 6.5rem;
+  }
+}
+
+.content .site-subtitle {
+  font-size: 1.25rem;
+  display: block;
+  line-height: 1.4;
+  margin: 0.4rem 0 2rem;
+  font-style: italic;
+}
+
+@media only screen and (min-width: 768px) {
+  .content .site-subtitle {
+    font-size: 1.6rem;
+    margin-top: 0.7rem;
+  }
+}
+
+@media only screen and (min-width: 1200px) {
+  .content .site-subtitle {
+    font-size: 2rem;
+  }
+}
+
+.icons-header {
+  display: flex;
+  justify-content: center;
+}
+
+.icons-header .icon {
+  display: inline-block;
+  text-align: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 1.25rem;
+  padding: 0.625rem;
+  margin: 0.375rem;
+  border-radius: 50%;
+  border: 0.125rem solid #fff;
+  transition: all 0.7s;
+}
+
+.icons-header #email-icon svg {
+  fill: white;
+  transition: all 0.7s;
+}
+
+.icons-header #email-icon:hover svg {
+  fill: #1a222c;
+}
+
+.icons-header .icon:hover {
+  background: #ece247;
+}
+
+.icons-header .icon:active {
+  color: #1a222c;
+  background: #fff;
+}
+
+@media only screen and (min-width: 768px) {
+  .icons-header .icon {
+    width: 2.188rem;
+    height: 2.188rem;
+    font-size: 2.188rem;
+  }
+}
