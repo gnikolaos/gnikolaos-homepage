@@ -1,36 +1,4 @@
 @import url(https://fonts.googleapis.com/css?family=Montserrat);
-/* @-webkit-keyframes pulse {
-  0%,
-  to {
-    -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=40)';
-    filter: alpha(opacity=40);
-    opacity: 0.4;
-    top: 0;
-  }
-  50% {
-    -ms-filter: none;
-    -webkit-filter: none;
-    filter: none;
-    opacity: 1;
-    top: -10px;
-  }
-}
-@keyframes pulse {
-  0%,
-  to {
-    -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=40)';
-    filter: alpha(opacity=40);
-    opacity: 0.4;
-    top: 0;
-  }
-  50% {
-    -ms-filter: none;
-    -webkit-filter: none;
-    filter: none;
-    opacity: 1;
-    top: -10px;
-  }
-} */
 
 body {
   font-family: 'Montserrat', sans-serif;
@@ -81,7 +49,7 @@ h1 {
 }
 
 .content .site-title {
-  font-size: 4.5rem;
+  font-size: 4rem;
   display: block;
   line-height: 1.2;
 }
