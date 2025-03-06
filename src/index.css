@@ -1,0 +1,80 @@
+@import 'tailwindcss';
+
+/* Customizations */
+@theme {
+    /* Background Images */
+    --bg-image-hero-mesh: url('/images/bg-mesh.webp');
+
+    /* Keyframes */
+    @keyframes move-blur {
+        0% {
+            transform: translate(0, 0) scale(1);
+        }
+        100% {
+            transform: translate(50vw, 50vh) scale(1.5);
+        }
+    }
+
+    /* Animation */
+    --animation-move-blur: move-blur 10s infinite ease-in-out alternate;
+
+    /* Font Family: Extend the default mono font */
+    --font-mono: 'MesloLGS NF', var(--font-mono);
+}
+
+@utility bg-hero-mesh {
+    background-image: var(--bg-image-hero-mesh);
+}
+
+@utility animate-move-blur {
+    animation: var(--animation-move-blur);
+}
+
+@utility font-mono {
+    font-family: var(--font-mono);
+}
+
+@layer base {
+    @font-face {
+        font-family: 'MesloLGS NF';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url(/fonts/MesloLGS.ttf) format('ttf');
+    }
+    @font-face {
+        font-family: 'MesloLGS NF';
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url(/fonts/MesloLGS-bold.ttf) format('ttf');
+    }
+
+    /* Width of the scrollbar */
+    ::-webkit-scrollbar {
+        @apply w-1;
+    }
+
+    /* Track of the scrollbar */
+    ::-webkit-scrollbar-track {
+        @apply bg-gray-800 bg-inherit;
+    }
+
+    /* Handle of the scrollbar */
+    ::-webkit-scrollbar-thumb {
+        @apply bg-[#00212a];
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-gray-400;
+    }
+
+    body {
+        @apply h-dvh w-full overflow-hidden antialiased select-none;
+    }
+
+    #app {
+        @apply bg-hero-mesh flex h-full w-full flex-col bg-cover bg-fixed bg-center bg-no-repeat;
+    }
+}
