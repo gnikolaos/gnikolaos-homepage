@@ -29,7 +29,7 @@ const Home = () => {
                             <IconEmail twClass="h-7 w-7" />
                         </a>
                         <a
-                            href="/"
+                            href="https://linkedin.com/in/gnikolaos/"
                             target="_blank"
                             aria-label="Connect with me on LinkedIn"
                             class="rounded-sm p-2 text-stone-400 transition-colors hover:text-white focus-visible:outline-stone-400"

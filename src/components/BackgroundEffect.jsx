@@ -9,7 +9,7 @@ const BackgroundEffect = () => {
             left: `${Math.random() * 100}%`,
             size: `${Math.random() * 300 + 100}px`,
             blur: `${Math.random() * 50 + 20}px`,
-            duration: `${Math.random() * 20 + 10}s`,
+            duration: `${Math.random() * 20 + 25}s`,
         }))
     }
 

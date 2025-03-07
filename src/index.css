@@ -16,8 +16,11 @@
         0% {
             transform: translate(0, 0) scale(1);
         }
+        50% {
+            transform: translate(65vh, 65vh) scale(1.5);
+        }
         100% {
-            transform: translate(50vw, 50vh) scale(1.5);
+            transform: translate(0, 0) scale(1);
         }
     }
 }
