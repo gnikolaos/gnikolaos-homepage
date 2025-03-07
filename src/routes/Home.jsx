@@ -15,6 +15,7 @@ const Home = () => {
                     <div class="flex gap-6 pt-8">
                         <a
                             href="https://github.com/gnikolaos"
+                            target="_blank"
                             aria-label="Check out my GitHub profile"
                             class="rounded-sm p-2 text-stone-400 transition-colors hover:text-white focus-visible:outline-stone-400"
                         >
@@ -29,6 +30,7 @@ const Home = () => {
                         </a>
                         <a
                             href="/"
+                            target="_blank"
                             aria-label="Connect with me on LinkedIn"
                             class="rounded-sm p-2 text-stone-400 transition-colors hover:text-white focus-visible:outline-stone-400"
                         >
