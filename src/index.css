@@ -2,8 +2,14 @@
 
 /* Customizations */
 @theme {
+    /* Font Family: Extend the default mono font */
+    --font-mono: 'MesloLGS NF', var(--font-mono);
+
     /* Background Images */
     --bg-image-hero-mesh: url('/images/bg-mesh.webp');
+
+    /* Animations */
+    --animate-move-blur: move-blur linear infinite;
 
     /* Keyframes */
     @keyframes move-blur {
@@ -14,24 +20,10 @@
             transform: translate(50vw, 50vh) scale(1.5);
         }
     }
-
-    /* Animation */
-    --animation-move-blur: move-blur 10s infinite ease-in-out alternate;
-
-    /* Font Family: Extend the default mono font */
-    --font-mono: 'MesloLGS NF', var(--font-mono);
 }
 
 @utility bg-hero-mesh {
     background-image: var(--bg-image-hero-mesh);
-}
-
-@utility animate-move-blur {
-    animation: var(--animation-move-blur);
-}
-
-@utility font-mono {
-    font-family: var(--font-mono);
 }
 
 @layer base {
@@ -42,6 +34,7 @@
         font-display: swap;
         src: url(/fonts/MesloLGS.ttf) format('ttf');
     }
+
     @font-face {
         font-family: 'MesloLGS NF';
         font-style: normal;
