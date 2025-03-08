@@ -1,6 +1,23 @@
+import { createSignal, onMount, Show } from 'solid-js'
+
 const CreatedBy = () => {
+    // Workaround for devices not supporting hover in order to enable the animation
+    const [isActive, setIsActive] = createSignal(false)
+    const [supportsHover, setSupportsHover] = createSignal(true)
+
+    onMount(() => {
+        const hoverSupported = window.matchMedia('(hover: hover)').matches
+        setSupportsHover(hoverSupported)
+    })
+
+    const handleTap = () => {
+        if (!supportsHover()) {
+            setIsActive(!isActive())
+        }
+    }
+
     return (
-        <div class="group isolate w-full pt-12">
+        <div class="group hover-on-touch isolate w-full pt-12" onClick={handleTap}>
             <div class="relative ml-auto w-12 opacity-90">
                 <div class="relative z-10">
                     <svg
@@ -15,7 +32,16 @@ const CreatedBy = () => {
                         </g>
                     </svg>
                 </div>
-                <div class="ease absolute top-[10px] left-1 z-0 h-2 w-11 bg-yellow-300 transition-all duration-200 group-hover:-top-[2px] group-hover:left-0 group-hover:h-8 group-hover:w-8 group-hover:rounded-full" />
+                <Show
+                    when={supportsHover()}
+                    fallback={
+                        <div
+                            class={`ease absolute z-0 bg-yellow-300 transition-all duration-200 ${isActive() ? '-top-[3px] left-0 size-8 rounded-full' : 'top-[9px] left-1 h-2 w-11'} `}
+                        />
+                    }
+                >
+                    <div class="ease absolute top-[9px] left-1 z-0 h-2 w-11 bg-yellow-300 transition-all duration-200 group-hover:-top-[3px] group-hover:left-0 group-hover:size-8 group-hover:rounded-full" />
+                </Show>
             </div>
         </div>
     )
