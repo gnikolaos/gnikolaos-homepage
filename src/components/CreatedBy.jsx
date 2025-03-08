@@ -15,7 +15,7 @@ const CreatedBy = () => {
                         </g>
                     </svg>
                 </div>
-                <div class="ease absolute top-[10px] left-1 z-0 h-2 w-12 bg-yellow-300 transition-all duration-200 group-hover:-top-[2px] group-hover:left-0 group-hover:h-8 group-hover:w-8 group-hover:rounded-full" />
+                <div class="ease absolute top-[10px] left-1 z-0 h-2 w-11 bg-yellow-300 transition-all duration-200 group-hover:-top-[2px] group-hover:left-0 group-hover:h-8 group-hover:w-8 group-hover:rounded-full" />
             </div>
         </div>
     )
