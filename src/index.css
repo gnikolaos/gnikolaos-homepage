@@ -53,7 +53,7 @@
 
     /* Track of the scrollbar */
     ::-webkit-scrollbar-track {
-        @apply bg-gray-800 bg-inherit;
+        @apply bg-gray-800;
     }
 
     /* Handle of the scrollbar */
