@@ -2,8 +2,28 @@ import Footer from '@gnikolaos/components/Footer'
 import BackgroundEffect from '@gnikolaos/components/BackgroundEffect'
 import { IconEmail, IconGitHub, IconLinkedIn } from '@gnikolaos/components/Icon'
 import Header from '@gnikolaos/components/Header'
+import { useNavigate } from '@solidjs/router'
+import { onCleanup, onMount } from 'solid-js'
 
 const Home = () => {
+    const navigate = useNavigate()
+
+    /** @param {KeyboardEvent} e */
+    const handleKeyDown = (e) => {
+        if (e.ctrlKey && e.key.toLowerCase() === 't') {
+            e.preventDefault()
+            navigate('/terminal')
+        }
+    }
+
+    onMount(() => {
+        window.addEventListener('keydown', handleKeyDown)
+    })
+
+    onCleanup(() => {
+        window.removeEventListener('keydown', handleKeyDown)
+    })
+
     return (
         <>
             <BackgroundEffect />
