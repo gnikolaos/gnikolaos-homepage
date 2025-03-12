@@ -1,15 +1,17 @@
 import Footer from '@gnikolaos/components/Footer'
 import BackgroundEffect from '@gnikolaos/components/BackgroundEffect'
 import { IconEmail, IconGitHub, IconLinkedIn } from '@gnikolaos/components/Icon'
+import Header from '@gnikolaos/components/Header'
 
 const Home = () => {
     return (
         <>
             <BackgroundEffect />
-            <main class="z-10 flex-1 pt-[86px]">
+            <Header />
+            <main class="z-10 flex-1 pt-[42px]">
                 <div class="container mx-auto flex h-full flex-col items-center justify-center gap-4 text-center">
                     <h1 class="-mt-24 text-6xl font-bold text-white drop-shadow-md md:text-8xl">Georgiou Nikolaos</h1>
-                    <h2 class="text-xl font-bold text-white drop-shadow-md md:text-2xl">
+                    <h2 class="text-xl font-bold text-balance text-white drop-shadow-md md:text-2xl">
                         MSc Cultural Informatics & Communication
                     </h2>
                     <div class="flex gap-6 pt-8">
