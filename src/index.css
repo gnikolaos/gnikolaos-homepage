@@ -2,9 +2,6 @@
 
 /* Customizations */
 @theme {
-    /* Font Family: Extend the default mono font */
-    --font-mono: 'MesloLGS NF', var(--font-mono);
-
     /* Background Images */
     --bg-image-hero-mesh: url('/images/bg-mesh.webp');
 
@@ -23,6 +20,13 @@
             transform: translate(0, 0) scale(1);
         }
     }
+}
+
+/* When defining theme variables that reference other variables,
+ * we have to use the inline option. */
+@theme inline {
+    /* Font Family: Extend the default mono font */
+    --font-meslo: 'MesloLGS NF', var(--font-mono);
 }
 
 @utility bg-hero-mesh {
@@ -45,7 +49,6 @@
         font-display: swap;
         src: url(/fonts/MesloLGS-bold.ttf) format('ttf');
     }
-
     /* Width of the scrollbar */
     ::-webkit-scrollbar {
         @apply w-1;
