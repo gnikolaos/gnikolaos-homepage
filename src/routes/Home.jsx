@@ -41,14 +41,14 @@ const Home = () => {
                             aria-label="Check out my GitHub profile"
                             class="rounded-sm p-2 text-stone-400 transition-colors hover:text-white focus-visible:outline-stone-400"
                         >
-                            <IconGitHub twClass="h-7 w-7" />
+                            <IconGitHub twClass="size-7" />
                         </a>
                         <a
                             href="mailto:nikos127.0.0.1@hotmail.com"
                             aria-label="Send me a business inquiry"
                             class="rounded-sm p-2 text-stone-400 transition-colors hover:text-white focus-visible:outline-stone-400"
                         >
-                            <IconEmail twClass="h-7 w-7" />
+                            <IconEmail twClass="size-7" />
                         </a>
                         <a
                             href="https://linkedin.com/in/gnikolaos/"
@@ -56,7 +56,7 @@ const Home = () => {
                             aria-label="Connect with me on LinkedIn"
                             class="rounded-sm p-2 text-stone-400 transition-colors hover:text-white focus-visible:outline-stone-400"
                         >
-                            <IconLinkedIn twClass="h-7 w-7" />
+                            <IconLinkedIn twClass="size-7" />
                         </a>
                     </div>
                 </div>
