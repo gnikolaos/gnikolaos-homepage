@@ -17,7 +17,7 @@ const Icon = (props) => {
             viewBox="0 0 20 20"
             fill={props.fill ?? 'currentColor'}
             stroke={props.stroke}
-            class={clsx('h-5 w-5', props.twClass)}
+            class={clsx('size-5', props.twClass)}
             {...props}
         >
             {props.children}
@@ -77,7 +77,7 @@ const IconArrow = (props) => {
     }
 
     return (
-        <Icon twClass={`h-5 w-5 ${rotationClasses[props.direction ?? 'right']}`} {...props}>
+        <Icon twClass={`${rotationClasses[props.direction ?? 'right']}`} {...props}>
             <title>Arrow</title>
             <path d="M7 3L14 10L7 17" stroke-width="1.25" />
         </Icon>
@@ -103,7 +103,7 @@ const IconCaret = (props) => {
     return (
         <Icon
             {...props}
-            twClass={`h-5 w-5 ${rotationClasses[props.direction ?? 'down']}`}
+            twClass={`${rotationClasses[props.direction ?? 'down']}`}
             fill="transparent"
             stroke={props.stroke ?? 'curentColor'}
         >
