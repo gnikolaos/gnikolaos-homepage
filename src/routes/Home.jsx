@@ -4,6 +4,7 @@ import { IconEmail, IconGitHub, IconLinkedIn } from '@gnikolaos/components/Icon'
 import Header from '@gnikolaos/components/Header'
 import { useNavigate } from '@solidjs/router'
 import { onCleanup, onMount } from 'solid-js'
+import Headertwo from '@gnikolaos/components/Headertwo'
 
 const Home = () => {
     const navigate = useNavigate()
@@ -27,7 +28,7 @@ const Home = () => {
     return (
         <>
             <BackgroundEffect />
-            <Header />
+            <Headertwo />
             <main class="z-10 flex-1 pt-[42px]">
                 <div class="container mx-auto flex h-full flex-col items-center justify-center gap-4 text-center">
                     <h1 class="-mt-24 text-6xl font-bold text-white drop-shadow-md md:text-8xl">Georgiou Nikolaos</h1>
