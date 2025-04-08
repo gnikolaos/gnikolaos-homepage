@@ -4,7 +4,7 @@ const Headertwo = () => {
             <div class="relative ml-4 rounded-sm bg-gray-300/10 px-5 py-2 md:scale-150">
                 {/* RJ45 socket */}
                 <div class="z-50 flex size-11 items-start justify-end gap-0.5 rounded-xs bg-gray-300 pt-0.5 pr-0.5 shadow-md">
-                    <span class="size-1.5 rounded-full bg-red-500" />
+                    <span class="animate-error-blink size-1.5 rounded-full bg-gray-400 transition-all" />
                     <span class="size-1.5 rounded-full bg-gray-400" />
                     <span class="size-1.5 rounded-full bg-gray-400" />
                 </div>

@@ -7,6 +7,7 @@
 
     /* Animations */
     --animate-move-blur: move-blur linear infinite;
+    --animate-error-blink: error-blink 1.7s infinite;
 
     /* Keyframes */
     @keyframes move-blur {
@@ -18,6 +19,21 @@
         }
         100% {
             transform: translate(0, 0) scale(1);
+        }
+    }
+
+    @keyframes error-blink {
+        0%,
+        20%,
+        30%,
+        100% {
+            background-color: var(--color-gray-400);
+            box-shadow: none;
+        }
+        10%,
+        25% {
+            background-color: var(--color-red-500);
+            box-shadow: 0 0 12px color-mix(in oklab, var(--color-red-500) 70%, transparent);
         }
     }
 }
