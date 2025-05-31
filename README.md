@@ -17,3 +17,7 @@ My personal website
 - Root background:
 
     - [Gradient mesh](https://meshgradient.in/)
+
+- Audio:
+
+    - RJ45 cable plug in / out audio. [Charger on / off](https://pixabay.com/sound-effects/charger-on-off-273003/) by ALIENIGHTMARE.
