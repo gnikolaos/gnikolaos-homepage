@@ -1,14 +1,21 @@
 import { For, onCleanup, onMount, Show } from 'solid-js'
-import { setColumns, terminalState, vfs } from '../store/terminalStore'
+import { vfs } from '../fs/vfs'
+import { derivePromptStatus } from '../store/derivePromptStatus'
+import { terminal } from '../store/terminal'
+import { BOTTOM_THRESHOLD_PX } from './BOTTOM_THRESHOLD_PX'
+import { hasTextSelection } from './hasTextSelection'
 import HiddenInput from './HiddenInput'
+import { MIN_COLUMNS } from './MIN_COLUMNS'
 import Output from './Output'
+import { PROBE_CHARS } from './PROBE_CHARS'
 import Prompt from './Prompt'
 import TerminalFooter from './TerminalFooter'
 
-const BOTTOM_THRESHOLD_PX = 8
-const PROBE_CHARS = 10
-const MIN_COLUMNS = 20
+const { state, actions } = terminal
 
+/**
+ * Renders the terminal: the scrollback of blocks, the active prompt, the hidden input and the footer.
+ */
 const Terminal = () => {
     /** @type {HTMLElement | undefined} */
     let main
@@ -26,7 +33,7 @@ const Terminal = () => {
     }
 
     const onPointerUp = () => {
-        if (window.getSelection()?.isCollapsed === false) return
+        if (hasTextSelection()) return
         input?.focus({ preventScroll: true })
     }
 
@@ -38,7 +45,7 @@ const Terminal = () => {
         const cellWidth = (probe?.getBoundingClientRect().width ?? 0) / PROBE_CHARS
         if (!content || cellWidth <= 0) return
         const columns = Math.max(MIN_COLUMNS, Math.floor(content.clientWidth / cellWidth))
-        setColumns(columns)
+        actions.setColumns(columns)
     }
 
     onMount(() => {
@@ -51,8 +58,6 @@ const Terminal = () => {
         onCleanup(() => observer.disconnect())
     })
 
-    const activeStatus = () => (terminalState.lastExitCode === 0 ? 'ok' : 'error')
-
     return (
         <div class="font-meslo relative flex size-full flex-col bg-black text-slate-100">
             <main
@@ -63,7 +68,7 @@ const Terminal = () => {
                 onPointerUp={onPointerUp}
             >
                 <div ref={content}>
-                    <For each={terminalState.blocks}>
+                    <For each={state.blocks}>
                         {(block) =>
                             block.kind === 'prompt' ? (
                                 <Prompt
@@ -77,14 +82,14 @@ const Terminal = () => {
                             )
                         }
                     </For>
-                    <Show when={!terminalState.busy}>
+                    <Show when={!state.busy}>
                         <Prompt
-                            path={vfs.formatDisplayPath(terminalState.session.cwd)}
-                            status={activeStatus()}
+                            path={vfs.formatDisplayPath(state.session.cwd)}
+                            status={derivePromptStatus(state.lastExitCode)}
                             running={false}
-                            input={terminalState.editor.input}
-                            cursor={terminalState.editor.cursor}
-                            search={terminalState.search}
+                            input={state.editor.input}
+                            cursor={state.editor.cursor}
+                            search={state.search}
                         />
                     </Show>
                     <span ref={probe} aria-hidden="true" class="invisible absolute">

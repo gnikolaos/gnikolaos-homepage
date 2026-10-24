@@ -5,158 +5,44 @@ import { createEmptyEditor } from '../editor/createEmptyEditor'
 import { insert } from '../editor/insert'
 import { lineEditor } from '../editor/lineEditor'
 import { appendHistory } from '../history/appendHistory'
-import { createMemoryStorage } from '../history/createMemoryStorage'
 import { createNavigation } from '../history/createNavigation'
 import { loadHistory } from '../history/loadHistory'
 import { saveHistory } from '../history/saveHistory'
 import { searchHistory } from '../history/searchHistory'
 import { stepHistoryBack } from '../history/stepHistoryBack'
 import { stepHistoryForward } from '../history/stepHistoryForward'
-import { createVfs } from '../fs/createVfs'
-import { browserIo } from '../fs/browserIo'
-import { createRegistry } from '../shell/createRegistry'
-import { createShell } from '../shell/createShell'
-import { createCompleter } from '../shell/createCompleter'
 import { escapeWord } from '../shell/escapeWord'
 import { findCommonPrefix } from '../shell/findCommonPrefix'
 import { formatCandidateName } from '../shell/formatCandidateName'
 import { formatColumns } from '../shell/formatColumns'
 import { EXIT_CODES } from '../shell/EXIT_CODES'
-import { commands } from '../shell/commands/index'
 import profile from '../profile'
+import { buildCompletedWord } from './buildCompletedWord'
+import { buildSearchStep } from './buildSearchStep'
+import { completeNothing } from './completeNothing'
+import { derivePromptStatus } from './derivePromptStatus'
+import { HISTORY_KEY } from './HISTORY_KEY'
+import { isSameEditor } from './isSameEditor'
+import { openInNewTab } from './openInNewTab'
+import { replaceWordAtCursor } from './replaceWordAtCursor'
 
-/** @typedef {import('../shell/types').Shell} Shell */
 /** @typedef {import('../shell/types').Sink} Sink */
-/** @typedef {import('../shell/types').ShellHooks} ShellHooks */
-/** @typedef {import('../history/types').HistoryStorage} HistoryStorage */
-/** @typedef {import('../history/types').Navigation} Navigation */
 /** @typedef {import('../editor/types').EditorState} EditorState */
-/** @typedef {import('../shell/types').Completion} Completion */
-/** @typedef {(input: string, cursor: number) => Promise<Completion>} Completer */
-
 /** @typedef {import('../editor/types').EditOp} EditOp */
+/** @typedef {import('../shell/types').Completion} Completion */
+/** @typedef {import('./types').Block} Block */
+/** @typedef {import('./types').OutputContent} OutputContent */
+/** @typedef {import('./types').SearchState} SearchState */
+/** @typedef {import('./types').TerminalState} TerminalState */
+/** @typedef {import('./types').TerminalOptions} TerminalOptions */
+/** @typedef {import('./types').TerminalStore} TerminalStore */
 
-/** @typedef {'ok' | 'error'} PromptStatus */
-/**
- * @typedef {{ id: number, kind: 'prompt', cwd: string, input: string, status: PromptStatus, running: boolean }}
- *     PromptBlock
- */
-/** @typedef {{ kind: 'plain' | 'markdown', content: string }} OutputContent */
-/** @typedef {{ id: number, kind: 'output', output: OutputContent }} OutputBlock */
-/** @typedef {PromptBlock | OutputBlock} Block */
-/** @typedef {{ query: string, index: number | null, draft: string }} SearchState */
-
-/**
- * @typedef {object} TerminalState
- * @property {{ user: string, host: string, cwd: string }} session
- * @property {Block[]} blocks
- * @property {EditorState} editor
- * @property {{ entries: string[], nav: Navigation }} history
- * @property {boolean} busy
- * @property {number} lastExitCode
- * @property {SearchState | null} search
- * @property {number} columns
- */
-
-/**
- * @typedef {object} TerminalActions
- * @property {(text: string) => void} typeText
- * @property {(op: EditOp) => void} applyEdit
- * @property {() => Promise<void>} submit
- * @property {() => void} historyPrev
- * @property {() => void} historyNext
- * @property {() => void} interrupt
- * @property {() => Promise<void>} eof
- * @property {() => void} clearScreen
- * @property {(line: string) => Promise<void>} runLine
- * @property {(fn: (path: string) => void) => void} setNavigate
- * @property {() => Promise<void>} complete
- * @property {() => void} historySearch
- * @property {() => void} acceptSearch
- * @property {() => void} cancel
- * @property {(columns: number) => void} setColumns
- */
-
-/**
- * @typedef {object} TerminalOptions
- * @property {(hooks: ShellHooks) => Shell} makeShell
- * @property {HistoryStorage} storage
- * @property {string} home
- * @property {string} [user]
- * @property {string} [host]
- * @property {(url: string) => void} [openUrl]
- * @property {Completer} [complete]
- */
-
-const HISTORY_KEY = 'gnikolaos:terminal:history'
 const DEFAULT_COLUMNS = 80
 
 /**
- * @param {number} exitCode
- * @returns {PromptStatus}
- */
-const statusOf = (exitCode) => (exitCode === 0 ? 'ok' : 'error')
-
-/**
- * @param {EditorState} a
- * @param {EditorState} b
- * @returns {boolean}
- */
-const sameEditor = (a, b) => a.input === b.input && a.cursor === b.cursor
-
-/**
- * @param {EditorState} editor
- * @param {Completion} completion
- * @param {string} replacement
- * @returns {EditorState}
- */
-const replaceWord = ({ input }, { start, end }, replacement) =>
-    insert({ input: input.slice(0, start) + input.slice(end), cursor: start }, replacement)
-
-/**
- * @param {string} candidate
- * @returns {string}
- */
-const completedWord = (candidate) => escapeWord(candidate) + (candidate.endsWith('/') ? '' : ' ')
-
-/**
- * @param {readonly string[]} entries
- * @param {string} draft
- * @param {string} query
- * @param {number} fromIndex
- * @returns {{ search: SearchState, editor: EditorState }}
- */
-const searchFrom = (entries, draft, query, fromIndex) => {
-    const index = searchHistory(entries, query, fromIndex)
-    if (index === null) return { search: { query, index, draft }, editor: createEditorFromText(draft) }
-    const entry = entries[index]
-    return {
-        search: { query, index, draft },
-        editor: { input: entry, cursor: entry.lastIndexOf(query) + query.length },
-    }
-}
-
-/** @type {Completer} */
-const completeNothing = async (_input, cursor) => ({ start: cursor, end: cursor, candidates: [] })
-
-/** @returns {HistoryStorage} */
-const browserStorage = () => {
-    try {
-        return globalThis.sessionStorage ?? createMemoryStorage()
-    } catch {
-        return createMemoryStorage()
-    }
-}
-
-/**
- * @param {string} url
- * @returns {void}
- */
-const openInNewTab = (url) => void window.open(url, '_blank', 'noopener,noreferrer')
-
-/**
+ * Creates a terminal store whose actions edit the prompt, run lines through the shell and record history.
  * @param {TerminalOptions} options
- * @returns {{ state: TerminalState, actions: TerminalActions }}
+ * @returns {TerminalStore}
  */
 const createTerminal = ({
     makeShell,
@@ -208,7 +94,14 @@ const createTerminal = ({
      */
     const pushPrompt = (input, { running = false } = {}) => {
         const id = nextId++
-        pushBlock({ id, kind: 'prompt', cwd: state.session.cwd, input, status: statusOf(state.lastExitCode), running })
+        pushBlock({
+            id,
+            kind: 'prompt',
+            cwd: state.session.cwd,
+            input,
+            status: derivePromptStatus(state.lastExitCode),
+            running,
+        })
         return id
     }
 
@@ -303,7 +196,7 @@ const createTerminal = ({
      */
     const showSearch = (query, fromIndex) => {
         const { draft } = /** @type {SearchState} */ (state.search)
-        const step = searchFrom(state.history.entries, draft, query, fromIndex)
+        const step = buildSearchStep(state.history.entries, draft, query, fromIndex)
         batch(() => {
             setState('search', step.search)
             setState('editor', step.editor)
@@ -446,16 +339,16 @@ const createTerminal = ({
     const applyCompletion = (completion, before) => {
         const { candidates } = completion
         if (candidates.length === 1) {
-            setState('editor', replaceWord(before, completion, completedWord(candidates[0])))
+            setState('editor', replaceWordAtCursor(before, completion, buildCompletedWord(candidates[0])))
             return
         }
         if (candidates.length === 0) return
         const prefix = escapeWord(findCommonPrefix(candidates))
         if (prefix !== before.input.slice(completion.start, completion.end)) {
-            setState('editor', replaceWord(before, completion, prefix))
+            setState('editor', replaceWordAtCursor(before, completion, prefix))
             return
         }
-        if (!afterLastComplete || !sameEditor(afterLastComplete, before)) return
+        if (!afterLastComplete || !isSameEditor(afterLastComplete, before)) return
         batch(() => {
             pushPrompt(before.input)
             pushOutput('plain', formatColumns(candidates.map(formatCandidateName), state.columns))
@@ -472,7 +365,7 @@ const createTerminal = ({
         } catch {
             return
         }
-        if (state.busy || state.search || !sameEditor(state.editor, before)) return
+        if (state.busy || state.search || !isSameEditor(state.editor, before)) return
         applyCompletion(completion, before)
         afterLastComplete = { ...state.editor }
     }
@@ -509,54 +402,4 @@ const createTerminal = ({
     }
 }
 
-const vfs = createVfs(browserIo)
-const registry = createRegistry(commands)
-
-const terminal = createTerminal({
-    home: vfs.home,
-    storage: browserStorage(),
-    complete: createCompleter({ fs: vfs, registry, getCwd: () => terminalState.session.cwd }),
-    makeShell: (hooks) =>
-        createShell({ ...hooks, registry, fs: vfs, session: { user: profile.user, host: profile.host } }),
-})
-
-const { state: terminalState, actions } = terminal
-const {
-    typeText,
-    applyEdit,
-    submit,
-    historyPrev,
-    historyNext,
-    interrupt,
-    eof,
-    clearScreen,
-    runLine,
-    setNavigate,
-    complete,
-    historySearch,
-    acceptSearch,
-    cancel,
-    setColumns,
-} = actions
-
-export {
-    createTerminal,
-    HISTORY_KEY,
-    vfs,
-    terminalState,
-    typeText,
-    applyEdit,
-    submit,
-    historyPrev,
-    historyNext,
-    interrupt,
-    eof,
-    clearScreen,
-    runLine,
-    setNavigate,
-    complete,
-    historySearch,
-    acceptSearch,
-    cancel,
-    setColumns,
-}
+export { createTerminal }

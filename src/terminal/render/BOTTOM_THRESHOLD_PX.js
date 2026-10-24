@@ -1,0 +1,3 @@
+const BOTTOM_THRESHOLD_PX = 8
+
+export { BOTTOM_THRESHOLD_PX }

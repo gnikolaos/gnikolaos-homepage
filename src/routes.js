@@ -7,7 +7,7 @@ const routes = [
     },
     {
         path: '/terminal/*path',
-        component: lazy(() => import('./routes/Terminal')),
+        component: lazy(() => import('./routes/TerminalRoute')),
     },
 ]
 

@@ -1,82 +1,65 @@
 import { onCleanup, onMount } from 'solid-js'
 import { resolveKey } from '../editor/resolveKey'
-import {
-    acceptSearch,
-    applyEdit,
-    cancel,
-    clearScreen,
-    complete,
-    eof,
-    historySearch,
-    historyNext,
-    historyPrev,
-    interrupt,
-    submit,
-    typeText,
-} from '../store/terminalStore'
+import { terminal } from '../store/terminal'
+import { COMPOSITION_INPUT_TYPES } from './COMPOSITION_INPUT_TYPES'
+import { hasTextSelection } from './hasTextSelection'
+import { MODIFIER_KEYS } from './MODIFIER_KEYS'
 
 /** @typedef {import('../editor/types').Action} Action */
 
-const compositionInputTypes = new Set(['insertCompositionText', 'insertFromComposition'])
+const { actions } = terminal
 
 /**
  * @param {Action} action
  * @returns {void}
  */
-const dispatch = (action) => {
+const dispatchKeyAction = (action) => {
     switch (action.type) {
         case 'edit':
-            return applyEdit(action.op)
+            return actions.applyEdit(action.op)
         case 'submit':
-            return void submit()
+            return void actions.submit()
         case 'historyPrev':
-            return historyPrev()
+            return actions.historyPrev()
         case 'historyNext':
-            return historyNext()
+            return actions.historyNext()
         case 'clearScreen':
-            return clearScreen()
+            return actions.clearScreen()
         case 'interrupt':
-            return interrupt()
+            return actions.interrupt()
         case 'eof':
-            return void eof()
+            return void actions.eof()
         case 'complete':
-            return void complete()
+            return void actions.complete()
         case 'historySearch':
-            return historySearch()
+            return actions.historySearch()
         case 'acceptSearch':
-            return acceptSearch()
+            return actions.acceptSearch()
         case 'cancel':
-            return cancel()
+            return actions.cancel()
     }
-}
-
-const MODIFIER_KEYS = new Set(['Shift', 'Control', 'Alt', 'Meta'])
-
-/** @returns {boolean} */
-const hasSelection = () => {
-    const selection = window.getSelection()
-    return selection !== null && !selection.isCollapsed
 }
 
 /**
  * @param {KeyboardEvent} e
  * @returns {boolean}
  */
-const isCopy = (e) => (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c' && hasSelection()
+const isCopyShortcut = (e) => (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c' && hasTextSelection()
 
 /**
  * @param {KeyboardEvent} e
  * @returns {void}
  */
-const handleKey = (e) => {
-    if (isCopy(e)) return
+const onKeyDown = (e) => {
+    if (isCopyShortcut(e)) return
     const action = resolveKey(e)
     if (!action) return
     e.preventDefault()
-    dispatch(action)
+    dispatchKeyAction(action)
 }
 
 /**
+ * Renders the visually hidden input that captures keyboard, composition and paste input for the terminal.
  * @param {{ ref?: (el: HTMLInputElement) => void }} props
  */
 const HiddenInput = (props) => {
@@ -89,15 +72,15 @@ const HiddenInput = (props) => {
 
     /** @param {InputEvent} e */
     const onInput = (e) => {
-        if (composing || e.isComposing || compositionInputTypes.has(e.inputType)) return
-        if (e.data) typeText(e.data)
+        if (composing || e.isComposing || COMPOSITION_INPUT_TYPES.has(e.inputType)) return
+        if (e.data) actions.typeText(e.data)
         if (el) el.value = ''
     }
 
     /** @param {CompositionEvent} e */
     const onCompositionEnd = (e) => {
         composing = false
-        if (e.data) typeText(e.data)
+        if (e.data) actions.typeText(e.data)
         if (el) el.value = ''
     }
 
@@ -105,23 +88,23 @@ const HiddenInput = (props) => {
     const onPaste = (e) => {
         e.preventDefault()
         const text = e.clipboardData?.getData('text') ?? ''
-        typeText(text.replace(/\r?\n/g, ' '))
+        actions.typeText(text.replace(/\r?\n/g, ' '))
     }
 
     const isFocusOnBody = () => document.activeElement === null || document.activeElement === document.body
 
     const onBlur = () => {
         setTimeout(() => {
-            if (pointerDown || !document.hasFocus() || !isFocusOnBody() || hasSelection()) return
+            if (pointerDown || !document.hasFocus() || !isFocusOnBody() || hasTextSelection()) return
             focus()
         }, 0)
     }
 
     /** @param {KeyboardEvent} e */
     const onDocumentKeyDown = (e) => {
-        if (e.target !== document.body || MODIFIER_KEYS.has(e.key) || isCopy(e)) return
+        if (e.target !== document.body || MODIFIER_KEYS.has(e.key) || isCopyShortcut(e)) return
         focus()
-        handleKey(e)
+        onKeyDown(e)
     }
 
     const onPointerDown = () => {
@@ -160,7 +143,7 @@ const HiddenInput = (props) => {
             spellcheck={false}
             enterkeyhint="send"
             aria-label="Terminal input"
-            onKeyDown={handleKey}
+            onKeyDown={onKeyDown}
             onInput={onInput}
             onCompositionStart={() => (composing = true)}
             onCompositionEnd={onCompositionEnd}

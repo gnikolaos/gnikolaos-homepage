@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { createMemoryStorage } from '@gnikolaos/terminal/history/createMemoryStorage'
-import { createTerminal, HISTORY_KEY } from './terminalStore'
+import { createTerminal } from './createTerminal'
+import { HISTORY_KEY } from './HISTORY_KEY'
 
 /** @typedef {import('../shell/types').Sink} Sink */
 /** @typedef {import('../shell/types').Completion} Completion */
