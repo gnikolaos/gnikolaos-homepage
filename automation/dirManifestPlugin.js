@@ -14,7 +14,7 @@ const isContentFile = (root, file) => file.endsWith('.md') && !path.relative(roo
  */
 const dirManifestPlugin = ({ root = defaultRoot } = {}) => ({
     name: 'dir-manifest',
-    async buildStart() {
+    async configResolved() {
         await generateManifests(root)
     },
     configureServer(server) {
