@@ -15,6 +15,7 @@ const logout = defineCommand({
     name: 'logout',
     summary: 'leave the terminal',
     usage: 'logout',
+    complete: 'none',
     run: closeConnection,
 })
 
@@ -24,5 +25,6 @@ export default defineCommand({
     name: 'exit',
     summary: 'leave the terminal',
     usage: 'exit',
+    complete: 'none',
     run: closeConnection,
 })

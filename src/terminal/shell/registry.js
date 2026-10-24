@@ -16,12 +16,15 @@
  * @property {() => void} clear
  */
 
+/** @typedef {'paths' | 'dirs' | 'commands' | 'none'} CompletionKind */
+
 /**
  * @typedef {object} Command
  * @property {string} name
  * @property {string} summary
  * @property {string} usage
  * @property {boolean} hidden
+ * @property {CompletionKind} complete   what Tab offers for the command's arguments
  * @property {(ctx: Ctx, argv: string[], stdin: string | null) => number | void | Promise<number | void>} run
  */
 
@@ -32,17 +35,20 @@
  * @property {(options?: { includeHidden?: boolean }) => Command[]} list
  */
 
+const COMPLETION_KINDS = new Set(['paths', 'dirs', 'commands', 'none'])
+
 /**
- * @param {{ name: string, summary: string, usage: string, hidden?: boolean, run: Command['run'] }} def
+ * @param {{ name: string, summary: string, usage: string, hidden?: boolean, complete?: CompletionKind, run: Command['run'] }} def
  * @returns {Command}
  */
-const defineCommand = ({ name, summary, usage, hidden = false, run }) => {
+const defineCommand = ({ name, summary, usage, hidden = false, complete = 'paths', run }) => {
     if (!name || /\s/.test(name)) throw new TypeError(`invalid command name: '${name}'`)
     if (typeof run !== 'function') throw new TypeError(`command '${name}' has no run function`)
     if (typeof summary !== 'string' || typeof usage !== 'string') {
         throw new TypeError(`command '${name}' needs a summary and a usage string`)
     }
-    return Object.freeze({ name, summary, usage, hidden, run })
+    if (!COMPLETION_KINDS.has(complete)) throw new TypeError(`command '${name}' has unknown completion '${complete}'`)
+    return Object.freeze({ name, summary, usage, hidden, complete, run })
 }
 
 /**

@@ -10,8 +10,18 @@ const command = (name, hidden = false) =>
 describe('defineCommand', () => {
     test('defaults hidden to false and freezes the command', () => {
         const cmd = defineCommand({ name: 'ls', summary: 'list', usage: 'ls', run: noop })
-        expect(cmd).toEqual({ name: 'ls', summary: 'list', usage: 'ls', hidden: false, run: noop })
+        expect(cmd).toEqual({ name: 'ls', summary: 'list', usage: 'ls', hidden: false, complete: 'paths', run: noop })
         expect(Object.isFrozen(cmd)).toBe(true)
+    })
+
+    test('keeps the completion kind when given', () => {
+        const cmd = defineCommand({ name: 'cd', summary: 's', usage: 'u', complete: 'dirs', run: noop })
+        expect(cmd.complete).toBe('dirs')
+    })
+
+    test('rejects an unknown completion kind', () => {
+        const def = /** @type {any} */ ({ name: 'cd', summary: 's', usage: 'u', complete: 'files', run: noop })
+        expect(() => defineCommand(def)).toThrow("unknown completion 'files'")
     })
 
     test('keeps hidden when given', () => {

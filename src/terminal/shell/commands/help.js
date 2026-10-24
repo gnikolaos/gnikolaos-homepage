@@ -16,6 +16,7 @@ export default defineCommand({
     name: 'help',
     summary: 'list available commands',
     usage: 'help [--all]',
+    complete: 'none',
     run: (ctx, argv) => {
         const includeHidden = splitFlags(argv).flags.has('all')
         ctx.stdout('Available commands:\n')

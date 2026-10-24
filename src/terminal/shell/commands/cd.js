@@ -45,5 +45,6 @@ export default defineCommand({
     name: 'cd',
     summary: 'change the working directory',
     usage: 'cd [path]',
+    complete: 'dirs',
     run,
 })

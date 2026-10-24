@@ -18,6 +18,7 @@ export default defineCommand({
     name: 'open',
     summary: 'open a link in a new tab',
     usage: USAGE,
+    complete: 'none',
     run: (ctx, argv) => {
         if (argv.length !== 1) {
             ctx.stderr(`usage: ${USAGE}\n`)

@@ -40,6 +40,7 @@ const commands = [
     fake('echo', (ctx, argv) => ctx.stdout(argv.join(' ') + '\n')),
     fake('upper', (ctx, _argv, stdin) => ctx.stdout((stdin ?? '').toUpperCase())),
     fake('md', (ctx, argv) => ctx.markdown(`# ${argv.join(' ')}\n`)),
+    fake('colored', (ctx) => ctx.stdout('\x1b[1;34mposts\x1b[0m\n')),
     fake('stdin', (ctx, _argv, stdin) => ctx.stdout(JSON.stringify(stdin))),
     fake('warn', (ctx, _argv, stdin) => {
         ctx.stderr('warn: careful\n')
@@ -202,6 +203,16 @@ describe('createShell pipelines', () => {
         const { shell, sink } = setup()
         await shell.run('md title | stdin', sink)
         expect(sink.events).toEqual([['stdout', JSON.stringify('# title\n')]])
+    })
+
+    test('strips ansi styles from piped stdout but keeps them for the sink', async () => {
+        const { shell, sink } = setup()
+        await shell.run('colored | stdin', sink)
+        await shell.run('colored', sink)
+        expect(sink.events).toEqual([
+            ['stdout', JSON.stringify('posts\n')],
+            ['stdout', '\x1b[1;34mposts\x1b[0m\n'],
+        ])
     })
 
     test('gives an empty string stdin when the previous stage printed nothing', async () => {

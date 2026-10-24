@@ -1,4 +1,5 @@
 import { parse, ParseError } from './parser.js'
+import { stripAnsi } from './ansi.js'
 
 /** @typedef {import('./registry.js').Ctx} Ctx */
 /** @typedef {import('./registry.js').Command} Command */
@@ -47,7 +48,7 @@ const messageOf = (error) => (error instanceof Error ? error.message : String(er
 const createBufferSink = (sink) => {
     let buffer = ''
     const append = (/** @type {string} */ text) => {
-        buffer += text
+        buffer += stripAnsi(text)
     }
     return {
         sink: { stdout: append, markdown: append, stderr: sink.stderr, clear: () => {} },
