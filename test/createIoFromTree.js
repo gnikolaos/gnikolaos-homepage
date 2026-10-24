@@ -24,7 +24,12 @@ const findFakeFile = (node) => {
 const buildEntry = (name, node) => {
     const fakeFile = findFakeFile(node)
     if (!fakeFile) return { name, type: 'dir' }
-    return { name, type: 'file', size: fakeFile.size ?? fakeFile.content.length, mtime: fakeFile.mtime }
+    return {
+        name,
+        type: 'file',
+        size: 'size' in fakeFile ? fakeFile.size : fakeFile.content.length,
+        mtime: fakeFile.mtime,
+    }
 }
 
 /**
