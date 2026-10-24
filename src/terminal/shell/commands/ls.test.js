@@ -1,77 +1,104 @@
 import { describe, expect, test } from 'vitest'
-import ls, { humanSize, shortDate } from './ls'
+import { stripAnsi } from '../ansi'
+import ls, { formatLong, humanSize } from './ls'
 import { HOME, file, runCommand } from './testUtils'
 
 const tree = {
     posts: {
-        'post-1.md': file('# Hi', { size: 1234, mtime: '2026-10-24T12:00:00.000Z' }),
+        'post-1.md': file('# Hi', { size: 1234, mtime: '2025-03-05T08:30:00.000Z' }),
         'post-2.md': file('# Two', { size: 340 }),
     },
     'bio.md': file('# Bio', { size: 2048, mtime: '2026-01-02T00:00:00.000Z' }),
+    'notes.txt': file('plain', { size: 5, mtime: '2024-12-31T23:59:00.000Z' }),
+}
+
+/**
+ * @param {Parameters<typeof runCommand>[1]} argv
+ * @param {Parameters<typeof runCommand>[2]} [options]
+ */
+const plainLs = async (argv, options = {}) => {
+    const result = await runCommand(ls, argv, { tree, ...options })
+    return { ...result, plain: stripAnsi(result.stdoutText()) }
 }
 
 describe('ls', () => {
     test('lists the cwd with dirs ending in a slash', async () => {
-        const { stdoutText, exitCode } = await runCommand(ls, [], { tree })
-        expect(stdoutText()).toBe('posts/\nbio.md\n')
+        const { plain, exitCode } = await plainLs([])
+        expect(plain).toBe('posts/\nbio.md\nnotes.txt\n')
         expect(exitCode).toBe(0)
     })
 
+    test('colors dirs bold blue, markdown green and other files plain', async () => {
+        const { stdoutText } = await runCommand(ls, [], { tree })
+        expect(stdoutText()).toBe('\x1b[1;34mposts/\x1b[0m\n\x1b[32mbio.md\x1b[0m\nnotes.txt\n')
+    })
+
     test('lists a relative path', async () => {
-        const { stdoutText } = await runCommand(ls, ['posts'], { tree })
-        expect(stdoutText()).toBe('post-1.md\npost-2.md\n')
+        const { plain } = await plainLs(['posts'])
+        expect(plain).toBe('post-1.md\npost-2.md\n')
     })
 
     test('resolves paths against the cwd', async () => {
-        const { stdoutText } = await runCommand(ls, ['..'], { tree, cwd: `${HOME}/posts` })
-        expect(stdoutText()).toBe('posts/\nbio.md\n')
+        const { plain } = await plainLs(['..'], { cwd: `${HOME}/posts` })
+        expect(plain).toBe('posts/\nbio.md\nnotes.txt\n')
     })
 
-    test('-a prepends . and ..', async () => {
+    test('-a prepends . and .. as directories', async () => {
         const { stdoutText } = await runCommand(ls, ['-a', 'posts'], { tree })
-        expect(stdoutText()).toBe('./\n../\npost-1.md\npost-2.md\n')
+        expect(stdoutText().split('\n').slice(0, 2)).toEqual(['\x1b[1;34m./\x1b[0m', '\x1b[1;34m../\x1b[0m'])
+        expect(stripAnsi(stdoutText())).toBe('./\n../\npost-1.md\npost-2.md\n')
     })
 
     test('--all behaves like -a', async () => {
-        const { stdoutText } = await runCommand(ls, ['--all'], { tree })
-        expect(stdoutText().startsWith('./\n../\n')).toBe(true)
+        const { plain } = await plainLs(['--all'])
+        expect(plain.startsWith('./\n../\n')).toBe(true)
     })
 
-    test('-l prints type size date name columns', async () => {
+    test('-l prints coreutils columns', async () => {
+        const { plain } = await plainLs(['-l'])
+        expect(plain.split('\n')).toEqual([
+            'drwxr-xr-x 2 visitor visitor    - -            posts',
+            '-rw-r--r-- 1 visitor visitor 2.0K Jan  2  2026 bio.md',
+            '-rw-r--r-- 1 visitor visitor    5 Dec 31  2024 notes.txt',
+            '',
+        ])
+    })
+
+    test('-l colors names without a trailing slash', async () => {
         const { stdoutText } = await runCommand(ls, ['-l'], { tree })
-        expect(stdoutText()).toBe('d    - -          posts/\n- 2.0K 2026-01-02 bio.md\n')
+        expect(stdoutText().split('\n')[0].endsWith(' \x1b[1;34mposts\x1b[0m')).toBe(true)
     })
 
     test('-la combines both flags', async () => {
-        const { stdoutText } = await runCommand(ls, ['-la', 'posts'], { tree })
-        expect(stdoutText().split('\n')).toEqual([
-            'd    - -          ./',
-            'd    - -          ../',
-            '- 1.2K 2026-10-24 post-1.md',
-            '-  340 -          post-2.md',
+        const { plain } = await plainLs(['-la', 'posts'])
+        expect(plain.split('\n')).toEqual([
+            'drwxr-xr-x 2 visitor visitor    - -            .',
+            'drwxr-xr-x 2 visitor visitor    - -            ..',
+            '-rw-r--r-- 1 visitor visitor 1.2K Mar  5  2025 post-1.md',
+            '-rw-r--r-- 1 visitor visitor  340 -            post-2.md',
             '',
         ])
     })
 
     test('prints the name of a file path as typed', async () => {
-        const { stdoutText } = await runCommand(ls, ['./bio.md'], { tree })
-        expect(stdoutText()).toBe('./bio.md\n')
+        const { plain } = await plainLs(['./bio.md'])
+        expect(plain).toBe('./bio.md\n')
     })
 
     test('prints headers and blank lines for several paths', async () => {
-        const { stdoutText } = await runCommand(ls, ['posts', '~'], { tree })
-        expect(stdoutText()).toBe('posts:\npost-1.md\npost-2.md\n\n~:\nposts/\nbio.md\n')
+        const { plain } = await plainLs(['posts', '~'])
+        expect(plain).toBe('posts:\npost-1.md\npost-2.md\n\n~:\nposts/\nbio.md\nnotes.txt\n')
     })
 
     test('reports a missing path, continues and exits 1', async () => {
-        const { stdoutText, stderrText, exitCode } = await runCommand(ls, ['nope', 'posts'], { tree })
+        const { plain, stderrText, exitCode } = await plainLs(['nope', 'posts'])
         expect(stderrText()).toBe("ls: cannot access 'nope': No such file or directory\n")
-        expect(stdoutText()).toBe('posts:\npost-1.md\npost-2.md\n')
+        expect(plain).toBe('posts:\npost-1.md\npost-2.md\n')
         expect(exitCode).toBe(1)
     })
 
     test('rejects unknown flags', async () => {
-        const { stderrText, exitCode } = await runCommand(ls, ['-z'], { tree })
+        const { stderrText, exitCode } = await plainLs(['-z'])
         expect(stderrText()).toBe("ls: invalid option -- 'z'\n")
         expect(exitCode).toBe(2)
     })
@@ -81,6 +108,50 @@ describe('ls', () => {
         controller.abort()
         const { stdoutText } = await runCommand(ls, ['posts', '~'], { tree, signal: controller.signal })
         expect(stdoutText()).toBe('')
+    })
+})
+
+describe('formatLong', () => {
+    const now = new Date('2026-10-24T13:00:00.000Z')
+
+    /**
+     * @param {string} [mtime]
+     * @returns {string}
+     */
+    const fileLine = (mtime) => stripAnsi(formatLong([{ name: 'a.md', type: 'file', size: 1, mtime }], { now })[0])
+
+    test('shows the time for files modified within six months', () => {
+        expect(fileLine('2026-10-24T12:00:00.000Z')).toBe('-rw-r--r-- 1 visitor visitor 1 Oct 24 12:00 a.md')
+        expect(fileLine('2026-05-01T09:05:00.000Z')).toBe('-rw-r--r-- 1 visitor visitor 1 May  1 09:05 a.md')
+    })
+
+    test('shows the year for older or future files', () => {
+        expect(fileLine('2025-10-24T12:00:00.000Z')).toBe('-rw-r--r-- 1 visitor visitor 1 Oct 24  2025 a.md')
+        expect(fileLine('2026-04-24T12:00:00.000Z')).toBe('-rw-r--r-- 1 visitor visitor 1 Apr 24  2026 a.md')
+        expect(fileLine('2027-01-01T00:00:00.000Z')).toBe('-rw-r--r-- 1 visitor visitor 1 Jan  1  2027 a.md')
+    })
+
+    test('formats in UTC', () => {
+        expect(fileLine('2026-10-23T23:30:00.000Z')).toBe('-rw-r--r-- 1 visitor visitor 1 Oct 23 23:30 a.md')
+    })
+
+    test('prints - for missing or invalid dates', () => {
+        expect(fileLine(undefined)).toBe('-rw-r--r-- 1 visitor visitor 1 - a.md')
+        expect(fileLine('not a date')).toBe('-rw-r--r-- 1 visitor visitor 1 - a.md')
+    })
+
+    test('aligns links and size right and date left', () => {
+        const lines = formatLong(
+            [
+                { name: 'posts', type: 'dir' },
+                { name: 'big.md', type: 'file', size: 12 * 1024, mtime: '2026-10-24T12:00:00.000Z' },
+            ],
+            { now },
+        ).map(stripAnsi)
+        expect(lines).toEqual([
+            'drwxr-xr-x 2 visitor visitor   - -            posts',
+            '-rw-r--r-- 1 visitor visitor 12K Oct 24 12:00 big.md',
+        ])
     })
 })
 
@@ -102,16 +173,5 @@ describe('humanSize', () => {
 
     test('returns - when unknown', () => {
         expect(humanSize(undefined)).toBe('-')
-    })
-})
-
-describe('shortDate', () => {
-    test('formats ISO timestamps as YYYY-MM-DD', () => {
-        expect(shortDate('2026-10-24T12:00:00.000Z')).toBe('2026-10-24')
-    })
-
-    test('returns - for missing or invalid dates', () => {
-        expect(shortDate(undefined)).toBe('-')
-        expect(shortDate('not a date')).toBe('-')
     })
 })

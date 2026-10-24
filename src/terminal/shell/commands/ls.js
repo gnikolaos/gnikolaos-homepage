@@ -1,6 +1,8 @@
 import { isFsError } from '../../fs/FsError'
 import { defineCommand } from '../registry'
 import { splitFlags } from '../flags'
+import { style } from '../ansi'
+import profile from '../../profile'
 
 /** @typedef {import('../registry').Ctx} Ctx */
 /** @typedef {{ name: string, type: 'dir' | 'file', size?: number, mtime?: string, title?: string }} Entry */
@@ -9,6 +11,9 @@ import { splitFlags } from '../flags'
 
 const SUPPORTED_FLAGS = new Set(['a', 'l', 'all'])
 const SIZE_UNITS = ['K', 'M', 'G', 'T']
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const SIX_MONTHS_MS = 182.5 * 24 * 60 * 60 * 1000
+const OWNER_GROUP = `${profile.user} ${profile.user}`
 const DOT_ENTRIES = /** @type {Entry[]} */ ([
     { name: '.', type: 'dir' },
     { name: '..', type: 'dir' },
@@ -32,34 +37,70 @@ const humanSize = (bytes) => {
 }
 
 /**
+ * @param {Date} date
+ * @param {Date} now
+ * @returns {boolean}
+ */
+const isRecent = (date, now) => {
+    const age = now.getTime() - date.getTime()
+    return age >= 0 && age < SIX_MONTHS_MS
+}
+
+/**
  * @param {string | undefined} mtime
+ * @param {Date} now
  * @returns {string}
  */
-const shortDate = (mtime) => {
+const longDate = (mtime, now) => {
     const date = mtime ? new Date(mtime) : null
-    return date && !Number.isNaN(date.getTime()) ? date.toISOString().slice(0, 10) : '-'
+    if (!date || Number.isNaN(date.getTime())) return '-'
+    const day = `${MONTHS[date.getUTCMonth()]} ${String(date.getUTCDate()).padStart(2)}`
+    if (!isRecent(date, now)) return `${day}  ${date.getUTCFullYear()}`
+    const time = [date.getUTCHours(), date.getUTCMinutes()].map((part) => String(part).padStart(2, '0')).join(':')
+    return `${day} ${time}`
 }
 
 /**
  * @param {Entry} entry
+ * @param {{ slash?: boolean }} [options]
  * @returns {string}
  */
-const displayName = (entry) => (entry.type === 'dir' ? `${entry.name}/` : entry.name)
+const coloredName = (entry, { slash = false } = {}) => {
+    if (entry.type === 'dir') return style(slash ? `${entry.name}/` : entry.name, 'bold', 'blue')
+    return entry.name.endsWith('.md') ? style(entry.name, 'green') : entry.name
+}
 
 /**
  * @param {Entry[]} entries
+ * @param {{ now?: Date }} [options]
  * @returns {string[]}
  */
-const longLines = (entries) => {
-    const rows = entries.map((entry) => ({
-        type: entry.type === 'dir' ? 'd' : '-',
-        size: entry.type === 'dir' ? '-' : humanSize(entry.size),
-        date: shortDate(entry.mtime),
-        name: displayName(entry),
-    }))
-    const sizeWidth = Math.max(0, ...rows.map((row) => row.size.length))
-    const dateWidth = Math.max(0, ...rows.map((row) => row.date.length))
-    return rows.map((row) => `${row.type} ${row.size.padStart(sizeWidth)} ${row.date.padEnd(dateWidth)} ${row.name}`)
+const formatLong = (entries, { now = new Date() } = {}) => {
+    const rows = entries.map((entry) => {
+        const isDir = entry.type === 'dir'
+        return {
+            mode: isDir ? 'drwxr-xr-x' : '-rw-r--r--',
+            links: isDir ? '2' : '1',
+            size: isDir ? '-' : humanSize(entry.size),
+            date: longDate(entry.mtime, now),
+            name: coloredName(entry),
+        }
+    })
+    /** @param {'links' | 'size' | 'date'} column */
+    const widthOf = (column) => Math.max(0, ...rows.map((row) => row[column].length))
+    const linksWidth = widthOf('links')
+    const sizeWidth = widthOf('size')
+    const dateWidth = widthOf('date')
+    return rows.map((row) =>
+        [
+            row.mode,
+            row.links.padStart(linksWidth),
+            OWNER_GROUP,
+            row.size.padStart(sizeWidth),
+            row.date.padEnd(dateWidth),
+            row.name,
+        ].join(' '),
+    )
 }
 
 /**
@@ -67,7 +108,8 @@ const longLines = (entries) => {
  * @param {LsOptions} options
  * @returns {string[]}
  */
-const formatEntries = (entries, options) => (options.long ? longLines(entries) : entries.map(displayName))
+const formatEntries = (entries, options) =>
+    options.long ? formatLong(entries) : entries.map((entry) => coloredName(entry, { slash: true }))
 
 /**
  * @param {Ctx} ctx
@@ -125,7 +167,7 @@ const run = async (ctx, argv) => {
     return failed ? 1 : 0
 }
 
-export { humanSize, shortDate }
+export { humanSize, formatLong }
 
 export default defineCommand({
     name: 'ls',
