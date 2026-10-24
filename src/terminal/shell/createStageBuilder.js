@@ -1,7 +1,7 @@
 import { PARSE_ERROR_MESSAGES } from './PARSE_ERROR_MESSAGES'
 import { ParseError } from './ParseError'
 
-/** @typedef {import('./types').Stage} Stage */
+/** @import { Stage } from './types' */
 
 /**
  * Creates a builder that collects words into argv lists and argv lists into pipeline stages.

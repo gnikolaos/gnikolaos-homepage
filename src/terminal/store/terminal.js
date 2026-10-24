@@ -6,9 +6,11 @@ import profile from '../profile'
 import { createBrowserStorage } from './createBrowserStorage'
 import { createTerminal } from './createTerminal'
 
+/** @import { TerminalStore } from './types' */
+
 /**
  * The app's terminal store: its state and actions.
- * @type {import('./types').TerminalStore}
+ * @type {TerminalStore}
  */
 const terminal = createTerminal({
     home: vfs.home,

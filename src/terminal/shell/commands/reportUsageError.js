@@ -1,4 +1,4 @@
-/** @typedef {import('../types').Ctx} Ctx */
+/** @import { Ctx } from '../types' */
 
 /**
  * Prints the usage line to stderr and returns the usage exit code 2.

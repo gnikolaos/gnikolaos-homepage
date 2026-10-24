@@ -1,8 +1,7 @@
 import { defineCommand } from '@gnikolaos/terminal/shell/defineCommand'
 import { doNothing } from './doNothing'
 
-/** @typedef {import('@gnikolaos/terminal/shell/types').Command} Command */
-/** @typedef {import('@gnikolaos/terminal/shell/types').CompletionKind} CompletionKind */
+/** @import { Command, CompletionKind } from '@gnikolaos/terminal/shell/types' */
 
 /**
  * Defines a command with a placeholder summary and usage, running `run` or nothing.

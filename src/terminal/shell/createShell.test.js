@@ -3,7 +3,7 @@ import { defineFakeCommand } from '@test/defineFakeCommand'
 import { createRegistry } from './createRegistry'
 import { createShell } from './createShell'
 
-/** @typedef {import('./types').Ctx} Ctx */
+/** @import { Ctx, ShellDeps } from './types' */
 
 const createRecordingSink = () => {
     /** @type {Array<[string, string?]>} */
@@ -58,7 +58,7 @@ const commands = [
     }),
 ]
 
-/** @param {Partial<import('./types').ShellDeps>} [overrides] */
+/** @param {Partial<ShellDeps>} [overrides] */
 const setup = (overrides = {}) => {
     const deps = {
         registry: createRegistry(commands),

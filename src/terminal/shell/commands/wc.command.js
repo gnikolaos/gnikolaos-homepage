@@ -5,10 +5,8 @@ import { reportUnsupportedFlag } from './reportUnsupportedFlag'
 import { reportUsageError } from './reportUsageError'
 import { writeLines } from './writeLines'
 
-/** @typedef {import('../types').Ctx} Ctx */
-/** @typedef {import('./types').CountKey} CountKey */
-/** @typedef {import('./types').Counts} Counts */
-/** @typedef {import('./types').CountRow} CountRow */
+/** @import { Ctx } from '../types' */
+/** @import { CountKey, CountRow, Counts } from './types' */
 
 const USAGE = 'wc [-lwc] [file...]'
 /** @type {CountKey[]} */

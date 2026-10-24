@@ -2,8 +2,7 @@ import { CONTENT_URL } from './CONTENT_URL'
 import { FsError } from './FsError'
 import { isFsError } from './isFsError'
 
-/** @typedef {import('./types').Entry} Entry */
-/** @typedef {import('./types').FsIo} FsIo */
+/** @import { Entry, FsIo } from './types' */
 
 /**
  * @param {string} absPath

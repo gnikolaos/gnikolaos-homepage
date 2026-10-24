@@ -1,7 +1,6 @@
 import { tokenizeLine } from './tokenizeLine'
 
-/** @typedef {import('./types').Token} Token */
-/** @typedef {import('./types').WordAtCursor} WordAtCursor */
+/** @import { Token, WordAtCursor } from './types' */
 
 /**
  * @param {string} input

@@ -1,6 +1,8 @@
+/** @import { HistoryStorage } from './types' */
+
 /**
  * Creates an in-memory history storage for when the browser's sessionStorage is unavailable.
- * @returns {import('./types').HistoryStorage}
+ * @returns {HistoryStorage}
  */
 const createMemoryStorage = () => {
     const items = new Map()

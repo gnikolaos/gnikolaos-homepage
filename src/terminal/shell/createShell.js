@@ -5,12 +5,7 @@ import { extractErrorMessage } from './extractErrorMessage'
 import { lookupCommands } from './lookupCommands'
 import { parseLine } from './parseLine'
 
-/** @typedef {import('./types').Command} Command */
-/** @typedef {import('./types').Ctx} Ctx */
-/** @typedef {import('./types').Shell} Shell */
-/** @typedef {import('./types').ShellDeps} ShellDeps */
-/** @typedef {import('./types').Sink} Sink */
-/** @typedef {import('./types').Stage} Stage */
+/** @import { Command, Ctx, Shell, ShellDeps, Sink, Stage } from './types' */
 
 /**
  * Creates a shell that parses a line, looks up its commands and runs them as a pipeline.

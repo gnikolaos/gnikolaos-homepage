@@ -3,9 +3,8 @@ import { createRegistry } from '@gnikolaos/terminal/shell/createRegistry'
 import { HOME } from './HOME'
 import { createIoFromTree } from './createIoFromTree'
 
-/** @typedef {import('@gnikolaos/terminal/shell/types').Ctx} Ctx */
-/** @typedef {import('@gnikolaos/terminal/shell/types').Command} Command */
-/** @typedef {import('./createIoFromTree').FakeTree} FakeTree */
+/** @import { Command, Ctx } from '@gnikolaos/terminal/shell/types' */
+/** @import { FakeTree } from './createIoFromTree' */
 
 /**
  * Creates a command ctx over a fake tree that records everything the command outputs.

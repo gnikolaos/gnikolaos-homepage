@@ -1,7 +1,6 @@
 import { COMPLETION_KINDS } from './COMPLETION_KINDS'
 
-/** @typedef {import('./types').Command} Command */
-/** @typedef {import('./types').CommandDefinition} CommandDefinition */
+/** @import { Command, CommandDefinition } from './types' */
 
 /**
  * @param {boolean} condition

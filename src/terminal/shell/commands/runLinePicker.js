@@ -5,9 +5,8 @@ import { reportUsageError } from './reportUsageError'
 import { splitLines } from './splitLines'
 import { writeLines } from './writeLines'
 
-/** @typedef {import('../types').Ctx} Ctx */
-/** @typedef {import('./types').LineCount} LineCount */
-/** @typedef {import('./types').LinePicker} LinePicker */
+/** @import { Ctx } from '../types' */
+/** @import { LineCount, LinePicker } from './types' */
 
 const DEFAULT_LINE_COUNT = 10
 const DIGITS = /^\d+$/

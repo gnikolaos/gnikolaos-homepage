@@ -1,0 +1,14 @@
+export type EditorState = { readonly input: string; readonly cursor: number }
+export type EditOp = keyof typeof import('./lineEditor').lineEditor
+export type Action =
+    | { type: 'edit'; op: EditOp }
+    | { type: 'submit' | 'historyPrev' | 'historyNext' | 'clearScreen' | 'interrupt' | 'eof' | 'complete' }
+    | { type: 'historySearch' | 'acceptSearch' | 'cancel' }
+export interface KeyLike {
+    key: string
+    ctrlKey?: boolean
+    altKey?: boolean
+    metaKey?: boolean
+    shiftKey?: boolean
+}
+export type KeyTable = Record<string, Action>

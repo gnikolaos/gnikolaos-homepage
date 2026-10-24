@@ -2,9 +2,8 @@ import { CONTENT_URL } from '@gnikolaos/terminal/fs/CONTENT_URL'
 import { FsError } from '@gnikolaos/terminal/fs/FsError'
 import { createFakeFile } from './createFakeFile'
 
-/** @typedef {import('@gnikolaos/terminal/fs/types').Entry} Entry */
-/** @typedef {import('@gnikolaos/terminal/fs/types').FsIo} FsIo */
-/** @typedef {import('./createFakeFile').FakeFile} FakeFile */
+/** @import { Entry, FsIo } from '@gnikolaos/terminal/fs/types' */
+/** @import { FakeFile } from './createFakeFile' */
 /** @typedef {{ [name: string]: FakeTree | FakeFile | string }} FakeTree */
 
 /**

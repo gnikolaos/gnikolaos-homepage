@@ -1,7 +1,7 @@
 import { splitLines } from './splitLines'
 
-/** @typedef {import('../types').Ctx} Ctx */
-/** @typedef {import('./types').TextInput} TextInput */
+/** @import { Ctx } from '../types' */
+/** @import { TextInput } from './types' */
 
 /**
  * Joins the lines of every input into one list, stopping once the command is aborted.

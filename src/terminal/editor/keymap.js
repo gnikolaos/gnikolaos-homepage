@@ -1,6 +1,4 @@
-/** @typedef {import('./types').Action} Action */
-/** @typedef {import('./types').EditOp} EditOp */
-/** @typedef {import('./types').KeyTable} KeyTable */
+/** @import { Action, EditOp, KeyTable } from './types' */
 
 /**
  * @param {EditOp} op

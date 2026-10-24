@@ -1,8 +1,10 @@
 import { createMemoryStorage } from '../history/createMemoryStorage'
 
+/** @import { HistoryStorage } from '../history/types' */
+
 /**
  * Creates the history storage backed by sessionStorage, or in memory when sessionStorage is unavailable.
- * @returns {import('../history/types').HistoryStorage}
+ * @returns {HistoryStorage}
  */
 const createBrowserStorage = () => {
     try {

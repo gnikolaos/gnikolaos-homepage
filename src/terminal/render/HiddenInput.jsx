@@ -5,7 +5,7 @@ import { COMPOSITION_INPUT_TYPES } from './COMPOSITION_INPUT_TYPES'
 import { hasTextSelection } from './hasTextSelection'
 import { MODIFIER_KEYS } from './MODIFIER_KEYS'
 
-/** @typedef {import('../editor/types').Action} Action */
+/** @import { Action } from '../editor/types' */
 
 const { actions } = terminal
 

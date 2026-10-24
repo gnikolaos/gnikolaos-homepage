@@ -5,6 +5,8 @@ import { HOME } from '@test/HOME'
 import { createFakeFile } from '@test/createFakeFile'
 import { runCommand } from '@test/runCommand'
 
+/** @import { FakeTree } from '@test/createIoFromTree' */
+
 const tree = {
     posts: {
         'post-1.md': createFakeFile('# Hi', { size: 1234, mtime: '2025-03-05T08:30:00.000Z' }),
@@ -124,7 +126,7 @@ describe('ls -l', () => {
     })
 
     /**
-     * @param {import('@test/createIoFromTree').FakeTree} longTree
+     * @param {FakeTree} longTree
      * @returns {Promise<string[]>}
      */
     const listLong = async (longTree) => {

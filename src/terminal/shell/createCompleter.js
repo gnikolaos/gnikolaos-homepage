@@ -1,11 +1,8 @@
 import { isFsError } from '../fs/isFsError'
 import { findWordAtCursor } from './findWordAtCursor'
 
-/** @typedef {import('../fs/types').Entry} Entry */
-/** @typedef {import('../fs/types').Vfs} Vfs */
-/** @typedef {import('./types').Completion} Completion */
-/** @typedef {import('./types').CompletionKind} CompletionKind */
-/** @typedef {import('./types').Registry} Registry */
+/** @import { Entry, Vfs } from '../fs/types' */
+/** @import { Completion, CompletionKind, Registry } from './types' */
 
 /**
  * @param {string[]} names

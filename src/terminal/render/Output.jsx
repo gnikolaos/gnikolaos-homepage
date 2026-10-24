@@ -2,9 +2,11 @@ import PlainOutput from './PlainOutput'
 import { renderMarkdown } from './renderMarkdown'
 import { SELECTABLE_CLASS } from './SELECTABLE_CLASS'
 
+/** @import { OutputContent } from '../store/types' */
+
 /**
  * Renders an output block as markdown or plain text.
- * @param {{ output: import('../store/types').OutputContent }} props
+ * @param {{ output: OutputContent }} props
  */
 const Output = (props) => (
     <>

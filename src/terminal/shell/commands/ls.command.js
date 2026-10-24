@@ -4,11 +4,8 @@ import { splitFlags } from '../splitFlags'
 import { style } from '../style'
 import profile from '../../profile'
 
-/** @typedef {import('../types').Ctx} Ctx */
-/** @typedef {import('./types').ListingEntry} ListingEntry */
-/** @typedef {import('./types').LsOptions} LsOptions */
-/** @typedef {import('./types').Listing} Listing */
-/** @typedef {import('./types').LongRow} LongRow */
+/** @import { Ctx } from '../types' */
+/** @import { Listing, ListingEntry, LongRow, LsOptions } from './types' */
 
 const SUPPORTED_FLAGS = new Set(['a', 'l', 'all'])
 const SIZE_UNITS = ['K', 'M', 'G', 'T']

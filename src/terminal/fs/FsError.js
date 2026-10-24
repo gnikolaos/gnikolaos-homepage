@@ -1,6 +1,6 @@
 import { FS_ERROR_DESCRIPTIONS } from './FS_ERROR_DESCRIPTIONS'
 
-/** @typedef {import('./types').FsErrorCode} FsErrorCode */
+/** @import { FsErrorCode } from './types' */
 
 class FsError extends Error {
     /**

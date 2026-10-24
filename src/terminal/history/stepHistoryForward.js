@@ -1,7 +1,6 @@
 import { createNavigation } from './createNavigation'
 
-/** @typedef {import('./types').Navigation} Navigation */
-/** @typedef {import('./types').NavigationStep} NavigationStep */
+/** @import { Navigation, NavigationStep } from './types' */
 
 /**
  * Steps to the next newer entry, restoring the draft after the newest one.

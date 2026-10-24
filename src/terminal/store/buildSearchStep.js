@@ -1,8 +1,8 @@
 import { createEditorFromText } from '../editor/createEditorFromText'
 import { searchHistory } from '../history/searchHistory'
 
-/** @typedef {import('./types').SearchState} SearchState */
-/** @typedef {import('../editor/types').EditorState} EditorState */
+/** @import { EditorState } from '../editor/types' */
+/** @import { SearchState } from './types' */
 
 /**
  * Builds the search state and editor for a reverse history search from `fromIndex`, falling back to the draft.

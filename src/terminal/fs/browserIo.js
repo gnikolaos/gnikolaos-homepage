@@ -1,7 +1,9 @@
 import { fetchFile } from './fetchFile'
 import { fetchManifest } from './fetchManifest'
 
-/** @type {import('./types').FsIo} */
+/** @import { FsIo } from './types' */
+
+/** @type {FsIo} */
 const browserIo = {
     loadManifest: (dirUrl) => fetchManifest(dirUrl),
     loadFile: (fileUrl) => fetchFile(fileUrl),

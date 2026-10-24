@@ -2,9 +2,7 @@ import { ANSI_COLOR_CODES } from './ANSI_COLOR_CODES'
 import { SGR_CODES } from './SGR_CODES'
 import { SGR_PATTERN } from './SGR_PATTERN'
 
-/** @typedef {import('./types').Color} Color */
-/** @typedef {import('./types').Span} Span */
-/** @typedef {import('./types').StyleState} StyleState */
+/** @import { Color, Span, StyleState } from './types' */
 
 const BRIGHT_COLOR_OFFSET = 60
 

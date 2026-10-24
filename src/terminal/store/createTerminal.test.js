@@ -3,8 +3,8 @@ import { createMemoryStorage } from '@gnikolaos/terminal/history/createMemorySto
 import { createTerminal } from './createTerminal'
 import { HISTORY_KEY } from './HISTORY_KEY'
 
-/** @typedef {import('../shell/types').Sink} Sink */
-/** @typedef {import('../shell/types').Completion} Completion */
+/** @import { HistoryStorage } from '../history/types' */
+/** @import { Completion, ShellHooks, Sink } from '../shell/types' */
 
 /**
  * @typedef {object} FakeCall
@@ -16,7 +16,7 @@ import { HISTORY_KEY } from './HISTORY_KEY'
 
 /**
  * @typedef {object} SetupOptions
- * @property {import('../history/types').HistoryStorage} [storage]
+ * @property {HistoryStorage} [storage]
  * @property {(call: FakeCall) => void} [script]
  * @property {(input: string, cursor: number) => Completion} [complete]
  * @property {string[]} [history]
@@ -29,7 +29,7 @@ const setup = ({ storage = createMemoryStorage(), script, complete, history } = 
     const calls = []
     /** @type {{ input: string, cursor: number }[]} */
     const completeCalls = []
-    /** @type {import('../shell/types').ShellHooks | null} */
+    /** @type {ShellHooks | null} */
     let hooks = null
     const terminal = createTerminal({
         home: '/home/visitor',
@@ -56,7 +56,7 @@ const setup = ({ storage = createMemoryStorage(), script, complete, history } = 
         calls,
         completeCalls,
         storage,
-        hooks: /** @type {import('../shell/types').ShellHooks} */ (hooks),
+        hooks: /** @type {ShellHooks} */ (hooks),
     }
 }
 

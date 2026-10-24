@@ -1,4 +1,4 @@
-/** @typedef {import('../editor/types').EditorState} EditorState */
+/** @import { EditorState } from '../editor/types' */
 
 /**
  * Tells whether two editor states have the same input and cursor.

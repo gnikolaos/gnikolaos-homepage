@@ -1,7 +1,7 @@
 import { defineCommand } from '../defineCommand'
 import { splitFlags } from '../splitFlags'
 
-/** @typedef {import('../types').Command} Command */
+/** @import { Command } from '../types' */
 
 /**
  * @param {Command[]} commands

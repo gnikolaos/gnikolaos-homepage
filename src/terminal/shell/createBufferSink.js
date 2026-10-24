@@ -1,6 +1,6 @@
 import { stripAnsi } from './stripAnsi'
 
-/** @typedef {import('./types').Sink} Sink */
+/** @import { Sink } from './types' */
 
 /**
  * Creates a sink that buffers stdout and markdown without ANSI styles and forwards stderr to `sink`.

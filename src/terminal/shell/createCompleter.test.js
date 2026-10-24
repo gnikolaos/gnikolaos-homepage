@@ -7,6 +7,8 @@ import { defineFakeCommand } from '@test/defineFakeCommand'
 import { createCompleter } from './createCompleter'
 import { createRegistry } from './createRegistry'
 
+/** @import { FsIo } from '../fs/types' */
+
 const tree = {
     '.secret': 'hidden',
     '.config': {},
@@ -25,7 +27,7 @@ const registry = createRegistry([
 ])
 
 /**
- * @param {{ cwd?: string, io?: import('../fs/types').FsIo }} [options]
+ * @param {{ cwd?: string, io?: FsIo }} [options]
  */
 const setup = ({ cwd = HOME, io = createIoFromTree(tree) } = {}) =>
     createCompleter({ fs: createVfs(io, { home: HOME }), registry, getCwd: () => cwd })

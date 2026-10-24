@@ -2,7 +2,7 @@ import { ANSI_COLOR_CODES } from './ANSI_COLOR_CODES'
 import { CSI } from './CSI'
 import { SGR_CODES } from './SGR_CODES'
 
-/** @typedef {import('./types').Style} Style */
+/** @import { Style } from './types' */
 
 /** @type {Readonly<Record<Style, number>>} */
 const STYLE_CODES = Object.freeze({ bold: SGR_CODES.BOLD, underline: SGR_CODES.UNDERLINE, ...ANSI_COLOR_CODES })

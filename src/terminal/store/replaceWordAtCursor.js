@@ -1,7 +1,7 @@
 import { insert } from '../editor/insert'
 
-/** @typedef {import('../editor/types').EditorState} EditorState */
-/** @typedef {import('../shell/types').Completion} Completion */
+/** @import { EditorState } from '../editor/types' */
+/** @import { Completion } from '../shell/types' */
 
 /**
  * Replaces the completion's word range in the editor input and puts the cursor after the replacement.

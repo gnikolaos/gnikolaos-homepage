@@ -1,6 +1,8 @@
+/** @import { SearchState } from '../store/types' */
+
 /**
  * Renders the reverse history search line.
- * @param {{ search: import('../store/types').SearchState }} props
+ * @param {{ search: SearchState }} props
  */
 const SearchLine = (props) => {
     const failing = () => props.search.query !== '' && props.search.index === null

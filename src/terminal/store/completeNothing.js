@@ -1,6 +1,8 @@
+/** @import { Completer } from './types' */
+
 /**
  * Completes nothing, for use when no completer is configured.
- * @type {import('./types').Completer}
+ * @type {Completer}
  */
 const completeNothing = async (_input, cursor) => ({ start: cursor, end: cursor, candidates: [] })
 

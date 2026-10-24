@@ -1,4 +1,4 @@
-/** @typedef {import('./types').Navigation} Navigation */
+/** @import { Navigation } from './types' */
 
 /**
  * Creates a navigation positioned on the draft, outside the history entries.

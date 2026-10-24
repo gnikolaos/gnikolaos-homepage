@@ -1,8 +1,6 @@
 import { keymap } from './keymap'
 
-/** @typedef {import('./types').Action} Action */
-/** @typedef {import('./types').KeyLike} KeyLike */
-/** @typedef {import('./types').KeyTable} KeyTable */
+/** @import { Action, KeyLike, KeyTable } from './types' */
 
 /**
  * @param {KeyLike} modifiers

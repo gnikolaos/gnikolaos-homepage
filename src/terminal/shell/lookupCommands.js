@@ -1,6 +1,4 @@
-/** @typedef {import('./types').Command} Command */
-/** @typedef {import('./types').Registry} Registry */
-/** @typedef {import('./types').Stage} Stage */
+/** @import { Command, Registry, Stage } from './types' */
 
 /**
  * Looks up the command of every pipeline stage, reporting the first name the registry lacks.

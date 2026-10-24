@@ -2,7 +2,7 @@ import { FsError } from './FsError'
 import { fetchOrThrowEio } from './fetchOrThrowEio'
 import { isContentUrl } from './isContentUrl'
 
-/** @typedef {import('./types').Fetch} Fetch */
+/** @import { Fetch } from './types' */
 
 /**
  * Fetches the text of a markdown file under the content root.

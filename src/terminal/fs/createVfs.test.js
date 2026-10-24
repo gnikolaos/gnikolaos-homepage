@@ -4,6 +4,8 @@ import { expectFsError } from '@test/expectFsError'
 import { createVfs } from './createVfs'
 import { FsError } from './FsError'
 
+/** @import { FsIo } from './types' */
+
 const tree = {
     'about-me': {
         'bio.md': '# About me',
@@ -24,7 +26,7 @@ const createFakeIo = () => {
     const manifestCalls = []
     /** @type {string[]} */
     const fileCalls = []
-    /** @type {import('./types').FsIo} */
+    /** @type {FsIo} */
     const io = {
         loadManifest: async (dirUrl) => {
             manifestCalls.push(dirUrl)

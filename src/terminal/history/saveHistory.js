@@ -1,4 +1,4 @@
-/** @typedef {import('./types').HistoryStorage} HistoryStorage */
+/** @import { HistoryStorage } from './types' */
 
 /**
  * Saves the history entries as JSON, ignoring storage failures such as a full quota.

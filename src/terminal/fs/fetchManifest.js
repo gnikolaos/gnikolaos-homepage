@@ -2,8 +2,7 @@ import { FsError } from './FsError'
 import { fetchOrThrowEio } from './fetchOrThrowEio'
 import { isContentUrl } from './isContentUrl'
 
-/** @typedef {import('./types').Entry} Entry */
-/** @typedef {import('./types').Fetch} Fetch */
+/** @import { Entry, Fetch } from './types' */
 
 /**
  * @param {unknown} value

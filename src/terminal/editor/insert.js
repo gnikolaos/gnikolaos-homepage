@@ -1,7 +1,7 @@
 import { clampCursor } from './clampCursor'
 import { createEditorState } from './createEditorState'
 
-/** @typedef {import('./types').EditorState} EditorState */
+/** @import { EditorState } from './types' */
 
 /**
  * Inserts `text` at the cursor and moves the cursor past it.

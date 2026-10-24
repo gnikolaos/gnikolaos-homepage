@@ -1,4 +1,4 @@
-/** @typedef {import('./types').HistoryStorage} HistoryStorage */
+/** @import { HistoryStorage } from './types' */
 
 /**
  * @param {HistoryStorage} storage

@@ -3,9 +3,7 @@ import { ParseError } from './ParseError'
 import { createStageBuilder } from './createStageBuilder'
 import { tokenizeLine } from './tokenizeLine'
 
-/** @typedef {import('./types').ParsedLine} ParsedLine */
-/** @typedef {import('./types').Token} Token */
-/** @typedef {import('./types').TokenKind} TokenKind */
+/** @import { ParsedLine, Token, TokenKind } from './types' */
 /** @typedef {ReturnType<typeof createStageBuilder>} StageBuilder */
 
 /** @type {Readonly<Record<TokenKind, (builder: StageBuilder, token: Token) => void>>} */

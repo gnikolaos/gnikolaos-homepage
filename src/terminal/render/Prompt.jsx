@@ -3,8 +3,7 @@ import InputWithCursor from './InputWithCursor'
 import PromptMarker from './PromptMarker'
 import SearchLine from './SearchLine'
 
-/** @typedef {import('../store/types').PromptStatus} PromptStatus */
-/** @typedef {import('../store/types').SearchState} SearchState */
+/** @import { PromptStatus, SearchState } from '../store/types' */
 
 /**
  * Renders a prompt line with its path, marker and input, and the search line while searching.

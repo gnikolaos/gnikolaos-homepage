@@ -1,4 +1,4 @@
-/** @typedef {import('../types').Ctx} Ctx */
+/** @import { Ctx } from '../types' */
 
 /**
  * Prints `<name>: invalid option -- 'x'` for the first flag outside the supported letters and returns whether it did.

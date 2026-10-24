@@ -1,4 +1,4 @@
-/** @typedef {import('./types').SplitFlags} SplitFlags */
+/** @import { SplitFlags } from './types' */
 
 /**
  * @param {string} arg

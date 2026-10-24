@@ -1,5 +1,4 @@
-/** @typedef {import('./types').Navigation} Navigation */
-/** @typedef {import('./types').NavigationStep} NavigationStep */
+/** @import { Navigation, NavigationStep } from './types' */
 
 /**
  * Steps to the next older entry, saving the current input as the draft on the first step.

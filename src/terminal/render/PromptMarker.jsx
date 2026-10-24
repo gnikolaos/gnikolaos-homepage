@@ -1,9 +1,11 @@
 import { createSpinnerFrame } from './createSpinnerFrame'
 import { SPINNER } from './SPINNER'
 
+/** @import { PromptStatus } from '../store/types' */
+
 /**
  * Renders the prompt marker, coloured by status, as a spinner while the command runs.
- * @param {{ status: import('../store/types').PromptStatus, running: boolean }} props
+ * @param {{ status: PromptStatus, running: boolean }} props
  */
 const PromptMarker = (props) => {
     const frame = createSpinnerFrame(() => props.running)

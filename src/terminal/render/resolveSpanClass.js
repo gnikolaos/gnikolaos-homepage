@@ -1,9 +1,11 @@
 import clsx from 'clsx'
 import { colorClasses } from './colorClasses'
 
+/** @import { Span } from '../shell/types' */
+
 /**
  * Resolves the Tailwind classes for an ANSI span's color, bold and underline styles.
- * @param {import('../shell/types').Span} span
+ * @param {Span} span
  * @returns {string}
  */
 const resolveSpanClass = (span) =>

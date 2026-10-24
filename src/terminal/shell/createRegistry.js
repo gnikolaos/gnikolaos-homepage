@@ -1,5 +1,4 @@
-/** @typedef {import('./types').Command} Command */
-/** @typedef {import('./types').Registry} Registry */
+/** @import { Command, Registry } from './types' */
 
 /**
  * Creates a registry that looks commands up by name and lists them sorted, rejecting duplicate names.

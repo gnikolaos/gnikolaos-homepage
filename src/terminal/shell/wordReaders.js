@@ -1,8 +1,7 @@
 import { DOUBLE_QUOTE_ESCAPABLE } from './DOUBLE_QUOTE_ESCAPABLE'
 import { createToken } from './createToken'
 
-/** @typedef {import('./types').Token} Token */
-/** @typedef {import('./types').WordReader} WordReader */
+/** @import { Token, WordReader } from './types' */
 
 /**
  * @param {number} index

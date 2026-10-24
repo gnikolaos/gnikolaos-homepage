@@ -1,7 +1,7 @@
 import { style } from '../style'
 import { defineCommand } from '../defineCommand'
 
-/** @typedef {import('../types').Command} Command */
+/** @import { Command } from '../types' */
 
 const INDENT = ' '.repeat(7)
 

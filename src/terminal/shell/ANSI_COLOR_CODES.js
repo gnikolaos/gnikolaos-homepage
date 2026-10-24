@@ -1,4 +1,6 @@
-/** @type {Readonly<Record<import('./types').Color, number>>} */
+/** @import { Color } from './types' */
+
+/** @type {Readonly<Record<Color, number>>} */
 const ANSI_COLOR_CODES = Object.freeze({
     red: 31,
     green: 32,

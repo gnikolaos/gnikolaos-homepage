@@ -7,7 +7,7 @@ import { reportUsageError } from './reportUsageError'
 import { splitLines } from './splitLines'
 import { writeLines } from './writeLines'
 
-/** @typedef {import('../types').Ctx} Ctx */
+/** @import { Ctx } from '../types' */
 
 const USAGE = 'grep [-inv] pattern [file...]'
 

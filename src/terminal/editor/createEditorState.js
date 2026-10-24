@@ -1,4 +1,4 @@
-/** @typedef {import('./types').EditorState} EditorState */
+/** @import { EditorState } from './types' */
 
 /**
  * Creates an editor state with the cursor clamped into the input.

@@ -1,4 +1,6 @@
-/** @type {Readonly<Record<import('../shell/types').Color, string>>} */
+/** @import { Color } from '../shell/types' */
+
+/** @type {Readonly<Record<Color, string>>} */
 const colorClasses = Object.freeze({
     red: 'text-red-400',
     green: 'text-green-400',

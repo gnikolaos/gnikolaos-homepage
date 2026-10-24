@@ -26,16 +26,10 @@ import { isSameEditor } from './isSameEditor'
 import { openInNewTab } from './openInNewTab'
 import { replaceWordAtCursor } from './replaceWordAtCursor'
 
-/** @typedef {import('../shell/types').Sink} Sink */
-/** @typedef {import('../editor/types').EditorState} EditorState */
-/** @typedef {import('../editor/types').EditOp} EditOp */
-/** @typedef {import('../shell/types').Completion} Completion */
-/** @typedef {import('./types').Block} Block */
-/** @typedef {import('./types').OutputContent} OutputContent */
-/** @typedef {import('./types').SearchState} SearchState */
-/** @typedef {import('./types').TerminalState} TerminalState */
-/** @typedef {import('./types').TerminalOptions} TerminalOptions */
-/** @typedef {import('./types').TerminalStore} TerminalStore */
+/** @import { EditOp, EditorState } from '../editor/types' */
+/** @import { NavigationStep } from '../history/types' */
+/** @import { Completion, Sink } from '../shell/types' */
+/** @import { Block, OutputContent, SearchState, TerminalOptions, TerminalState, TerminalStore } from './types' */
 
 const DEFAULT_COLUMNS = 80
 
@@ -258,7 +252,7 @@ const createTerminal = ({
     }
 
     /**
-     * @param {import('../history/types').NavigationStep | null} step
+     * @param {NavigationStep | null} step
      * @returns {void}
      */
     const applyHistoryStep = (step) => {

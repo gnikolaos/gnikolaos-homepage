@@ -6,8 +6,8 @@ import { reportUnsupportedFlag } from './reportUnsupportedFlag'
 import { reportUsageError } from './reportUsageError'
 import { writeLines } from './writeLines'
 
-/** @typedef {import('../types').Ctx} Ctx */
-/** @typedef {import('./types').LineRun} LineRun */
+/** @import { Ctx } from '../types' */
+/** @import { LineRun } from './types' */
 
 const USAGE = 'uniq [-c]'
 

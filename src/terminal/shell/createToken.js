@@ -1,5 +1,4 @@
-/** @typedef {import('./types').Token} Token */
-/** @typedef {import('./types').TokenKind} TokenKind */
+/** @import { Token, TokenKind } from './types' */
 
 /**
  * Creates a token covering the raw chars from `start` up to `end`.

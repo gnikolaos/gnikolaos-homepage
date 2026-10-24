@@ -1,4 +1,4 @@
-/** @typedef {import('../types').Ctx} Ctx */
+/** @import { Ctx } from '../types' */
 
 /**
  * Writes every line to stdout followed by a newline, writing nothing for no lines.

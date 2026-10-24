@@ -1,9 +1,7 @@
 import { createToken } from './createToken'
 import { wordReaders } from './wordReaders'
 
-/** @typedef {import('./types').Token} Token */
-/** @typedef {import('./types').TokenKind} TokenKind */
-/** @typedef {import('./types').WordReader} WordReader */
+/** @import { Token, TokenKind, WordReader } from './types' */
 
 /**
  * @param {string} char

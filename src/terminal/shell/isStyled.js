@@ -1,4 +1,4 @@
-/** @typedef {import('./types').Span} Span */
+/** @import { Span } from './types' */
 
 /**
  * Tells whether a span has a color or any text attribute.

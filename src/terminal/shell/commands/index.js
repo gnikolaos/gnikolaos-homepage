@@ -18,7 +18,9 @@ import tail from './tail.command'
 import uniq from './uniq.command'
 import wc from './wc.command'
 
-/** @type {import('../types').Command[]} */
+/** @import { Command } from '../types' */
+
+/** @type {Command[]} */
 const commands = [
     cat,
     cd,

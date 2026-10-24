@@ -6,8 +6,8 @@ import { reportUnsupportedFlag } from './reportUnsupportedFlag'
 import { reportUsageError } from './reportUsageError'
 import { writeLines } from './writeLines'
 
-/** @typedef {import('../types').Ctx} Ctx */
-/** @typedef {import('./types').CompareLines} CompareLines */
+/** @import { Ctx } from '../types' */
+/** @import { CompareLines } from './types' */
 
 const USAGE = 'sort [-r] [-n] [-u]'
 

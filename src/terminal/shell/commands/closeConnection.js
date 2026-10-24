@@ -1,6 +1,6 @@
 import profile from '../../profile'
 
-/** @typedef {import('../types').Ctx} Ctx */
+/** @import { Ctx } from '../types' */
 
 /**
  * Prints the ssh-style goodbye line and navigates back to the homepage.

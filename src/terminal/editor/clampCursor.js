@@ -1,6 +1,6 @@
 import { createEditorState } from './createEditorState'
 
-/** @typedef {import('./types').EditorState} EditorState */
+/** @import { EditorState } from './types' */
 
 /**
  * Returns the editor with its cursor clamped into the input.

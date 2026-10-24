@@ -1,8 +1,7 @@
 import { isFsError } from '../../fs/isFsError'
 
-/** @typedef {import('../types').Ctx} Ctx */
-/** @typedef {import('./types').TextInput} TextInput */
-/** @typedef {import('./types').ReadInputsResult} ReadInputsResult */
+/** @import { Ctx } from '../types' */
+/** @import { ReadInputsResult, TextInput } from './types' */
 
 /**
  * Reads the named files, or stdin when there are none, reporting fs errors as `<name>: <file>: <description>`.

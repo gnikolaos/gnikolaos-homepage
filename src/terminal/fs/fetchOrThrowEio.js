@@ -1,6 +1,6 @@
 import { FsError } from './FsError'
 
-/** @typedef {import('./types').Fetch} Fetch */
+/** @import { Fetch } from './types' */
 
 /**
  * Fetches a url, turning a network failure into an EIO FsError for the given path.
