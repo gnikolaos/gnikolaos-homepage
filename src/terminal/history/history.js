@@ -101,4 +101,18 @@ const historyDown = (nav, entries) => {
     return { nav: { index, draft: nav.draft }, input: entries[index] }
 }
 
-export { loadHistory, saveHistory, appendHistory, createNavigation, historyUp, historyDown }
+/**
+ * @param {readonly string[]} entries
+ * @param {string} query
+ * @param {number} fromIndex
+ * @returns {number | null}
+ */
+const searchHistory = (entries, query, fromIndex) => {
+    if (!query) return null
+    for (let index = Math.min(fromIndex, entries.length - 1); index >= 0; index -= 1) {
+        if (entries[index].includes(query)) return index
+    }
+    return null
+}
+
+export { loadHistory, saveHistory, appendHistory, createNavigation, historyUp, historyDown, searchHistory }

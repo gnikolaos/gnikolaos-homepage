@@ -2,8 +2,11 @@ import { onCleanup, onMount } from 'solid-js'
 import { resolveKey } from '../editor/keymap'
 import {
     applyEdit,
+    cancel,
     clearScreen,
+    complete,
     eof,
+    historySearch,
     historyNext,
     historyPrev,
     interrupt,
@@ -37,7 +40,11 @@ const dispatch = (action) => {
         case 'eof':
             return void eof()
         case 'complete':
-            return
+            return void complete()
+        case 'historySearch':
+            return historySearch()
+        case 'cancel':
+            return cancel()
     }
 }
 

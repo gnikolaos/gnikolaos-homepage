@@ -4,7 +4,8 @@
 
 /**
  * @typedef {{ type: 'edit', op: EditOp }
- *     | { type: 'submit' | 'historyPrev' | 'historyNext' | 'clearScreen' | 'interrupt' | 'eof' | 'complete' }} Action
+ *     | { type: 'submit' | 'historyPrev' | 'historyNext' | 'clearScreen' | 'interrupt' | 'eof' | 'complete' }
+ *     | { type: 'historySearch' | 'cancel' }} Action
  */
 
 /**
@@ -34,6 +35,7 @@ const plainKeys = {
     Backspace: edit('backspace'),
     Delete: edit('deleteForward'),
     Tab: { type: 'complete' },
+    Escape: { type: 'cancel' },
 }
 
 /** @type {Record<string, Action>} */
@@ -46,6 +48,8 @@ const ctrlKeys = {
     l: { type: 'clearScreen' },
     c: { type: 'interrupt' },
     d: { type: 'eof' },
+    r: { type: 'historySearch' },
+    g: { type: 'cancel' },
     ArrowLeft: edit('moveWordLeft'),
     ArrowRight: edit('moveWordRight'),
 }

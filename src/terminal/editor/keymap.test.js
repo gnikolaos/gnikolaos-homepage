@@ -27,6 +27,7 @@ describe('resolveKey', () => {
         ['Backspace', edit('backspace')],
         ['Delete', edit('deleteForward')],
         ['Tab', { type: 'complete' }],
+        ['Escape', { type: 'cancel' }],
     ])('plain %s', (k, action) => {
         expect(resolveKey(key(k))).toEqual(action)
     })
@@ -40,6 +41,8 @@ describe('resolveKey', () => {
         ['l', { type: 'clearScreen' }],
         ['c', { type: 'interrupt' }],
         ['d', { type: 'eof' }],
+        ['r', { type: 'historySearch' }],
+        ['g', { type: 'cancel' }],
         ['ArrowLeft', edit('moveWordLeft')],
         ['ArrowRight', edit('moveWordRight')],
     ])('Ctrl+%s', (k, action) => {
@@ -70,7 +73,7 @@ describe('resolveKey', () => {
         expect(resolveKey(key(k, { shiftKey: true }))).toBeNull()
     })
 
-    test.each(['v', 't', 'r', 'F5'])('Ctrl+%s is not an action', (k) => {
+    test.each(['v', 't', 'b', 'F5'])('Ctrl+%s is not an action', (k) => {
         expect(resolveKey(ctrl(k))).toBeNull()
     })
 
@@ -78,7 +81,7 @@ describe('resolveKey', () => {
         expect(resolveKey(key(k, { ctrlKey: true, shiftKey: true }))).toBeNull()
     })
 
-    test.each(['F1', 'F12', 'Escape', 'PageUp', 'Shift', 'Control'])('%s is not an action', (k) => {
+    test.each(['F1', 'F12', 'PageUp', 'Shift', 'Control'])('%s is not an action', (k) => {
         expect(resolveKey(key(k))).toBeNull()
     })
 

@@ -1,11 +1,13 @@
 import { For, onCleanup, onMount, Show } from 'solid-js'
-import { terminalState, vfs } from '../store/terminalStore'
+import { setColumns, terminalState, vfs } from '../store/terminalStore'
 import HiddenInput from './HiddenInput'
 import Output from './Output'
 import Prompt from './Prompt'
 import TerminalFooter from './TerminalFooter'
 
 const BOTTOM_THRESHOLD_PX = 8
+const PROBE_CHARS = 10
+const MIN_COLUMNS = 20
 
 const Terminal = () => {
     /** @type {HTMLElement | undefined} */
@@ -14,6 +16,8 @@ const Terminal = () => {
     let content
     /** @type {HTMLInputElement | undefined} */
     let input
+    /** @type {HTMLSpanElement | undefined} */
+    let probe
     let atBottom = true
 
     const onScroll = () => {
@@ -30,9 +34,19 @@ const Terminal = () => {
         if (main && atBottom) main.scrollTop = main.scrollHeight
     }
 
+    const measureColumns = () => {
+        const cellWidth = (probe?.getBoundingClientRect().width ?? 0) / PROBE_CHARS
+        if (!content || cellWidth <= 0) return
+        const columns = Math.max(MIN_COLUMNS, Math.floor(content.clientWidth / cellWidth))
+        setColumns(columns)
+    }
+
     onMount(() => {
         if (!content) return
-        const observer = new ResizeObserver(scrollToBottomIfPinned)
+        const observer = new ResizeObserver(() => {
+            measureColumns()
+            scrollToBottomIfPinned()
+        })
         observer.observe(content)
         onCleanup(() => observer.disconnect())
     })
@@ -52,7 +66,12 @@ const Terminal = () => {
                     <For each={terminalState.blocks}>
                         {(block) =>
                             block.kind === 'prompt' ? (
-                                <Prompt path={vfs.displayPath(block.cwd)} status={block.status} input={block.input} />
+                                <Prompt
+                                    path={vfs.displayPath(block.cwd)}
+                                    status={block.status}
+                                    running={block.running}
+                                    input={block.input}
+                                />
                             ) : (
                                 <Output output={block.output} />
                             )
@@ -62,10 +81,15 @@ const Terminal = () => {
                         <Prompt
                             path={vfs.displayPath(terminalState.session.cwd)}
                             status={activeStatus()}
+                            running={false}
                             input={terminalState.editor.input}
                             cursor={terminalState.editor.cursor}
+                            search={terminalState.search}
                         />
                     </Show>
+                    <span ref={probe} aria-hidden="true" class="invisible absolute">
+                        {'M'.repeat(PROBE_CHARS)}
+                    </span>
                 </div>
             </main>
             <HiddenInput ref={(el) => (input = el)} />

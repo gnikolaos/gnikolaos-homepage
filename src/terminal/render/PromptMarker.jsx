@@ -7,14 +7,14 @@ const SPINNER_DELAY_MS = 150
 const SPINNER_INTERVAL_MS = 80
 
 /**
- * @param {() => PromptStatus} status
+ * @param {() => boolean} running
  * @returns {() => number | null}
  */
-const createSpinnerFrame = (status) => {
+const createSpinnerFrame = (running) => {
     const [frame, setFrame] = createSignal(/** @type {number | null} */ (null))
     createEffect(() => {
         setFrame(null)
-        if (status() !== 'running') return
+        if (!running()) return
         /** @type {ReturnType<typeof setInterval> | undefined} */
         let interval
         const timeout = setTimeout(() => {
@@ -30,15 +30,15 @@ const createSpinnerFrame = (status) => {
 }
 
 /**
- * @param {{ status: PromptStatus }} props
+ * @param {{ status: PromptStatus, running: boolean }} props
  */
 const PromptMarker = (props) => {
-    const frame = createSpinnerFrame(() => props.status)
+    const frame = createSpinnerFrame(() => props.running)
     const glyph = () => (frame() === null ? '❯' : SPINNER_FRAMES[/** @type {number} */ (frame())])
     return (
         <span
             class="inline-block w-[1ch] text-center"
-            classList={{ 'text-green-400': props.status !== 'error', 'text-red-400': props.status === 'error' }}
+            classList={{ 'text-green-400': props.status === 'ok', 'text-red-400': props.status === 'error' }}
         >
             {glyph()}
         </span>
