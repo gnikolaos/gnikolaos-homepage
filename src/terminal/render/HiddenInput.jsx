@@ -8,7 +8,7 @@ import { hasTextSelection } from './hasTextSelection'
 const COMPOSITION_INPUT_TYPES = new Set(['insertCompositionText', 'insertFromComposition'])
 const MODIFIER_KEYS = new Set(['Shift', 'Control', 'Alt', 'Meta'])
 
-const { actions } = terminal
+const { state, actions } = terminal
 
 /**
  * @param {Action} action
@@ -53,6 +53,12 @@ const isCopyShortcut = (e) => (e.ctrlKey || e.metaKey) && e.key.toLowerCase() ==
  */
 const onKeyDown = (e) => {
     if (isCopyShortcut(e)) return
+    if (MODIFIER_KEYS.has(e.key)) return
+    if (state.introPlaying) {
+        e.preventDefault()
+        actions.skipIntro()
+        return
+    }
     const action = resolveKey(e)
     if (!action) return
     e.preventDefault()

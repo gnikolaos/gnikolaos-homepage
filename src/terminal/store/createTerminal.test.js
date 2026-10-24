@@ -1,9 +1,10 @@
-import { describe, expect, test } from 'vitest'
+import { afterEach, assert, beforeEach, describe, expect, test, vi } from 'vitest'
 import { createMemoryStorage } from '@gnikolaos/lib/shared/createMemoryStorage'
 import { createTerminal } from './createTerminal'
 import { HISTORY_KEY } from './HISTORY_KEY'
 
 /** @import { KeyValueStorage } from '@gnikolaos/lib/shared/types' */
+/** @import { IntroStep } from '../intro/types' */
 /** @import { Completion, ShellHooks, Sink } from '../shell/types' */
 
 /**
@@ -718,5 +719,178 @@ describe('cancel', () => {
         t.actions.cancel()
         expect(t.state.editor).toEqual({ input: 'ls', cursor: 2 })
         expect(t.state.blocks).toEqual([])
+    })
+})
+
+/** @type {IntroStep[]} */
+const STEPS = [
+    { text: 'link up\n', delayMs: 100 },
+    { text: '$ ', delayMs: 50 },
+    { text: 'ssh\n', delayMs: 200 },
+]
+
+/**
+ * @param {ReturnType<typeof setup>} t
+ * @returns {string}
+ */
+const readOnlyOutput = (t) => {
+    expect(t.state.blocks).toHaveLength(1)
+    const [block] = t.state.blocks
+    assert(block.kind === 'output', 'expected an output block')
+    return block.output.content
+}
+
+describe('playIntro', () => {
+    beforeEach(() => {
+        vi.useFakeTimers()
+    })
+
+    afterEach(() => {
+        vi.useRealTimers()
+    })
+
+    test('writes each step after its delay into one output block', async () => {
+        const t = setup()
+        const done = t.actions.playIntro(STEPS)
+        await vi.advanceTimersByTimeAsync(99)
+        expect(t.state.blocks).toEqual([])
+        await vi.advanceTimersByTimeAsync(1)
+        expect(readOnlyOutput(t)).toBe('link up\n')
+        await vi.advanceTimersByTimeAsync(50)
+        expect(readOnlyOutput(t)).toBe('link up\n$ ')
+        await vi.advanceTimersByTimeAsync(200)
+        await done
+        expect(readOnlyOutput(t)).toBe('link up\n$ ssh\n')
+        expect(t.state.blocks[0]).toMatchObject({ kind: 'output', output: { kind: 'plain' } })
+    })
+
+    test('is busy and playing while it runs, idle after, and leaves the exit code alone', async () => {
+        const t = setup({ script: (call) => call.resolve(2) })
+        await typeAndSubmit(t, 'nope')
+        const done = t.actions.playIntro(STEPS)
+        expect(t.state.busy).toBe(true)
+        expect(t.state.introPlaying).toBe(true)
+        await vi.advanceTimersByTimeAsync(350)
+        await done
+        expect(t.state.busy).toBe(false)
+        expect(t.state.introPlaying).toBe(false)
+        expect(t.state.lastExitCode).toBe(2)
+    })
+
+    test('resolves without writing while busy', async () => {
+        const t = setup()
+        const run = typeAndSubmit(t, 'slow')
+        await t.actions.playIntro(STEPS)
+        await vi.advanceTimersByTimeAsync(350)
+        expect(t.state.introPlaying).toBe(false)
+        expect(t.state.blocks).toHaveLength(1)
+        t.calls[0].resolve(0)
+        await run
+    })
+
+    test('typing during the intro is ignored', async () => {
+        const t = setup()
+        const done = t.actions.playIntro(STEPS)
+        t.actions.typeText('ls')
+        await vi.advanceTimersByTimeAsync(350)
+        await done
+        expect(t.state.editor).toEqual({ input: '', cursor: 0 })
+    })
+})
+
+describe('skipIntro', () => {
+    beforeEach(() => {
+        vi.useFakeTimers()
+    })
+
+    afterEach(() => {
+        vi.useRealTimers()
+    })
+
+    test('flushes the remaining steps synchronously and ends the intro', async () => {
+        const t = setup()
+        const done = t.actions.playIntro(STEPS)
+        await vi.advanceTimersByTimeAsync(100)
+        t.actions.skipIntro()
+        expect(readOnlyOutput(t)).toBe('link up\n$ ssh\n')
+        expect(t.state.busy).toBe(false)
+        expect(t.state.introPlaying).toBe(false)
+        await done
+        await vi.advanceTimersByTimeAsync(350)
+        expect(readOnlyOutput(t)).toBe('link up\n$ ssh\n')
+    })
+
+    test('before the first step writes the whole transcript', async () => {
+        const t = setup()
+        const done = t.actions.playIntro(STEPS)
+        t.actions.skipIntro()
+        expect(readOnlyOutput(t)).toBe('link up\n$ ssh\n')
+        await done
+    })
+
+    test('does nothing when no intro plays', () => {
+        const t = setup()
+        t.actions.typeText('ls')
+        t.actions.skipIntro()
+        expect(t.state.blocks).toEqual([])
+        expect(t.state.editor).toEqual({ input: 'ls', cursor: 2 })
+        expect(t.state.busy).toBe(false)
+    })
+})
+
+describe('endSession', () => {
+    test('clears blocks, editor, search and the exit code', async () => {
+        const t = setup({ script: (call) => call.resolve(1), history: ['ls'] })
+        await typeAndSubmit(t, 'nope')
+        t.actions.typeText('draft')
+        t.actions.historySearch()
+        t.actions.endSession()
+        expect(t.state.blocks).toEqual([])
+        expect(t.state.editor).toEqual({ input: '', cursor: 0 })
+        expect(t.state.search).toBeNull()
+        expect(t.state.lastExitCode).toBe(0)
+    })
+
+    test('output after it during a run starts a new block', async () => {
+        const t = setup()
+        const done = typeAndSubmit(t, 'exit')
+        t.calls[0].sink.stdout('bye\n')
+        t.actions.endSession()
+        t.calls[0].sink.stdout('more\n')
+        expect(t.state.blocks).toEqual([{ id: 3, kind: 'output', output: { kind: 'plain', content: 'more\n' } }])
+        t.calls[0].resolve(0)
+        await done
+    })
+
+    test('stops an intro in flight and discards its text', async () => {
+        vi.useFakeTimers()
+        const t = setup()
+        const done = t.actions.playIntro([
+            { text: 'first\n', delayMs: 10 },
+            { text: 'second\n', delayMs: 10 },
+        ])
+        await vi.advanceTimersByTimeAsync(10)
+        t.actions.endSession()
+        expect(t.state.blocks).toEqual([])
+        expect(t.state.busy).toBe(false)
+        expect(t.state.introPlaying).toBe(false)
+        await done
+        await vi.advanceTimersByTimeAsync(50)
+        expect(t.state.blocks).toEqual([])
+        vi.useRealTimers()
+    })
+})
+
+describe('closeSession hook', () => {
+    test('navigates home before emptying the scrollback', async () => {
+        const t = setup({ script: (call) => call.resolve(1) })
+        await typeAndSubmit(t, 'nope')
+        /** @type {{ path: string, blocks: number }[]} */
+        const seen = []
+        t.actions.setNavigate((path) => seen.push({ path, blocks: t.state.blocks.length }))
+        t.hooks.closeSession()
+        expect(seen).toEqual([{ path: '/', blocks: 1 }])
+        expect(t.state.blocks).toEqual([])
+        expect(t.state.lastExitCode).toBe(0)
     })
 })

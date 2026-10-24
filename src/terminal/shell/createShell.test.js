@@ -68,6 +68,7 @@ const setup = (overrides = {}) => {
         setCwd: vi.fn(),
         getHistory: () => [],
         navigate: vi.fn(),
+        closeSession: vi.fn(),
         openUrl: vi.fn(),
         ...overrides,
     }

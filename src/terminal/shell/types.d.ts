@@ -27,6 +27,7 @@ export interface ShellHooks {
     setCwd: (absPath: string) => void
     getHistory: () => readonly string[]
     navigate: (path: string) => void
+    closeSession: () => void
     openUrl: (url: string) => void
 }
 
@@ -46,6 +47,7 @@ export interface Ctx {
     history: readonly string[]
     registry: Registry
     navigate: (path: string) => void
+    closeSession: () => void
     openUrl: (url: string) => void
     signal: AbortSignal
     stdout: (text: string) => void

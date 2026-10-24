@@ -2,12 +2,28 @@ import Footer from '@gnikolaos/components/Footer'
 import BackgroundEffect from '@gnikolaos/components/BackgroundEffect'
 import { IconEmail, IconGitHub, IconLinkedIn } from '@gnikolaos/components/Icon'
 import { useNavigate } from '@solidjs/router'
-import { createSignal, onCleanup, onMount } from 'solid-js'
+import { createEffect, createSignal, on, onCleanup, onMount } from 'solid-js'
 import Headertwo from '@gnikolaos/components/Headertwo'
+import { connection } from '@gnikolaos/connection/connection'
+
+const PLUG_IN_DELAY_MS = 900
 
 const Home = () => {
     const navigate = useNavigate()
-    const [isConnected, setIsConnected] = createSignal(false)
+    const [isConnected, setIsConnected] = createSignal(connection.connected())
+
+    createEffect(
+        on(
+            isConnected,
+            (connected) => {
+                if (!connected) return connection.disconnect()
+                connection.connect()
+                const timeout = setTimeout(() => navigate('/terminal'), PLUG_IN_DELAY_MS)
+                onCleanup(() => clearTimeout(timeout))
+            },
+            { defer: true },
+        ),
+    )
 
     /** @param {KeyboardEvent} e */
     const handleKeyDown = (e) => {

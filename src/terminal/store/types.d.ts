@@ -1,6 +1,7 @@
 import type { KeyValueStorage } from '@gnikolaos/lib/shared/types'
 import type { EditOp, EditorState } from '../editor/types'
 import type { Navigation } from '../history/types'
+import type { IntroStep } from '../intro/types'
 import type { Shell, ShellHooks } from '../shell/types'
 
 export type Completer = ReturnType<typeof import('../shell/createCompleter').createCompleter>
@@ -25,6 +26,7 @@ export interface TerminalState {
     editor: EditorState
     history: { entries: string[]; nav: Navigation }
     busy: boolean
+    introPlaying: boolean
     lastExitCode: number
     search: SearchState | null
     columns: number
@@ -46,6 +48,9 @@ export interface TerminalActions {
     acceptSearch: () => void
     cancel: () => void
     setColumns: (columns: number) => void
+    playIntro: (steps: IntroStep[]) => Promise<void>
+    skipIntro: () => void
+    endSession: () => void
 }
 
 export type TerminalStore = { state: TerminalState; actions: TerminalActions }

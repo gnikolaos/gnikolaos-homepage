@@ -17,6 +17,7 @@ const createFakeCtx = ({ tree = {}, cwd = HOME, history = [], commands = [], sig
         markdown: [],
         clears: 0,
         navigations: [],
+        sessionCloses: 0,
         opened: [],
         cwdChanges: [],
     }
@@ -32,6 +33,9 @@ const createFakeCtx = ({ tree = {}, cwd = HOME, history = [], commands = [], sig
         history,
         registry: createRegistry(commands),
         navigate: (path) => recorded.navigations.push(path),
+        closeSession: () => {
+            recorded.sessionCloses += 1
+        },
         openUrl: (url) => recorded.opened.push(url),
         signal: signal ?? new AbortController().signal,
         stdout: (text) => recorded.stdout.push(text),

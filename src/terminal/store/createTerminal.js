@@ -1,6 +1,7 @@
 import { batch } from 'solid-js'
 import { createStore, produce } from 'solid-js/store'
 import { findCommonPrefix } from '@gnikolaos/lib/shared/findCommonPrefix'
+import { sleep } from '@gnikolaos/lib/shared/sleep'
 import { createEditorFromText } from '../editor/createEditorFromText'
 import { createEmptyEditor } from '../editor/createEmptyEditor'
 import { insert } from '../editor/insert'
@@ -29,6 +30,7 @@ import { replaceWordAtCursor } from './replaceWordAtCursor'
 /** @import { SetStoreFunction } from 'solid-js/store' */
 /** @import { EditOp, EditorState } from '../editor/types' */
 /** @import { NavigationStep } from '../history/types' */
+/** @import { IntroStep } from '../intro/types' */
 /** @import { Completion, Sink } from '../shell/types' */
 /** @import { Block, OutputContent, SearchState, TerminalOptions, TerminalState, TerminalStore } from './types' */
 
@@ -55,6 +57,7 @@ const createTerminal = ({
         editor: createEmptyEditor(),
         history: { entries: loadHistory(storage, HISTORY_KEY), nav: createNavigation() },
         busy: false,
+        introPlaying: false,
         lastExitCode: 0,
         search: /** @type {SearchState | null} */ (null),
         columns: DEFAULT_COLUMNS,
@@ -65,6 +68,8 @@ const createTerminal = ({
     let navigateFn = () => {}
     /** @type {{ controller: AbortController, promptId: number, openPlainId: number | null } | null} */
     let current = null
+    /** @type {{ controller: AbortController, steps: IntroStep[], next: number, openPlainId: number | null } | null} */
+    let intro = null
     /** @type {EditorState | null} */
     let afterLastComplete = null
 
@@ -73,6 +78,10 @@ const createTerminal = ({
         setCwd: (absPath) => setState('session', 'cwd', absPath),
         getHistory: () => state.history.entries,
         navigate: (path) => navigateFn(path),
+        closeSession: () => {
+            navigateFn('/')
+            endSession()
+        },
         openUrl,
     })
 
@@ -112,7 +121,7 @@ const createTerminal = ({
     }
 
     /**
-     * @param {NonNullable<typeof current>} run
+     * @param {{ openPlainId: number | null }} run
      * @param {string} text
      * @returns {void}
      */
@@ -327,6 +336,51 @@ const createTerminal = ({
         await runLine('logout')
     }
 
+    const finishIntro = () => {
+        intro = null
+        setState({ busy: false, introPlaying: false })
+    }
+
+    /** @param {IntroStep[]} steps */
+    const playIntro = async (steps) => {
+        if (state.busy) return
+        const run = { controller: new AbortController(), steps, next: 0, openPlainId: null }
+        intro = run
+        setState({ busy: true, introPlaying: true })
+        try {
+            while (run.next < steps.length) {
+                await sleep(steps[run.next].delayMs, run.controller.signal)
+                appendPlain(run, steps[run.next].text)
+                run.next += 1
+            }
+        } catch {
+            return
+        }
+        finishIntro()
+    }
+
+    const skipIntro = () => {
+        if (!intro) return
+        const run = intro
+        run.controller.abort()
+        batch(() => {
+            appendPlain(
+                run,
+                run.steps
+                    .slice(run.next)
+                    .map((step) => step.text)
+                    .join(''),
+            )
+            finishIntro()
+        })
+    }
+
+    const endSession = () => {
+        skipIntro()
+        setState({ blocks: [], lastExitCode: 0, editor: createEmptyEditor(), search: null })
+        if (current) current.openPlainId = null
+    }
+
     const clearScreen = () => {
         setState('blocks', [])
         if (current) current.openPlainId = null
@@ -399,6 +453,9 @@ const createTerminal = ({
             complete,
             setColumns,
             setNavigate,
+            playIntro,
+            skipIntro,
+            endSession,
         },
     }
 }

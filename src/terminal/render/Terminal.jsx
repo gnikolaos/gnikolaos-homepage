@@ -36,6 +36,7 @@ const Terminal = () => {
     const onPointerUp = () => {
         if (hasTextSelection()) return
         input?.focus({ preventScroll: true })
+        if (state.introPlaying) actions.skipIntro()
     }
 
     const scrollToBottomIfPinned = () => {
