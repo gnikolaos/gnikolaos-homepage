@@ -3,7 +3,7 @@ import { createRegistry } from '../registry'
 import { commands } from './index'
 
 describe('commands', () => {
-    test('exports all twelve commands with unique names', () => {
+    test('exports all nineteen commands with unique names', () => {
         const names = commands.map((command) => command.name).sort()
         expect(names).toEqual([
             'cat',
@@ -11,13 +11,20 @@ describe('commands', () => {
             'clear',
             'echo',
             'exit',
+            'grep',
+            'head',
             'help',
             'history',
             'home',
             'logout',
             'ls',
+            'man',
             'open',
             'pwd',
+            'sort',
+            'tail',
+            'uniq',
+            'wc',
         ])
         expect(() => createRegistry(commands)).not.toThrow()
     })
