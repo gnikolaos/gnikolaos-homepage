@@ -5,7 +5,7 @@
 /**
  * @typedef {{ type: 'edit', op: EditOp }
  *     | { type: 'submit' | 'historyPrev' | 'historyNext' | 'clearScreen' | 'interrupt' | 'eof' | 'complete' }
- *     | { type: 'historySearch' | 'cancel' }} Action
+ *     | { type: 'historySearch' | 'acceptSearch' | 'cancel' }} Action
  */
 
 /**
@@ -35,7 +35,7 @@ const plainKeys = {
     Backspace: edit('backspace'),
     Delete: edit('deleteForward'),
     Tab: { type: 'complete' },
-    Escape: { type: 'cancel' },
+    Escape: { type: 'acceptSearch' },
 }
 
 /** @type {Record<string, Action>} */

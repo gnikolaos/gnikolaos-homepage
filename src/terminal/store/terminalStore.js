@@ -77,6 +77,7 @@ import profile from '../profile'
  * @property {(fn: (path: string) => void) => void} setNavigate
  * @property {() => Promise<void>} complete
  * @property {() => void} historySearch
+ * @property {() => void} acceptSearch
  * @property {() => void} cancel
  * @property {(columns: number) => void} setColumns
  */
@@ -530,6 +531,7 @@ const createTerminal = ({
             clearScreen,
             runLine,
             historySearch,
+            acceptSearch,
             cancel,
             complete,
             setColumns,
@@ -563,6 +565,7 @@ const {
     setNavigate,
     complete,
     historySearch,
+    acceptSearch,
     cancel,
     setColumns,
 } = actions
@@ -585,6 +588,7 @@ export {
     setNavigate,
     complete,
     historySearch,
+    acceptSearch,
     cancel,
     setColumns,
 }

@@ -27,7 +27,7 @@ describe('resolveKey', () => {
         ['Backspace', edit('backspace')],
         ['Delete', edit('deleteForward')],
         ['Tab', { type: 'complete' }],
-        ['Escape', { type: 'cancel' }],
+        ['Escape', { type: 'acceptSearch' }],
     ])('plain %s', (k, action) => {
         expect(resolveKey(key(k))).toEqual(action)
     })

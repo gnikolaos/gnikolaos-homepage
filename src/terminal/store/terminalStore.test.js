@@ -667,6 +667,26 @@ describe('historySearch', () => {
     })
 })
 
+describe('acceptSearch', () => {
+    test('keeps the found entry with the cursor at the end and leaves search', () => {
+        const t = setup({ history: ['ls posts'] })
+        t.actions.typeText('dra')
+        t.actions.historySearch()
+        t.actions.typeText('ls')
+        t.actions.acceptSearch()
+        expect(t.state.search).toBeNull()
+        expect(t.state.editor).toEqual({ input: 'ls posts', cursor: 8 })
+        expect(t.state.blocks).toEqual([])
+    })
+
+    test('is a no-op when not searching', () => {
+        const t = setup()
+        t.actions.typeText('ls')
+        t.actions.acceptSearch()
+        expect(t.state.editor).toEqual({ input: 'ls', cursor: 2 })
+    })
+})
+
 describe('cancel', () => {
     test('restores the draft and leaves search without a prompt block', () => {
         const t = setup({ history: ['ls posts'] })
