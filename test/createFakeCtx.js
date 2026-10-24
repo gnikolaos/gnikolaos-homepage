@@ -4,7 +4,7 @@ import { HOME } from './HOME'
 import { createIoFromTree } from './createIoFromTree'
 
 /** @import { Command, Ctx } from '@gnikolaos/terminal/shell/types' */
-/** @import { FakeTree } from './createIoFromTree' */
+/** @import { FakeTree } from './types' */
 
 /**
  * Creates a command ctx over a fake tree that records everything the command outputs.

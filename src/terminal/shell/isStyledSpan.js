@@ -5,6 +5,6 @@
  * @param {Span} span
  * @returns {boolean}
  */
-const isStyled = (span) => span.color !== null || span.bold || span.underline
+const isStyledSpan = (span) => span.color !== null || span.bold || span.underline
 
-export { isStyled }
+export { isStyledSpan }

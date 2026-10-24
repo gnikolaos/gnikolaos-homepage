@@ -1,6 +1,5 @@
 import { CONTENT_URL } from './CONTENT_URL'
 import { FsError } from './FsError'
-import { isFsError } from './isFsError'
 
 /** @import { Entry, FsIo } from './types' */
 
@@ -48,7 +47,7 @@ const createDirEntry = (name) => ({ name, type: 'dir' })
  * @param {unknown} error
  * @returns {FsError}
  */
-const ensureFsError = (path, error) => (isFsError(error) ? error : new FsError('EIO', path))
+const ensureFsError = (path, error) => (error instanceof FsError ? error : new FsError('EIO', path))
 
 /**
  * @template T

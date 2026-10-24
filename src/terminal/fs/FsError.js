@@ -1,6 +1,11 @@
-import { FS_ERROR_DESCRIPTIONS } from './FS_ERROR_DESCRIPTIONS'
-
 /** @import { FsErrorCode } from './types' */
+
+const FS_ERROR_DESCRIPTIONS = {
+    ENOENT: 'No such file or directory',
+    ENOTDIR: 'Not a directory',
+    EISDIR: 'Is a directory',
+    EIO: 'Input/output error',
+}
 
 class FsError extends Error {
     /**

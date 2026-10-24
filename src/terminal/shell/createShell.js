@@ -1,7 +1,7 @@
+import { extractErrorMessage } from '@gnikolaos/lib/shared/extractErrorMessage'
 import { EXIT_CODES } from './EXIT_CODES'
 import { ParseError } from './ParseError'
 import { createBufferSink } from './createBufferSink'
-import { extractErrorMessage } from './extractErrorMessage'
 import { lookupCommands } from './lookupCommands'
 import { parseLine } from './parseLine'
 

@@ -1,4 +1,4 @@
-import { isFsError } from '../../fs/isFsError'
+import { FsError } from '../../fs/FsError'
 
 /** @import { Ctx } from '../types' */
 /** @import { ReadInputsResult, TextInput } from './types' */
@@ -21,7 +21,7 @@ const readInputs = async (ctx, name, files, stdin) => {
         try {
             inputs.push({ label: file, text: await ctx.fs.readFile(ctx.fs.resolve(ctx.cwd, file)) })
         } catch (error) {
-            if (!isFsError(error)) throw error
+            if (!(error instanceof FsError)) throw error
             ctx.stderr(`${name}: ${file}: ${error.description}\n`)
             failed = true
         }

@@ -1,5 +1,6 @@
 import { batch } from 'solid-js'
 import { createStore, produce } from 'solid-js/store'
+import { findCommonPrefix } from '@gnikolaos/lib/shared/findCommonPrefix'
 import { createEditorFromText } from '../editor/createEditorFromText'
 import { createEmptyEditor } from '../editor/createEmptyEditor'
 import { insert } from '../editor/insert'
@@ -12,7 +13,6 @@ import { searchHistory } from '../history/searchHistory'
 import { stepHistoryBack } from '../history/stepHistoryBack'
 import { stepHistoryForward } from '../history/stepHistoryForward'
 import { escapeWord } from '../shell/escapeWord'
-import { findCommonPrefix } from '../shell/findCommonPrefix'
 import { formatCandidateName } from '../shell/formatCandidateName'
 import { formatColumns } from '../shell/formatColumns'
 import { EXIT_CODES } from '../shell/EXIT_CODES'
@@ -26,6 +26,7 @@ import { isSameEditor } from './isSameEditor'
 import { openInNewTab } from './openInNewTab'
 import { replaceWordAtCursor } from './replaceWordAtCursor'
 
+/** @import { SetStoreFunction } from 'solid-js/store' */
 /** @import { EditOp, EditorState } from '../editor/types' */
 /** @import { NavigationStep } from '../history/types' */
 /** @import { Completion, Sink } from '../shell/types' */
@@ -47,7 +48,7 @@ const createTerminal = ({
     openUrl = openInNewTab,
     complete: completer = completeNothing,
 }) => {
-    /** @type {[TerminalState, import('solid-js/store').SetStoreFunction<TerminalState>]} */
+    /** @type {[TerminalState, SetStoreFunction<TerminalState>]} */
     const [state, setState] = createStore({
         session: { user, host, cwd: home },
         blocks: /** @type {Block[]} */ ([]),

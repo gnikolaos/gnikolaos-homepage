@@ -1,11 +1,12 @@
 import { onCleanup, onMount } from 'solid-js'
 import { resolveKey } from '../editor/resolveKey'
 import { terminal } from '../store/terminal'
-import { COMPOSITION_INPUT_TYPES } from './COMPOSITION_INPUT_TYPES'
 import { hasTextSelection } from './hasTextSelection'
-import { MODIFIER_KEYS } from './MODIFIER_KEYS'
 
 /** @import { Action } from '../editor/types' */
+
+const COMPOSITION_INPUT_TYPES = new Set(['insertCompositionText', 'insertFromComposition'])
+const MODIFIER_KEYS = new Set(['Shift', 'Control', 'Alt', 'Meta'])
 
 const { actions } = terminal
 

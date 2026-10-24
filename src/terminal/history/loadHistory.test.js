@@ -26,14 +26,4 @@ describe('loadHistory', () => {
         storage.setItem(HISTORY_KEY, JSON.stringify(['ls', 1, null, 'pwd', {}]))
         expect(loadHistory(storage, HISTORY_KEY)).toEqual(['ls', 'pwd'])
     })
-
-    test('returns [] when storage throws', () => {
-        const storage = {
-            ...createMemoryStorage(),
-            getItem: () => {
-                throw new Error('SecurityError')
-            },
-        }
-        expect(loadHistory(storage, HISTORY_KEY)).toEqual([])
-    })
 })

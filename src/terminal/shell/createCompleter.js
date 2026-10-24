@@ -1,4 +1,4 @@
-import { isFsError } from '../fs/isFsError'
+import { FsError } from '../fs/FsError'
 import { findWordAtCursor } from './findWordAtCursor'
 
 /** @import { Entry, Vfs } from '../fs/types' */
@@ -36,7 +36,7 @@ const createCompleter = ({ fs, registry, getCwd }) => {
         try {
             return await fs.readdir(fs.resolve(getCwd(), dirPath))
         } catch (error) {
-            if (isFsError(error)) return []
+            if (error instanceof FsError) return []
             throw error
         }
     }

@@ -1,20 +1,8 @@
 /** @import { HistoryStorage } from './types' */
 
 /**
- * @param {HistoryStorage} storage
- * @param {string} key
- * @returns {string | null}
- */
-const readStoredValue = (storage, key) => {
-    try {
-        return storage.getItem(key)
-    } catch {
-        return null
-    }
-}
-
-/**
- * @param {string} json
+ * Parses a JSON string, returning null when it is missing or corrupt.
+ * @param {string | null} json
  * @returns {unknown}
  */
 const parseJsonOrNull = (json) => {
@@ -26,14 +14,13 @@ const parseJsonOrNull = (json) => {
 }
 
 /**
- * Loads the saved history entries, returning [] when storage is unreadable or the value is corrupt.
+ * Loads the saved history entries, returning [] when the value is missing or corrupt.
  * @param {HistoryStorage} storage
  * @param {string} key
  * @returns {string[]}
  */
 const loadHistory = (storage, key) => {
-    const storedValue = readStoredValue(storage, key)
-    const parsedValue = storedValue === null ? null : parseJsonOrNull(storedValue)
+    const parsedValue = parseJsonOrNull(storage.getItem(key))
     if (!Array.isArray(parsedValue)) return []
     return parsedValue.filter((entry) => typeof entry === 'string')
 }

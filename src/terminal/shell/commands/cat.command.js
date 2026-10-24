@@ -1,4 +1,4 @@
-import { isFsError } from '../../fs/isFsError'
+import { FsError } from '../../fs/FsError'
 import { defineCommand } from '../defineCommand'
 
 /** @import { Ctx } from '../types' */
@@ -42,7 +42,7 @@ const catFiles = async (ctx, targets) => {
         try {
             content = await ctx.fs.readFile(absPath)
         } catch (error) {
-            if (!isFsError(error)) throw error
+            if (!(error instanceof FsError)) throw error
             ctx.stderr(`cat: ${target}: ${error.description}\n`)
             failed = true
             continue

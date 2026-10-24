@@ -1,11 +1,4 @@
-/**
- * @typedef {object} FakeFile
- * @property {true} isFakeFile
- * @property {string} content
- * @property {number} [size]
- * @property {string} [mtime]
- * @property {boolean} [failRead]
- */
+/** @import { FakeFile } from './types' */
 
 /**
  * Creates a fake file leaf for a fake tree.

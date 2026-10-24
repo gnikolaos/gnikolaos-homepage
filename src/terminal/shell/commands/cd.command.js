@@ -1,4 +1,4 @@
-import { isFsError } from '../../fs/isFsError'
+import { FsError } from '../../fs/FsError'
 import { defineCommand } from '../defineCommand'
 
 /** @import { Ctx } from '../types' */
@@ -13,7 +13,7 @@ const findDirectoryError = async (ctx, target) => {
         const entry = await ctx.fs.stat(ctx.fs.resolve(ctx.cwd, target))
         return entry.type === 'dir' ? null : `cd: not a directory: ${target}`
     } catch (error) {
-        if (!isFsError(error)) throw error
+        if (!(error instanceof FsError)) throw error
         return error.code === 'ENOTDIR' ? `cd: not a directory: ${target}` : `cd: no such file or directory: ${target}`
     }
 }

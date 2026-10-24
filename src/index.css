@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-@plugin "@tailwindcss/typography";
+@plugin '@tailwindcss/typography';
 
 /* Customizations */
 @theme {
@@ -79,6 +79,10 @@
 
 @utility bg-hero-mesh {
     background-image: var(--bg-image-hero-mesh);
+}
+
+@utility selectable-text {
+    @apply select-text selection:bg-[#00212a] selection:text-green-600;
 }
 
 @layer base {

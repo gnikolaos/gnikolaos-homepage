@@ -1,6 +1,6 @@
-import { COMPLETION_KINDS } from './COMPLETION_KINDS'
-
 /** @import { Command, CommandDefinition } from './types' */
+
+const COMPLETION_KINDS = new Set(['paths', 'dirs', 'commands', 'none'])
 
 /**
  * @param {boolean} condition

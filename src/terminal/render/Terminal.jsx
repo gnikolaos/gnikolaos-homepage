@@ -2,14 +2,15 @@ import { For, onCleanup, onMount, Show } from 'solid-js'
 import { vfs } from '../fs/vfs'
 import { derivePromptStatus } from '../store/derivePromptStatus'
 import { terminal } from '../store/terminal'
-import { BOTTOM_THRESHOLD_PX } from './BOTTOM_THRESHOLD_PX'
 import { hasTextSelection } from './hasTextSelection'
 import HiddenInput from './HiddenInput'
-import { MIN_COLUMNS } from './MIN_COLUMNS'
 import Output from './Output'
-import { PROBE_CHARS } from './PROBE_CHARS'
 import Prompt from './Prompt'
 import TerminalFooter from './TerminalFooter'
+
+const BOTTOM_THRESHOLD_PX = 8
+const MIN_COLUMNS = 20
+const PROBE_CHARS = 10
 
 const { state, actions } = terminal
 

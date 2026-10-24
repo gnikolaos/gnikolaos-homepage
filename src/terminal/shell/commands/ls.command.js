@@ -1,4 +1,4 @@
-import { isFsError } from '../../fs/isFsError'
+import { FsError } from '../../fs/FsError'
 import { defineCommand } from '../defineCommand'
 import { splitFlags } from '../splitFlags'
 import { style } from '../style'
@@ -153,7 +153,7 @@ const run = async (ctx, argv) => {
         try {
             listing = await readListing(ctx, target, options)
         } catch (error) {
-            if (!isFsError(error)) throw error
+            if (!(error instanceof FsError)) throw error
             ctx.stderr(`ls: cannot access '${target}': ${error.description}\n`)
             failed = true
             continue

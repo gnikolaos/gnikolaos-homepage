@@ -5,7 +5,7 @@ import { HOME } from '@test/HOME'
 import { createFakeFile } from '@test/createFakeFile'
 import { runCommand } from '@test/runCommand'
 
-/** @import { FakeTree } from '@test/createIoFromTree' */
+/** @import { FakeTree } from '@test/types' */
 
 const tree = {
     posts: {

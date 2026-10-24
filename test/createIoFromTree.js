@@ -3,8 +3,7 @@ import { FsError } from '@gnikolaos/terminal/fs/FsError'
 import { createFakeFile } from './createFakeFile'
 
 /** @import { Entry, FsIo } from '@gnikolaos/terminal/fs/types' */
-/** @import { FakeFile } from './createFakeFile' */
-/** @typedef {{ [name: string]: FakeTree | FakeFile | string }} FakeTree */
+/** @import { FakeFile, FakeTree } from './types' */
 
 /**
  * @param {FakeTree | FakeFile | string} node

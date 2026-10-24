@@ -1,6 +1,5 @@
 import PlainOutput from './PlainOutput'
 import { renderMarkdown } from './renderMarkdown'
-import { SELECTABLE_CLASS } from './SELECTABLE_CLASS'
 
 /** @import { OutputContent } from '../store/types' */
 
@@ -12,7 +11,7 @@ const Output = (props) => (
     <>
         {props.output.kind === 'markdown' ? (
             <article
-                class={`prose prose-sm prose-stone prose-invert md:prose-base ${SELECTABLE_CLASS}`}
+                class="prose prose-sm prose-stone prose-invert md:prose-base selectable-text"
                 // eslint-disable-next-line solid/no-innerhtml
                 innerHTML={renderMarkdown(props.output.content)}
             />
