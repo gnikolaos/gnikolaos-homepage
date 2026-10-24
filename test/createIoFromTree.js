@@ -39,7 +39,8 @@ const findNodeAtUrl = (tree, url) => {
     /** @type {FakeTree | FakeFile | string | undefined} */
     let node = tree
     for (const part of url.slice(CONTENT_URL.length).split('/').filter(Boolean)) {
-        if (node === undefined || findFakeFile(node) || !Object.hasOwn(node, part)) return undefined
+        if (node === undefined || typeof node === 'string' || findFakeFile(node) || !Object.hasOwn(node, part))
+            return undefined
         node = /** @type {FakeTree} */ (node)[part]
     }
     return node

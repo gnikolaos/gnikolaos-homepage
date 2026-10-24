@@ -48,7 +48,7 @@ const createShell = (deps) => {
     const runStage = async (command, args, stdin, sink, signal) => {
         try {
             const exitCode = await command.run(createCtx(sink, signal), args, stdin)
-            return exitCode ?? 0
+            return typeof exitCode === 'number' ? exitCode : 0
         } catch (error) {
             if (signal.aborted) return EXIT_CODES.ABORTED
             sink.stderr(`zsh: ${command.name}: ${extractErrorMessage(error)}\n`)

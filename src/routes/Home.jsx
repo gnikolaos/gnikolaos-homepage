@@ -9,9 +9,6 @@ const Home = () => {
     const navigate = useNavigate()
     const [isConnected, setIsConnected] = createSignal(false)
 
-    /** @type {NodeJS.Timeout | undefined} */
-    let cableConnectionTimeout
-
     /** @param {KeyboardEvent} e */
     const handleKeyDown = (e) => {
         if (e.ctrlKey && e.key.toLowerCase() === 't') {
@@ -36,9 +33,6 @@ const Home = () => {
 
     onCleanup(() => {
         window.removeEventListener('keydown', handleKeyDown)
-        if (cableConnectionTimeout) {
-            clearTimeout(cableConnectionTimeout)
-        }
     })
 
     return (

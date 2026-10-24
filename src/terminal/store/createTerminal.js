@@ -119,7 +119,13 @@ const createTerminal = ({
     const appendPlain = (run, text) => {
         const last = state.blocks.at(-1)
         if (run.openPlainId !== null && last?.id === run.openPlainId && last.kind === 'output') {
-            setState('blocks', state.blocks.length - 1, 'output', 'content', (content) => content + text)
+            setState(
+                'blocks',
+                state.blocks.length - 1,
+                produce((/** @type {Block} */ block) => {
+                    if (block.kind === 'output') block.output.content += text
+                }),
+            )
             return
         }
         run.openPlainId = pushOutput('plain', text)
@@ -134,7 +140,7 @@ const createTerminal = ({
         batch(() => {
             setState(
                 'blocks',
-                produce((blocks) => {
+                produce((/** @type {Block[]} */ blocks) => {
                     const block = blocks.find((candidate) => candidate.id === promptId)
                     if (block?.kind === 'prompt') block.running = false
                 }),

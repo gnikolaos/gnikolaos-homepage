@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { assert, describe, expect, test } from 'vitest'
 import { lineEditor } from './lineEditor'
 import { resolveKey } from './resolveKey'
 
@@ -115,7 +115,7 @@ describe('resolveKey', () => {
         ]
         for (const event of editKeyEvents) {
             const action = resolveKey(event)
-            expect(action?.type).toBe('edit')
+            assert(action?.type === 'edit', `expected edit action for ${event.key}`)
             expect(typeof lineEditor[action.op]).toBe('function')
         }
     })
