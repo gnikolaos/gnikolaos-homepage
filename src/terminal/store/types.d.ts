@@ -1,5 +1,6 @@
+import type { KeyValueStorage } from '@gnikolaos/lib/shared/types'
 import type { EditOp, EditorState } from '../editor/types'
-import type { HistoryStorage, Navigation } from '../history/types'
+import type { Navigation } from '../history/types'
 import type { Shell, ShellHooks } from '../shell/types'
 
 export type Completer = ReturnType<typeof import('../shell/createCompleter').createCompleter>
@@ -51,7 +52,7 @@ export type TerminalStore = { state: TerminalState; actions: TerminalActions }
 
 export interface TerminalOptions {
     makeShell: (hooks: ShellHooks) => Shell
-    storage: HistoryStorage
+    storage: KeyValueStorage
     home: string
     user?: string
     host?: string

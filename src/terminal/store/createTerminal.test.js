@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest'
-import { createMemoryStorage } from '@gnikolaos/terminal/history/createMemoryStorage'
+import { createMemoryStorage } from '@gnikolaos/lib/shared/createMemoryStorage'
 import { createTerminal } from './createTerminal'
 import { HISTORY_KEY } from './HISTORY_KEY'
 
-/** @import { HistoryStorage } from '../history/types' */
+/** @import { KeyValueStorage } from '@gnikolaos/lib/shared/types' */
 /** @import { Completion, ShellHooks, Sink } from '../shell/types' */
 
 /**
@@ -16,7 +16,7 @@ import { HISTORY_KEY } from './HISTORY_KEY'
 
 /**
  * @typedef {object} SetupOptions
- * @property {HistoryStorage} [storage]
+ * @property {KeyValueStorage} [storage]
  * @property {(call: FakeCall) => void} [script]
  * @property {(input: string, cursor: number) => Completion} [complete]
  * @property {string[]} [history]

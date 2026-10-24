@@ -1,9 +1,9 @@
+import { createBrowserStorage } from '@gnikolaos/lib/shared/createBrowserStorage'
 import { vfs } from '../fs/vfs'
 import { createCompleter } from '../shell/createCompleter'
 import { createShell } from '../shell/createShell'
 import { registry } from '../shell/registry'
 import profile from '../profile'
-import { createBrowserStorage } from './createBrowserStorage'
 import { createTerminal } from './createTerminal'
 
 /** @import { TerminalStore } from './types' */
@@ -14,7 +14,7 @@ import { createTerminal } from './createTerminal'
  */
 const terminal = createTerminal({
     home: vfs.home,
-    storage: createBrowserStorage(),
+    storage: createBrowserStorage('sessionStorage'),
     complete: createCompleter({ fs: vfs, registry, getCwd: () => terminal.state.session.cwd }),
     makeShell: (hooks) =>
         createShell({ ...hooks, registry, fs: vfs, session: { user: profile.user, host: profile.host } }),

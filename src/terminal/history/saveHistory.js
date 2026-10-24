@@ -1,8 +1,8 @@
-/** @import { HistoryStorage } from './types' */
+/** @import { KeyValueStorage } from '@gnikolaos/lib/shared/types' */
 
 /**
  * Saves the history entries as JSON, ignoring storage failures such as a full quota.
- * @param {HistoryStorage} storage
+ * @param {KeyValueStorage} storage
  * @param {string} key
  * @param {readonly string[]} entries
  * @returns {void}

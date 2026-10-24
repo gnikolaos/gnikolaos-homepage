@@ -1,21 +1,10 @@
-/** @import { HistoryStorage } from './types' */
+import { parseJsonOrNull } from '@gnikolaos/lib/shared/parseJsonOrNull'
 
-/**
- * Parses a JSON string, returning null when it is missing or corrupt.
- * @param {string | null} json
- * @returns {unknown}
- */
-const parseJsonOrNull = (json) => {
-    try {
-        return JSON.parse(json)
-    } catch {
-        return null
-    }
-}
+/** @import { KeyValueStorage } from '@gnikolaos/lib/shared/types' */
 
 /**
  * Loads the saved history entries, returning [] when the value is missing or corrupt.
- * @param {HistoryStorage} storage
+ * @param {KeyValueStorage} storage
  * @param {string} key
  * @returns {string[]}
  */

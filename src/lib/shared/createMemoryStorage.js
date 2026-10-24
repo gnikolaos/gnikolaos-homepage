@@ -1,8 +1,8 @@
-/** @import { HistoryStorage } from './types' */
+/** @import { KeyValueStorage } from './types' */
 
 /**
- * Creates an in-memory history storage for when the browser's sessionStorage is unavailable.
- * @returns {HistoryStorage}
+ * Creates an in-memory key-value storage for when the browser's web storage is unavailable.
+ * @returns {KeyValueStorage}
  */
 const createMemoryStorage = () => {
     const items = new Map()

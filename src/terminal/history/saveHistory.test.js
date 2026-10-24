@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { createMemoryStorage } from '@gnikolaos/terminal/history/createMemoryStorage'
+import { createMemoryStorage } from '@gnikolaos/lib/shared/createMemoryStorage'
 import { loadHistory } from './loadHistory'
 import { saveHistory } from './saveHistory'
 
