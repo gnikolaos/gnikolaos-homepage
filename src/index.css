@@ -8,6 +8,8 @@
     /* Animations */
     --animate-move-blur: move-blur linear infinite;
     --animate-error-blink: error-blink 1.7s infinite;
+    --animate-success-blink: success-blink 1.4s infinite;
+    --animate-success-blink-alt: success-blink-alt 1.7s infinite;
 
     /* Keyframes */
     @keyframes move-blur {
@@ -34,6 +36,35 @@
         25% {
             background-color: var(--color-red-500);
             box-shadow: 0 0 12px color-mix(in oklab, var(--color-red-500) 70%, transparent);
+        }
+    }
+
+    @keyframes success-blink {
+        0%,
+        100% {
+            background-color: var(--color-gray-400);
+            box-shadow: none;
+        }
+        20%,
+        30% {
+            background-color: var(--color-green-500);
+            box-shadow: 0 0 12px color-mix(in oklab, var(--color-green-500) 70%, transparent);
+        }
+    }
+
+    @keyframes success-blink-alt {
+        0%,
+        30%,
+        50%,
+        100% {
+            background-color: var(--color-gray-400);
+            box-shadow: none;
+        }
+        20%,
+        40%,
+        60% {
+            background-color: var(--color-green-500);
+            box-shadow: 0 0 12px color-mix(in oklab, var(--color-green-500) 70%, transparent);
         }
     }
 }
@@ -86,10 +117,10 @@
     }
 
     body {
-        @apply h-dvh w-full overflow-hidden antialiased select-none;
+        @apply h-svh w-full overflow-hidden bg-black antialiased select-none;
     }
 
     #app {
-        @apply bg-hero-mesh flex h-full w-full flex-col bg-cover bg-fixed bg-center bg-no-repeat;
+        @apply bg-hero-mesh flex size-full flex-col bg-cover bg-fixed bg-center bg-no-repeat;
     }
 }

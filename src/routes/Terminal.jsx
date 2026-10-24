@@ -58,7 +58,7 @@ const Terminal = () => {
     }
 
     return (
-        <div class="font-meslo flex min-h-dvh flex-col bg-black text-slate-100">
+        <div class="font-meslo flex size-full flex-col bg-black text-slate-100">
             <main id="terminal" class="relative flex-1 overflow-y-auto p-4" onClick={() => inputRef.focus()}>
                 <For each={lines}>
                     {(line, index) => (
