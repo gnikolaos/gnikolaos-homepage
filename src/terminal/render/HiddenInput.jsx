@@ -41,6 +41,8 @@ const dispatch = (action) => {
     }
 }
 
+const MODIFIER_KEYS = new Set(['Shift', 'Control', 'Alt', 'Meta'])
+
 /** @returns {boolean} */
 const hasSelection = () => {
     const selection = window.getSelection()
@@ -108,7 +110,7 @@ const HiddenInput = (props) => {
 
     /** @param {KeyboardEvent} e */
     const onDocumentKeyDown = (e) => {
-        if (e.target !== document.body || isCopy(e)) return
+        if (e.target !== document.body || MODIFIER_KEYS.has(e.key) || isCopy(e)) return
         focus()
         handleKey(e)
     }
