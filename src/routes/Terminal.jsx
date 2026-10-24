@@ -1,7 +1,7 @@
 import { onMount } from 'solid-js'
 import { useNavigate, useParams } from '@solidjs/router'
 import Terminal from '@gnikolaos/terminal/render/Terminal'
-import { planDeepLink } from '@gnikolaos/terminal/deepLink'
+import { planDeepLink } from '@gnikolaos/terminal/planDeepLink'
 import { runLine, setNavigate, terminalState } from '@gnikolaos/terminal/store/terminalStore'
 
 const TerminalRoute = () => {

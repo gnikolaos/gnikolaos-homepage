@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import { createMemoryStorage, createTerminal, HISTORY_KEY } from './terminalStore'
+import { createMemoryStorage } from '@gnikolaos/terminal/history/createMemoryStorage'
+import { createTerminal, HISTORY_KEY } from './terminalStore'
 
 /** @typedef {import('../shell/shell').Sink} Sink */
 /** @typedef {import('../shell/completion').Completion} Completion */
@@ -14,7 +15,7 @@ import { createMemoryStorage, createTerminal, HISTORY_KEY } from './terminalStor
 
 /**
  * @typedef {object} SetupOptions
- * @property {import('../history/history').HistoryStorage} [storage]
+ * @property {import('../history/types').HistoryStorage} [storage]
  * @property {(call: FakeCall) => void} [script]
  * @property {(input: string, cursor: number) => Completion} [complete]
  * @property {string[]} [history]

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { planDeepLink } from './deepLink'
+import { planDeepLink } from './planDeepLink'
 
 describe('planDeepLink', () => {
     test('file in a directory changes into it and cats the file', () => {

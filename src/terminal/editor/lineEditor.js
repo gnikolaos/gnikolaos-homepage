@@ -1,31 +1,19 @@
-/**
- * @typedef {{ readonly input: string, readonly cursor: number }} EditorState
- */
+import { clampCursor } from './clampCursor'
+import { createEditorState } from './createEditorState'
 
-const isSpace = (/** @type {string} */ ch) => /\s/.test(ch)
+/** @typedef {import('./types').EditorState} EditorState */
 
-/**
- * @param {string} input
- * @param {number} cursor
- * @returns {EditorState}
- */
-const state = (input, cursor) => ({ input, cursor: Math.min(Math.max(cursor, 0), input.length) })
-
-/**
- * @param {EditorState} s
- * @returns {EditorState}
- */
-const clamp = (s) => state(s.input, s.cursor)
+const isWhitespace = (/** @type {string} */ char) => /\s/.test(char)
 
 /**
  * @param {string} input
  * @param {number} from
  * @returns {number}
  */
-const wordStartBefore = (input, from) => {
+const findWordStartBefore = (input, from) => {
     let i = from
-    while (i > 0 && isSpace(input[i - 1])) i--
-    while (i > 0 && !isSpace(input[i - 1])) i--
+    while (i > 0 && isWhitespace(input[i - 1])) i--
+    while (i > 0 && !isWhitespace(input[i - 1])) i--
     return i
 }
 
@@ -34,131 +22,113 @@ const wordStartBefore = (input, from) => {
  * @param {number} from
  * @returns {number}
  */
-const wordEndAfter = (input, from) => {
+const findWordEndAfter = (input, from) => {
     let i = from
-    while (i < input.length && isSpace(input[i])) i++
-    while (i < input.length && !isSpace(input[i])) i++
+    while (i < input.length && isWhitespace(input[i])) i++
+    while (i < input.length && !isWhitespace(input[i])) i++
     return i
 }
 
 /**
- * @param {EditorState} s
+ * @param {EditorState} editor
  * @param {number} start
  * @param {number} end
  * @returns {EditorState}
  */
-const removeRange = (s, start, end) => state(s.input.slice(0, start) + s.input.slice(end), start)
+const removeRange = (editor, start, end) =>
+    createEditorState(editor.input.slice(0, start) + editor.input.slice(end), start)
 
-/** @returns {EditorState} */
-const empty = () => state('', 0)
+const lineEditor = Object.freeze({
+    /**
+     * Deletes the character before the cursor.
+     * @param {EditorState} editor
+     * @returns {EditorState}
+     */
+    backspace: (editor) => {
+        const { cursor } = clampCursor(editor)
+        return cursor === 0 ? createEditorState(editor.input, 0) : removeRange(editor, cursor - 1, cursor)
+    },
 
-/**
- * @param {string} text
- * @returns {EditorState}
- */
-const fromText = (text) => state(text, text.length)
+    /**
+     * Deletes the character under the cursor.
+     * @param {EditorState} editor
+     * @returns {EditorState}
+     */
+    deleteForward: (editor) => {
+        const { cursor } = clampCursor(editor)
+        return removeRange(editor, cursor, cursor + 1)
+    },
 
-/**
- * @param {EditorState} s
- * @param {string} text
- * @returns {EditorState}
- */
-const insert = (s, text) => {
-    const { input, cursor } = clamp(s)
-    return state(input.slice(0, cursor) + text + input.slice(cursor), cursor + text.length)
-}
+    /**
+     * Moves the cursor one character left.
+     * @param {EditorState} editor
+     * @returns {EditorState}
+     */
+    moveLeft: (editor) => createEditorState(editor.input, clampCursor(editor).cursor - 1),
 
-/**
- * @param {EditorState} s
- * @returns {EditorState}
- */
-const backspace = (s) => {
-    const { cursor } = clamp(s)
-    return cursor === 0 ? state(s.input, 0) : removeRange(s, cursor - 1, cursor)
-}
+    /**
+     * Moves the cursor one character right.
+     * @param {EditorState} editor
+     * @returns {EditorState}
+     */
+    moveRight: (editor) => createEditorState(editor.input, clampCursor(editor).cursor + 1),
 
-/**
- * @param {EditorState} s
- * @returns {EditorState}
- */
-const deleteForward = (s) => {
-    const { cursor } = clamp(s)
-    return removeRange(s, cursor, cursor + 1)
-}
+    /**
+     * Moves the cursor to the start of the line.
+     * @param {EditorState} editor
+     * @returns {EditorState}
+     */
+    moveHome: (editor) => createEditorState(editor.input, 0),
 
-/**
- * @param {EditorState} s
- * @returns {EditorState}
- */
-const moveLeft = (s) => state(s.input, clamp(s).cursor - 1)
+    /**
+     * Moves the cursor to the end of the line.
+     * @param {EditorState} editor
+     * @returns {EditorState}
+     */
+    moveEnd: (editor) => createEditorState(editor.input, editor.input.length),
 
-/**
- * @param {EditorState} s
- * @returns {EditorState}
- */
-const moveRight = (s) => state(s.input, clamp(s).cursor + 1)
+    /**
+     * Moves the cursor to the start of the word before it.
+     * @param {EditorState} editor
+     * @returns {EditorState}
+     */
+    moveWordLeft: (editor) =>
+        createEditorState(editor.input, findWordStartBefore(editor.input, clampCursor(editor).cursor)),
 
-/**
- * @param {EditorState} s
- * @returns {EditorState}
- */
-const moveHome = (s) => state(s.input, 0)
+    /**
+     * Moves the cursor to the end of the word after it.
+     * @param {EditorState} editor
+     * @returns {EditorState}
+     */
+    moveWordRight: (editor) =>
+        createEditorState(editor.input, findWordEndAfter(editor.input, clampCursor(editor).cursor)),
 
-/**
- * @param {EditorState} s
- * @returns {EditorState}
- */
-const moveEnd = (s) => state(s.input, s.input.length)
+    /**
+     * Deletes from the start of the word before the cursor up to the cursor.
+     * @param {EditorState} editor
+     * @returns {EditorState}
+     */
+    killWord: (editor) => {
+        const { input, cursor } = clampCursor(editor)
+        return removeRange(editor, findWordStartBefore(input, cursor), cursor)
+    },
 
-/**
- * @param {EditorState} s
- * @returns {EditorState}
- */
-const moveWordLeft = (s) => state(s.input, wordStartBefore(s.input, clamp(s).cursor))
+    /**
+     * Deletes everything after the cursor.
+     * @param {EditorState} editor
+     * @returns {EditorState}
+     */
+    killToEnd: (editor) => {
+        const { input, cursor } = clampCursor(editor)
+        return createEditorState(input.slice(0, cursor), cursor)
+    },
 
-/**
- * @param {EditorState} s
- * @returns {EditorState}
- */
-const moveWordRight = (s) => state(s.input, wordEndAfter(s.input, clamp(s).cursor))
+    /**
+     * Deletes the whole line.
+     * @param {EditorState} editor
+     * @returns {EditorState}
+     */
+    clearLine: (editor) => removeRange(editor, 0, editor.input.length),
+})
 
-/**
- * @param {EditorState} s
- * @returns {EditorState}
- */
-const killWord = (s) => {
-    const { input, cursor } = clamp(s)
-    return removeRange(s, wordStartBefore(input, cursor), cursor)
-}
-
-/**
- * @param {EditorState} s
- * @returns {EditorState}
- */
-const killToEnd = (s) => {
-    const { input, cursor } = clamp(s)
-    return state(input.slice(0, cursor), cursor)
-}
-
-/**
- * @param {EditorState} s
- * @returns {EditorState}
- */
-const clearLine = (s) => removeRange(s, 0, s.input.length)
-
-export {
-    empty,
-    fromText,
-    insert,
-    backspace,
-    deleteForward,
-    moveLeft,
-    moveRight,
-    moveHome,
-    moveEnd,
-    moveWordLeft,
-    moveWordRight,
-    killWord,
-    killToEnd,
-    clearLine,
-}
+export { lineEditor }

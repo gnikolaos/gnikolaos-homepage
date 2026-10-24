@@ -1,5 +1,5 @@
 import { onCleanup, onMount } from 'solid-js'
-import { resolveKey } from '../editor/keymap'
+import { resolveKey } from '../editor/resolveKey'
 import {
     acceptSearch,
     applyEdit,
@@ -15,8 +15,7 @@ import {
     typeText,
 } from '../store/terminalStore'
 
-/** @typedef {import('../editor/keymap').Action} Action */
-/** @typedef {import('../store/terminalStore').EditOp} EditOp */
+/** @typedef {import('../editor/types').Action} Action */
 
 const compositionInputTypes = new Set(['insertCompositionText', 'insertFromComposition'])
 
@@ -27,7 +26,7 @@ const compositionInputTypes = new Set(['insertCompositionText', 'insertFromCompo
 const dispatch = (action) => {
     switch (action.type) {
         case 'edit':
-            return applyEdit(/** @type {EditOp} */ (action.op))
+            return applyEdit(action.op)
         case 'submit':
             return void submit()
         case 'historyPrev':

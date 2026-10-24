@@ -1,15 +1,17 @@
 import { batch } from 'solid-js'
 import { createStore, produce } from 'solid-js/store'
-import * as lineEditor from '../editor/lineEditor'
-import {
-    appendHistory,
-    createNavigation,
-    historyDown,
-    historyUp,
-    loadHistory,
-    saveHistory,
-    searchHistory,
-} from '../history/history'
+import { createEditorFromText } from '../editor/createEditorFromText'
+import { createEmptyEditor } from '../editor/createEmptyEditor'
+import { insert } from '../editor/insert'
+import { lineEditor } from '../editor/lineEditor'
+import { appendHistory } from '../history/appendHistory'
+import { createMemoryStorage } from '../history/createMemoryStorage'
+import { createNavigation } from '../history/createNavigation'
+import { loadHistory } from '../history/loadHistory'
+import { saveHistory } from '../history/saveHistory'
+import { searchHistory } from '../history/searchHistory'
+import { stepHistoryBack } from '../history/stepHistoryBack'
+import { stepHistoryForward } from '../history/stepHistoryForward'
 import { createVfs } from '../fs/createVfs'
 import { browserIo } from '../fs/browserIo'
 import { createRegistry } from '../shell/registry'
@@ -21,16 +23,13 @@ import profile from '../profile'
 
 /** @typedef {import('../shell/shell').Shell} Shell */
 /** @typedef {import('../shell/shell').Sink} Sink */
-/** @typedef {import('../history/history').HistoryStorage} HistoryStorage */
-/** @typedef {import('../history/history').Navigation} Navigation */
-/** @typedef {import('../editor/lineEditor').EditorState} EditorState */
+/** @typedef {import('../history/types').HistoryStorage} HistoryStorage */
+/** @typedef {import('../history/types').Navigation} Navigation */
+/** @typedef {import('../editor/types').EditorState} EditorState */
 /** @typedef {import('../shell/completion').Completion} Completion */
 /** @typedef {(input: string, cursor: number) => Promise<Completion>} Completer */
 
-/**
- * @typedef {'moveLeft' | 'moveRight' | 'moveHome' | 'moveEnd' | 'moveWordLeft' | 'moveWordRight'
- *     | 'backspace' | 'deleteForward' | 'killWord' | 'killToEnd' | 'clearLine'} EditOp
- */
+/** @typedef {import('../editor/types').EditOp} EditOp */
 
 /** @typedef {'ok' | 'error'} PromptStatus */
 /**
@@ -97,21 +96,6 @@ const HISTORY_KEY = 'gnikolaos:terminal:history'
 const EXIT_INTERRUPTED = 130
 const DEFAULT_COLUMNS = 80
 
-/** @type {Record<EditOp, (s: EditorState) => EditorState>} */
-const editOps = {
-    moveLeft: lineEditor.moveLeft,
-    moveRight: lineEditor.moveRight,
-    moveHome: lineEditor.moveHome,
-    moveEnd: lineEditor.moveEnd,
-    moveWordLeft: lineEditor.moveWordLeft,
-    moveWordRight: lineEditor.moveWordRight,
-    backspace: lineEditor.backspace,
-    deleteForward: lineEditor.deleteForward,
-    killWord: lineEditor.killWord,
-    killToEnd: lineEditor.killToEnd,
-    clearLine: lineEditor.clearLine,
-}
-
 /**
  * @param {number} exitCode
  * @returns {PromptStatus}
@@ -132,7 +116,7 @@ const sameEditor = (a, b) => a.input === b.input && a.cursor === b.cursor
  * @returns {EditorState}
  */
 const replaceWord = ({ input }, { start, end }, replacement) =>
-    lineEditor.insert({ input: input.slice(0, start) + input.slice(end), cursor: start }, replacement)
+    insert({ input: input.slice(0, start) + input.slice(end), cursor: start }, replacement)
 
 /**
  * @param {string} candidate
@@ -149,7 +133,7 @@ const completedWord = (candidate) => escapeWord(candidate) + (candidate.endsWith
  */
 const searchFrom = (entries, draft, query, fromIndex) => {
     const index = searchHistory(entries, query, fromIndex)
-    if (index === null) return { search: { query, index, draft }, editor: lineEditor.fromText(draft) }
+    if (index === null) return { search: { query, index, draft }, editor: createEditorFromText(draft) }
     const entry = entries[index]
     return {
         search: { query, index, draft },
@@ -159,16 +143,6 @@ const searchFrom = (entries, draft, query, fromIndex) => {
 
 /** @type {Completer} */
 const completeNothing = async (_input, cursor) => ({ start: cursor, end: cursor, candidates: [] })
-
-/** @returns {HistoryStorage} */
-const createMemoryStorage = () => {
-    const items = new Map()
-    return {
-        getItem: (key) => items.get(key) ?? null,
-        setItem: (key, value) => void items.set(key, String(value)),
-        removeItem: (key) => void items.delete(key),
-    }
-}
 
 /** @returns {HistoryStorage} */
 const browserStorage = () => {
@@ -202,7 +176,7 @@ const createTerminal = ({
     const [state, setState] = createStore({
         session: { user, host, cwd: home },
         blocks: /** @type {Block[]} */ ([]),
-        editor: lineEditor.empty(),
+        editor: createEmptyEditor(),
         history: { entries: loadHistory(storage, HISTORY_KEY), nav: createNavigation() },
         busy: false,
         lastExitCode: 0,
@@ -345,7 +319,7 @@ const createTerminal = ({
         if (!state.search) return
         batch(() => {
             setState('search', null)
-            setState('editor', lineEditor.fromText(state.editor.input))
+            setState('editor', createEditorFromText(state.editor.input))
         })
     }
 
@@ -356,18 +330,18 @@ const createTerminal = ({
             showSearch(state.search.query + text, state.search.index ?? state.history.entries.length - 1)
             return
         }
-        setState('editor', lineEditor.insert(state.editor, text))
+        setState('editor', insert(state.editor, text))
     }
 
     /** @param {EditOp} op */
     const applyEdit = (op) => {
-        if (state.busy || !Object.hasOwn(editOps, op)) return
+        if (state.busy || !Object.hasOwn(lineEditor, op)) return
         if (state.search && op === 'backspace') {
             showSearch(state.search.query.slice(0, -1), state.history.entries.length - 1)
             return
         }
         acceptSearch()
-        setState('editor', editOps[op](state.editor))
+        setState('editor', lineEditor[op](state.editor))
     }
 
     const submit = async () => {
@@ -377,14 +351,14 @@ const createTerminal = ({
         if (!line) {
             batch(() => {
                 pushPrompt('')
-                setState('editor', lineEditor.empty())
+                setState('editor', createEmptyEditor())
                 setState('history', 'nav', createNavigation())
             })
             return
         }
         const entries = appendHistory(state.history.entries, line)
         saveHistory(storage, HISTORY_KEY, entries)
-        setState('editor', lineEditor.empty())
+        setState('editor', createEmptyEditor())
         setState('history', { entries, nav: createNavigation() })
         await execute(line)
     }
@@ -396,33 +370,33 @@ const createTerminal = ({
     }
 
     /**
-     * @param {import('../history/history').NavigationStep | null} step
+     * @param {import('../history/types').NavigationStep | null} step
      * @returns {void}
      */
     const applyHistoryStep = (step) => {
         if (!step) return
         batch(() => {
             setState('history', 'nav', step.nav)
-            setState('editor', lineEditor.fromText(step.input))
+            setState('editor', createEditorFromText(step.input))
         })
     }
 
     const historyPrev = () => {
         if (state.busy) return
         acceptSearch()
-        applyHistoryStep(historyUp(state.history.nav, state.history.entries, state.editor.input))
+        applyHistoryStep(stepHistoryBack(state.history.nav, state.history.entries, state.editor.input))
     }
 
     const historyNext = () => {
         if (state.busy) return
         acceptSearch()
-        applyHistoryStep(historyDown(state.history.nav, state.history.entries))
+        applyHistoryStep(stepHistoryForward(state.history.nav, state.history.entries))
     }
 
     const cancel = () => {
         if (!state.search) return
         batch(() => {
-            setState('editor', lineEditor.fromText(/** @type {SearchState} */ (state.search).draft))
+            setState('editor', createEditorFromText(/** @type {SearchState} */ (state.search).draft))
             setState('search', null)
         })
     }
@@ -452,7 +426,7 @@ const createTerminal = ({
         }
         batch(() => {
             pushPrompt(state.editor.input + '^C')
-            setState({ editor: lineEditor.empty(), lastExitCode: EXIT_INTERRUPTED })
+            setState({ editor: createEmptyEditor(), lastExitCode: EXIT_INTERRUPTED })
             setState('history', 'nav', createNavigation())
         })
     }
@@ -572,7 +546,6 @@ const {
 
 export {
     createTerminal,
-    createMemoryStorage,
     HISTORY_KEY,
     vfs,
     terminalState,
