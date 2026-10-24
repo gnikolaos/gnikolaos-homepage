@@ -19,4 +19,12 @@ export default [
             },
         },
     },
+    {
+        files: ['automation/**/*.js', 'vite.config.js'],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            },
+        },
+    },
 ]

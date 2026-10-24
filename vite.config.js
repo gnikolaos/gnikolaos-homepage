@@ -4,11 +4,12 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import solidPlugin from 'vite-plugin-solid'
 import tailwindcss from '@tailwindcss/vite'
+import dirManifestPlugin from './automation/dirManifestPlugin.js'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig({
-    plugins: [tailwindcss(), solidPlugin()],
+    plugins: [tailwindcss(), solidPlugin(), dirManifestPlugin()],
     resolve: {
         alias: {
             '@gnikolaos': path.resolve(__dirname, './src'),
@@ -22,6 +23,6 @@ export default defineConfig({
     },
     test: {
         environment: 'node',
-        include: ['src/**/*.test.js'],
+        include: ['src/**/*.test.js', 'automation/**/*.test.js'],
     },
 })

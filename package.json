@@ -4,14 +4,15 @@
     "description": "Personal website",
     "type": "module",
     "scripts": {
-        "lint": "eslint 'src/**'",
+        "lint": "eslint src automation vite.config.js",
         "format": "prettier --write .",
         "start": "vite",
         "dev": "vite",
         "build": "vite build",
         "serve": "vite preview",
         "test": "vitest run",
-        "test:watch": "vitest"
+        "test:watch": "vitest",
+        "build:fs": "node automation/generateDirManifest.js"
     },
     "license": "MIT",
     "packageManager": "pnpm@10.34.8",
