@@ -6,14 +6,8 @@ const routes = [
         component: lazy(() => import('./routes/Home')),
     },
     {
-        path: '/terminal',
+        path: '/terminal/*path',
         component: lazy(() => import('./routes/Terminal')),
-        children: [
-            {
-                path: '/:path?/:fileName?',
-                component: lazy(() => import('./routes/Terminal')),
-            },
-        ],
     },
 ]
 

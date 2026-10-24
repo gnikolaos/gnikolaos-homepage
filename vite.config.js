@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import path from 'path'
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
@@ -18,5 +19,9 @@ export default defineConfig({
     },
     build: {
         target: 'esnext',
+    },
+    test: {
+        environment: 'node',
+        include: ['src/**/*.test.js'],
     },
 })

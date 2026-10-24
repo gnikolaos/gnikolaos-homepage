@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin "@tailwindcss/typography";
 
 /* Customizations */
 @theme {
@@ -86,7 +87,7 @@
         font-style: normal;
         font-weight: 400;
         font-display: swap;
-        src: url(/fonts/MesloLGS.ttf) format('ttf');
+        src: url(/fonts/MesloLGS.ttf) format('truetype');
     }
 
     @font-face {
@@ -94,7 +95,7 @@
         font-style: normal;
         font-weight: 700;
         font-display: swap;
-        src: url(/fonts/MesloLGS-bold.ttf) format('ttf');
+        src: url(/fonts/MesloLGS-bold.ttf) format('truetype');
     }
     /* Width of the scrollbar */
     ::-webkit-scrollbar {
