@@ -1,15 +1,12 @@
 import { describe, expect, test } from 'vitest'
 import { doNothing } from '@test/doNothing'
-import { createRegistry, defineCommand } from './registry.js'
-
-/** @param {string} name */
-const command = (name, hidden = false) =>
-    defineCommand({ name, summary: `${name} summary`, usage: name, hidden, run: doNothing })
+import { defineFakeCommand } from '@test/defineFakeCommand'
+import { defineCommand } from './defineCommand'
 
 describe('defineCommand', () => {
     test('defaults hidden to false and freezes the command', () => {
-        const cmd = defineCommand({ name: 'ls', summary: 'list', usage: 'ls', run: doNothing })
-        expect(cmd).toEqual({
+        const command = defineCommand({ name: 'ls', summary: 'list', usage: 'ls', run: doNothing })
+        expect(command).toEqual({
             name: 'ls',
             summary: 'list',
             usage: 'ls',
@@ -17,12 +14,12 @@ describe('defineCommand', () => {
             complete: 'paths',
             run: doNothing,
         })
-        expect(Object.isFrozen(cmd)).toBe(true)
+        expect(Object.isFrozen(command)).toBe(true)
     })
 
     test('keeps the completion kind when given', () => {
-        const cmd = defineCommand({ name: 'cd', summary: 's', usage: 'u', complete: 'dirs', run: doNothing })
-        expect(cmd.complete).toBe('dirs')
+        const command = defineCommand({ name: 'cd', summary: 's', usage: 'u', complete: 'dirs', run: doNothing })
+        expect(command.complete).toBe('dirs')
     })
 
     test('rejects an unknown completion kind', () => {
@@ -31,7 +28,7 @@ describe('defineCommand', () => {
     })
 
     test('keeps hidden when given', () => {
-        expect(command('secret', true).hidden).toBe(true)
+        expect(defineFakeCommand('secret', { hidden: true }).hidden).toBe(true)
     })
 
     test.each(['', 'two words', 'tab\tname'])('rejects invalid name %j', (name) => {
@@ -48,34 +45,5 @@ describe('defineCommand', () => {
         const noUsage = /** @type {any} */ ({ name: 'ls', summary: 's', run: doNothing })
         expect(() => defineCommand(noSummary)).toThrow(TypeError)
         expect(() => defineCommand(noUsage)).toThrow(TypeError)
-    })
-})
-
-describe('createRegistry', () => {
-    const ls = command('ls')
-    const cat = command('cat')
-    const secret = command('secret', true)
-    const registry = createRegistry([ls, secret, cat])
-
-    test('gets commands by name', () => {
-        expect(registry.get('ls')).toBe(ls)
-        expect(registry.get('nope')).toBeUndefined()
-    })
-
-    test('reports whether a command exists', () => {
-        expect(registry.has('secret')).toBe(true)
-        expect(registry.has('nope')).toBe(false)
-    })
-
-    test('lists visible commands sorted by name', () => {
-        expect(registry.list()).toEqual([cat, ls])
-    })
-
-    test('lists hidden commands when asked', () => {
-        expect(registry.list({ includeHidden: true })).toEqual([cat, ls, secret])
-    })
-
-    test('rejects duplicate names', () => {
-        expect(() => createRegistry([ls, command('ls')])).toThrow("duplicate command: 'ls'")
     })
 })

@@ -17,7 +17,7 @@ import tail from './tail'
 import uniq from './uniq'
 import wc from './wc'
 
-/** @type {import('../registry').Command[]} */
+/** @type {import('../types').Command[]} */
 const commands = [
     cat,
     cd,

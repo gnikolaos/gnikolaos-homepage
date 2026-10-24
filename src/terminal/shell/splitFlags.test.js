@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { splitFlags } from './flags.js'
+import { splitFlags } from './splitFlags'
 
 describe('splitFlags', () => {
     test('returns empty results for no args', () => {

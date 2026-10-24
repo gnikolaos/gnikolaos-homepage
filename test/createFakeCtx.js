@@ -1,10 +1,10 @@
 import { createVfs } from '@gnikolaos/terminal/fs/createVfs'
-import { createRegistry } from '@gnikolaos/terminal/shell/registry'
+import { createRegistry } from '@gnikolaos/terminal/shell/createRegistry'
 import { HOME } from './HOME'
 import { createIoFromTree } from './createIoFromTree'
 
-/** @typedef {import('@gnikolaos/terminal/shell/registry').Ctx} Ctx */
-/** @typedef {import('@gnikolaos/terminal/shell/registry').Command} Command */
+/** @typedef {import('@gnikolaos/terminal/shell/types').Ctx} Ctx */
+/** @typedef {import('@gnikolaos/terminal/shell/types').Command} Command */
 /** @typedef {import('./createIoFromTree').FakeTree} FakeTree */
 
 /**

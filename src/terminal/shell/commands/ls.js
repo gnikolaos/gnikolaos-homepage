@@ -1,10 +1,10 @@
 import { isFsError } from '../../fs/isFsError'
-import { defineCommand } from '../registry'
-import { splitFlags } from '../flags'
-import { style } from '../ansi'
+import { defineCommand } from '../defineCommand'
+import { splitFlags } from '../splitFlags'
+import { style } from '../style'
 import profile from '../../profile'
 
-/** @typedef {import('../registry').Ctx} Ctx */
+/** @typedef {import('../types').Ctx} Ctx */
 /** @typedef {{ name: string, type: 'dir' | 'file', size?: number, mtime?: string, title?: string }} Entry */
 /** @typedef {{ all: boolean, long: boolean }} LsOptions */
 /** @typedef {{ isDir: boolean, entries: Entry[] }} Listing */

@@ -1,13 +1,14 @@
 import { describe, expect, test } from 'vitest'
-import { parse, ParseError } from './parser.js'
+import { ParseError } from './ParseError'
+import { parseLine } from './parseLine'
 
 /** @param {string} line */
-const argvs = (line) => parse(line).pipeline.map((stage) => stage.argv)
+const argvs = (line) => parseLine(line).pipeline.map((stage) => stage.argv)
 
-describe('parse', () => {
+describe('parseLine', () => {
     test('returns an empty pipeline for blank input', () => {
-        expect(parse('')).toEqual({ pipeline: [] })
-        expect(parse('   \t ')).toEqual({ pipeline: [] })
+        expect(parseLine('')).toEqual({ pipeline: [] })
+        expect(parseLine('   \t ')).toEqual({ pipeline: [] })
     })
 
     test('splits on unquoted whitespace', () => {
@@ -61,21 +62,12 @@ describe('parse', () => {
     })
 
     test.each(['ls |', '| ls', 'a || b', '|', 'a |  | b'])('throws on an empty stage in %j', (line) => {
-        expect(() => parse(line)).toThrow(ParseError)
-        expect(() => parse(line)).toThrow('parse error near `|`')
+        expect(() => parseLine(line)).toThrow(ParseError)
+        expect(() => parseLine(line)).toThrow('parse error near `|`')
     })
 
     test.each([`echo 'abc`, 'echo "abc', 'echo "a\\"'])('throws on an unmatched quote in %j', (line) => {
-        expect(() => parse(line)).toThrow(ParseError)
-        expect(() => parse(line)).toThrow('unmatched quote')
-    })
-})
-
-describe('ParseError', () => {
-    test('is an Error named ParseError', () => {
-        const error = new ParseError('boom')
-        expect(error).toBeInstanceOf(Error)
-        expect(error.name).toBe('ParseError')
-        expect(error.message).toBe('boom')
+        expect(() => parseLine(line)).toThrow(ParseError)
+        expect(() => parseLine(line)).toThrow('unmatched quote')
     })
 })

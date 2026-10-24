@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { stripAnsi } from '../ansi'
+import { stripAnsi } from '../stripAnsi'
 import grep from './grep'
 import { runCommand } from '@test/runCommand'
 

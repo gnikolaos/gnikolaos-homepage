@@ -1,21 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import { isStyled, parseAnsi, stripAnsi, style } from './ansi.js'
-
-describe('style', () => {
-    test('wraps text in an SGR sequence and a reset', () => {
-        expect(style('posts', 'bold', 'blue')).toBe('\x1b[1;34mposts\x1b[0m')
-    })
-})
-
-describe('stripAnsi', () => {
-    test('removes every SGR sequence and keeps the text', () => {
-        expect(stripAnsi(`${style('a', 'red')} b ${style('c', 'bold')}\x1b[m`)).toBe('a b c')
-    })
-
-    test('leaves plain text untouched', () => {
-        expect(stripAnsi('plain\ntext')).toBe('plain\ntext')
-    })
-})
+import { parseAnsi } from './parseAnsi'
+import { style } from './style'
 
 describe('parseAnsi', () => {
     test('returns one plain span for text without sequences', () => {
@@ -63,14 +48,5 @@ describe('parseAnsi', () => {
         expect(parseAnsi('\x1b[1m\x1b[34mx\x1b[0m')).toEqual([
             { text: 'x', color: 'blue', bold: true, underline: false },
         ])
-    })
-})
-
-describe('isStyled', () => {
-    test('is false only for a span without color or attributes', () => {
-        expect(isStyled({ text: 'a', color: null, bold: false, underline: false })).toBe(false)
-        expect(isStyled({ text: 'a', color: 'red', bold: false, underline: false })).toBe(true)
-        expect(isStyled({ text: 'a', color: null, bold: true, underline: false })).toBe(true)
-        expect(isStyled({ text: 'a', color: null, bold: false, underline: true })).toBe(true)
     })
 })

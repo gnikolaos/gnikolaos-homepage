@@ -1,7 +1,7 @@
 import profile from '../../profile'
-import { defineCommand } from '../registry'
+import { defineCommand } from '../defineCommand'
 
-/** @typedef {import('../registry').Ctx} Ctx */
+/** @typedef {import('../types').Ctx} Ctx */
 
 /**
  * @param {Ctx} ctx

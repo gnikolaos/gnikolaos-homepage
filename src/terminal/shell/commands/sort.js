@@ -1,8 +1,8 @@
-import { splitFlags } from '../flags'
-import { defineCommand } from '../registry'
+import { splitFlags } from '../splitFlags'
+import { defineCommand } from '../defineCommand'
 import { concatLines, readInputs, reportUnsupportedFlag, usageError, writeLines } from './textInput'
 
-/** @typedef {import('../registry').Ctx} Ctx */
+/** @typedef {import('../types').Ctx} Ctx */
 /** @typedef {(a: string, b: string) => number} Compare */
 
 const USAGE = 'sort [-r] [-n] [-u]'

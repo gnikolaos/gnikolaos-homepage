@@ -1,7 +1,7 @@
-import { defineCommand } from '../registry'
-import { splitFlags } from '../flags'
+import { defineCommand } from '../defineCommand'
+import { splitFlags } from '../splitFlags'
 
-/** @typedef {import('../registry').Command} Command */
+/** @typedef {import('../types').Command} Command */
 
 /**
  * @param {Command[]} commands

@@ -1,4 +1,4 @@
-import { defineCommand } from '../registry'
+import { defineCommand } from '../defineCommand'
 
 /**
  * @param {string} line

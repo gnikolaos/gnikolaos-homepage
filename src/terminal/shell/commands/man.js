@@ -1,7 +1,7 @@
-import { style } from '../ansi'
-import { defineCommand } from '../registry'
+import { style } from '../style'
+import { defineCommand } from '../defineCommand'
 
-/** @typedef {import('../registry').Command} Command */
+/** @typedef {import('../types').Command} Command */
 
 const INDENT = ' '.repeat(7)
 

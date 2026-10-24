@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { doNothing } from '@test/doNothing'
-import { stripAnsi } from '../ansi'
-import { defineCommand } from '../registry'
+import { stripAnsi } from '../stripAnsi'
+import { defineCommand } from '../defineCommand'
 import man, { manPage } from './man'
 import { runCommand } from '@test/runCommand'
 

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { stripAnsi } from '../ansi'
+import { stripAnsi } from '../stripAnsi'
 import ls, { formatLong, humanSize } from './ls'
 import { HOME } from '@test/HOME'
 import { createFakeFile } from '@test/createFakeFile'

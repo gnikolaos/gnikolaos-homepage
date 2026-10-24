@@ -1,8 +1,8 @@
-import { splitFlags } from '../flags'
-import { defineCommand } from '../registry'
+import { splitFlags } from '../splitFlags'
+import { defineCommand } from '../defineCommand'
 import { readInputs, reportUnsupportedFlag, usageError, writeLines } from './textInput'
 
-/** @typedef {import('../registry').Ctx} Ctx */
+/** @typedef {import('../types').Ctx} Ctx */
 /** @typedef {'l' | 'w' | 'c'} CountKey */
 /** @typedef {Record<CountKey, number>} Counts */
 /** @typedef {{ counts: Counts, label: string | null }} Row */

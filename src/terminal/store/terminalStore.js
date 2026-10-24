@@ -14,19 +14,24 @@ import { stepHistoryBack } from '../history/stepHistoryBack'
 import { stepHistoryForward } from '../history/stepHistoryForward'
 import { createVfs } from '../fs/createVfs'
 import { browserIo } from '../fs/browserIo'
-import { createRegistry } from '../shell/registry'
-import { createShell } from '../shell/shell'
-import { commonPrefix, createCompleter, displayName, escapeWord } from '../shell/completion'
-import { formatColumns } from '../shell/columns'
+import { createRegistry } from '../shell/createRegistry'
+import { createShell } from '../shell/createShell'
+import { createCompleter } from '../shell/createCompleter'
+import { escapeWord } from '../shell/escapeWord'
+import { findCommonPrefix } from '../shell/findCommonPrefix'
+import { formatCandidateName } from '../shell/formatCandidateName'
+import { formatColumns } from '../shell/formatColumns'
+import { EXIT_CODES } from '../shell/EXIT_CODES'
 import { commands } from '../shell/commands/index'
 import profile from '../profile'
 
-/** @typedef {import('../shell/shell').Shell} Shell */
-/** @typedef {import('../shell/shell').Sink} Sink */
+/** @typedef {import('../shell/types').Shell} Shell */
+/** @typedef {import('../shell/types').Sink} Sink */
+/** @typedef {import('../shell/types').ShellHooks} ShellHooks */
 /** @typedef {import('../history/types').HistoryStorage} HistoryStorage */
 /** @typedef {import('../history/types').Navigation} Navigation */
 /** @typedef {import('../editor/types').EditorState} EditorState */
-/** @typedef {import('../shell/completion').Completion} Completion */
+/** @typedef {import('../shell/types').Completion} Completion */
 /** @typedef {(input: string, cursor: number) => Promise<Completion>} Completer */
 
 /** @typedef {import('../editor/types').EditOp} EditOp */
@@ -51,15 +56,6 @@ import profile from '../profile'
  * @property {number} lastExitCode
  * @property {SearchState | null} search
  * @property {number} columns
- */
-
-/**
- * @typedef {object} ShellHooks
- * @property {() => string} getCwd
- * @property {(absPath: string) => void} setCwd
- * @property {() => readonly string[]} getHistory
- * @property {(path: string) => void} navigate
- * @property {(url: string) => void} openUrl
  */
 
 /**
@@ -93,7 +89,6 @@ import profile from '../profile'
  */
 
 const HISTORY_KEY = 'gnikolaos:terminal:history'
-const EXIT_INTERRUPTED = 130
 const DEFAULT_COLUMNS = 80
 
 /**
@@ -421,12 +416,12 @@ const createTerminal = ({
             const run = current
             appendPlain(run, '^C')
             run.controller.abort()
-            finish(run.promptId, EXIT_INTERRUPTED)
+            finish(run.promptId, EXIT_CODES.ABORTED)
             return
         }
         batch(() => {
             pushPrompt(state.editor.input + '^C')
-            setState({ editor: createEmptyEditor(), lastExitCode: EXIT_INTERRUPTED })
+            setState({ editor: createEmptyEditor(), lastExitCode: EXIT_CODES.ABORTED })
             setState('history', 'nav', createNavigation())
         })
     }
@@ -455,7 +450,7 @@ const createTerminal = ({
             return
         }
         if (candidates.length === 0) return
-        const prefix = escapeWord(commonPrefix(candidates))
+        const prefix = escapeWord(findCommonPrefix(candidates))
         if (prefix !== before.input.slice(completion.start, completion.end)) {
             setState('editor', replaceWord(before, completion, prefix))
             return
@@ -463,7 +458,7 @@ const createTerminal = ({
         if (!afterLastComplete || !sameEditor(afterLastComplete, before)) return
         batch(() => {
             pushPrompt(before.input)
-            pushOutput('plain', formatColumns(candidates.map(displayName), state.columns))
+            pushOutput('plain', formatColumns(candidates.map(formatCandidateName), state.columns))
         })
     }
 

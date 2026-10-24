@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { createRegistry } from '../registry'
+import { createRegistry } from '../createRegistry'
 import { commands } from './index'
 
 describe('commands', () => {

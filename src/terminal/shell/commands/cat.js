@@ -1,7 +1,7 @@
 import { isFsError } from '../../fs/isFsError'
-import { defineCommand } from '../registry'
+import { defineCommand } from '../defineCommand'
 
-/** @typedef {import('../registry').Ctx} Ctx */
+/** @typedef {import('../types').Ctx} Ctx */
 
 const USAGE = 'cat file...'
 

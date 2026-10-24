@@ -1,8 +1,8 @@
-import { splitFlags } from '../flags'
-import { defineCommand } from '../registry'
+import { splitFlags } from '../splitFlags'
+import { defineCommand } from '../defineCommand'
 import { concatLines, readInputs, reportUnsupportedFlag, usageError, writeLines } from './textInput'
 
-/** @typedef {import('../registry').Ctx} Ctx */
+/** @typedef {import('../types').Ctx} Ctx */
 /** @typedef {{ line: string, count: number }} LineRun */
 
 const USAGE = 'uniq [-c]'

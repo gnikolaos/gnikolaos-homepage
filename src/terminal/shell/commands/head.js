@@ -1,4 +1,4 @@
-import { defineCommand } from '../registry'
+import { defineCommand } from '../defineCommand'
 import { runLinePicker } from './textInput'
 
 const USAGE = 'head [-n N] [file...]'

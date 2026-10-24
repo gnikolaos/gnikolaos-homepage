@@ -1,10 +1,10 @@
-/** @typedef {{ flags: Set<string>, positionals: string[] }} SplitFlags */
+/** @typedef {import('./types').SplitFlags} SplitFlags */
 
 /**
  * @param {string} arg
  * @returns {string[]}
  */
-const flagsOf = (arg) => (arg.startsWith('--') ? [arg.slice(2)] : [...arg.slice(1)])
+const extractFlagNames = (arg) => (arg.startsWith('--') ? [arg.slice(2)] : [...arg.slice(1)])
 
 /**
  * @param {string} arg
@@ -13,6 +13,7 @@ const flagsOf = (arg) => (arg.startsWith('--') ? [arg.slice(2)] : [...arg.slice(
 const isFlag = (arg) => arg.length > 1 && arg.startsWith('-')
 
 /**
+ * Splits argv into a set of flag names and the remaining positionals, treating everything after `--` as positional.
  * @param {string[]} argv
  * @returns {SplitFlags}
  */
@@ -25,7 +26,7 @@ const splitFlags = (argv) => {
         if (parsingFlags && arg === '--') {
             parsingFlags = false
         } else if (parsingFlags && isFlag(arg)) {
-            for (const flag of flagsOf(arg)) flags.add(flag)
+            for (const flag of extractFlagNames(arg)) flags.add(flag)
         } else {
             positionals.push(arg)
         }

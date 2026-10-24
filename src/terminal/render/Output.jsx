@@ -1,11 +1,12 @@
 import { createMemo, Index, Show } from 'solid-js'
 import { Marked, Renderer } from 'marked'
 import clsx from 'clsx'
-import { isStyled, parseAnsi } from '../shell/ansi'
+import { isStyled } from '../shell/isStyled'
+import { parseAnsi } from '../shell/parseAnsi'
 
 /** @typedef {import('../store/terminalStore').OutputContent} OutputContent */
-/** @typedef {import('../shell/ansi').Span} Span */
-/** @typedef {import('../shell/ansi').Color} Color */
+/** @typedef {import('../shell/types').Span} Span */
+/** @typedef {import('../shell/types').Color} Color */
 
 const renderLink = Renderer.prototype.link
 

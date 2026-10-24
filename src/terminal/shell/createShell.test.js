@@ -1,15 +1,9 @@
 import { describe, expect, test, vi } from 'vitest'
-import { createRegistry, defineCommand } from './registry.js'
-import { createShell } from './shell.js'
+import { defineFakeCommand } from '@test/defineFakeCommand'
+import { createRegistry } from './createRegistry'
+import { createShell } from './createShell'
 
-/** @typedef {import('./registry.js').Ctx} Ctx */
-/** @typedef {import('./registry.js').Command['run']} Run */
-
-/**
- * @param {string} name
- * @param {Run} run
- */
-const fake = (name, run) => defineCommand({ name, summary: name, usage: name, run })
+/** @typedef {import('./types').Ctx} Ctx */
 
 const createRecordingSink = () => {
     /** @type {Array<[string, string?]>} */
@@ -37,28 +31,34 @@ const createDeferred = () => {
 }
 
 const commands = [
-    fake('echo', (ctx, argv) => ctx.stdout(argv.join(' ') + '\n')),
-    fake('upper', (ctx, _argv, stdin) => ctx.stdout((stdin ?? '').toUpperCase())),
-    fake('md', (ctx, argv) => ctx.markdown(`# ${argv.join(' ')}\n`)),
-    fake('colored', (ctx) => ctx.stdout('\x1b[1;34mposts\x1b[0m\n')),
-    fake('stdin', (ctx, _argv, stdin) => ctx.stdout(JSON.stringify(stdin))),
-    fake('warn', (ctx, _argv, stdin) => {
-        ctx.stderr('warn: careful\n')
-        ctx.stdout(`warned ${stdin ?? ''}`)
+    defineFakeCommand('echo', { run: (ctx, argv) => ctx.stdout(argv.join(' ') + '\n') }),
+    defineFakeCommand('upper', { run: (ctx, _argv, stdin) => ctx.stdout((stdin ?? '').toUpperCase()) }),
+    defineFakeCommand('md', { run: (ctx, argv) => ctx.markdown(`# ${argv.join(' ')}\n`) }),
+    defineFakeCommand('colored', { run: (ctx) => ctx.stdout('\x1b[1;34mposts\x1b[0m\n') }),
+    defineFakeCommand('stdin', { run: (ctx, _argv, stdin) => ctx.stdout(JSON.stringify(stdin)) }),
+    defineFakeCommand('warn', {
+        run: (ctx, _argv, stdin) => {
+            ctx.stderr('warn: careful\n')
+            ctx.stdout(`warned ${stdin ?? ''}`)
+        },
     }),
-    fake('code', (_ctx, argv) => Number(argv[0])),
-    fake('fail', () => {
-        throw new Error('it broke')
+    defineFakeCommand('code', { run: (_ctx, argv) => Number(argv[0]) }),
+    defineFakeCommand('fail', {
+        run: () => {
+            throw new Error('it broke')
+        },
     }),
-    fake('wipe', (ctx) => ctx.clear()),
-    fake('async', async (ctx) => {
-        await Promise.resolve()
-        ctx.stdout('later\n')
-        return 3
+    defineFakeCommand('wipe', { run: (ctx) => ctx.clear() }),
+    defineFakeCommand('async', {
+        run: async (ctx) => {
+            await Promise.resolve()
+            ctx.stdout('later\n')
+            return 3
+        },
     }),
 ]
 
-/** @param {Partial<import('./shell.js').ShellDeps>} [overrides] */
+/** @param {Partial<import('./types').ShellDeps>} [overrides] */
 const setup = (overrides = {}) => {
     const deps = {
         registry: createRegistry(commands),
@@ -143,8 +143,10 @@ describe('createShell', () => {
         let cwd = '/home/visitor'
         /** @type {Ctx[]} */
         const seen = []
-        const spy = fake('spy', (ctx) => {
-            seen.push(ctx)
+        const spy = defineFakeCommand('spy', {
+            run: (ctx) => {
+                seen.push(ctx)
+            },
         })
         const { shell, sink, deps } = setup({
             registry: createRegistry([spy]),
@@ -171,11 +173,13 @@ describe('createShell', () => {
 
     test('reads cwd again for each pipeline stage', async () => {
         let cwd = '/a'
-        const move = fake('move', (ctx) => {
-            ctx.setCwd('/b')
-            ctx.stdout('moved')
+        const move = defineFakeCommand('move', {
+            run: (ctx) => {
+                ctx.setCwd('/b')
+                ctx.stdout('moved')
+            },
         })
-        const where = fake('where', (ctx) => ctx.stdout(ctx.cwd))
+        const where = defineFakeCommand('where', { run: (ctx) => ctx.stdout(ctx.cwd) })
         const { shell, sink } = setup({
             registry: createRegistry([move, where]),
             getCwd: () => cwd,
@@ -257,13 +261,15 @@ describe('createShell abort', () => {
         const gate = createDeferred()
         const started = createDeferred()
         let sawAbort = false
-        const wait = fake('wait', async (ctx) => {
-            started.resolve()
-            await gate.promise
-            sawAbort = ctx.signal.aborted
-            return 0
+        const wait = defineFakeCommand('wait', {
+            run: async (ctx) => {
+                started.resolve()
+                await gate.promise
+                sawAbort = ctx.signal.aborted
+                return 0
+            },
         })
-        const after = fake('after', (ctx) => ctx.stdout('should not run'))
+        const after = defineFakeCommand('after', { run: (ctx) => ctx.stdout('should not run') })
         const { shell, sink } = setup({ registry: createRegistry([wait, after]) })
         const controller = new AbortController()
 
@@ -279,9 +285,11 @@ describe('createShell abort', () => {
 
     test('stays silent when an aborted stage throws', async () => {
         const controller = new AbortController()
-        const boom = fake('boom', () => {
-            controller.abort()
-            throw new Error('aborted')
+        const boom = defineFakeCommand('boom', {
+            run: () => {
+                controller.abort()
+                throw new Error('aborted')
+            },
         })
         const { shell, sink } = setup({ registry: createRegistry([boom]) })
         expect(await shell.run('boom', sink, controller.signal)).toEqual({ exitCode: 130 })

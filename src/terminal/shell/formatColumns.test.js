@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { formatColumns } from './columns'
+import { formatColumns } from './formatColumns'
 
 describe('formatColumns', () => {
     test('returns an empty string for no names', () => {

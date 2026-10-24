@@ -2,8 +2,8 @@ import { describe, expect, test } from 'vitest'
 import { createMemoryStorage } from '@gnikolaos/terminal/history/createMemoryStorage'
 import { createTerminal, HISTORY_KEY } from './terminalStore'
 
-/** @typedef {import('../shell/shell').Sink} Sink */
-/** @typedef {import('../shell/completion').Completion} Completion */
+/** @typedef {import('../shell/types').Sink} Sink */
+/** @typedef {import('../shell/types').Completion} Completion */
 
 /**
  * @typedef {object} FakeCall
@@ -28,7 +28,7 @@ const setup = ({ storage = createMemoryStorage(), script, complete, history } = 
     const calls = []
     /** @type {{ input: string, cursor: number }[]} */
     const completeCalls = []
-    /** @type {import('./terminalStore').ShellHooks | null} */
+    /** @type {import('../shell/types').ShellHooks | null} */
     let hooks = null
     const terminal = createTerminal({
         home: '/home/visitor',
@@ -55,7 +55,7 @@ const setup = ({ storage = createMemoryStorage(), script, complete, history } = 
         calls,
         completeCalls,
         storage,
-        hooks: /** @type {import('./terminalStore').ShellHooks} */ (hooks),
+        hooks: /** @type {import('../shell/types').ShellHooks} */ (hooks),
     }
 }
 

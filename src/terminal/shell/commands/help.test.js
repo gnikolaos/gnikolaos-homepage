@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { doNothing } from '@test/doNothing'
-import { defineCommand } from '../registry'
+import { defineCommand } from '../defineCommand'
 import help from './help'
 import { runCommand } from '@test/runCommand'
 

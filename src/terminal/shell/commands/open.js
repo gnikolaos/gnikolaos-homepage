@@ -1,5 +1,5 @@
 import profile from '../../profile'
-import { defineCommand } from '../registry'
+import { defineCommand } from '../defineCommand'
 
 const ALIASES = Object.keys(profile.links)
 const USAGE = `open <${[...ALIASES, 'url'].join('|')}>`

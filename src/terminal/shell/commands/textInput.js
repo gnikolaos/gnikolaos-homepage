@@ -1,7 +1,7 @@
 import { isFsError } from '../../fs/isFsError'
-import { splitFlags } from '../flags'
+import { splitFlags } from '../splitFlags'
 
-/** @typedef {import('../registry').Ctx} Ctx */
+/** @typedef {import('../types').Ctx} Ctx */
 /** @typedef {{ label: string | null, text: string }} TextInput */
 /** @typedef {{ count: number, rest: string[], error: string | null }} LineCount */
 

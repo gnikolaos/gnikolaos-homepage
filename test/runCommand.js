@@ -1,6 +1,6 @@
 import { createFakeCtx } from './createFakeCtx'
 
-/** @typedef {import('@gnikolaos/terminal/shell/registry').Command} Command */
+/** @typedef {import('@gnikolaos/terminal/shell/types').Command} Command */
 
 /**
  * Runs a command against a fake ctx and returns what it recorded plus its exit code.
