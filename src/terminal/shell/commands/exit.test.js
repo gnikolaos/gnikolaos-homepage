@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import exit, { logout } from './exit'
-import { runCommand } from './testUtils'
+import { runCommand } from '@test/runCommand'
 
 describe('exit', () => {
     test.each([

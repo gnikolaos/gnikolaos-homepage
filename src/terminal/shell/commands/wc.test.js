@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { runCommand } from './testUtils'
+import { runCommand } from '@test/runCommand'
 import wc from './wc'
 
 const tree = { 'a.txt': 'one two\nthree\n', 'b.txt': 'καλημέρα' }

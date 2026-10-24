@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'vitest'
+import { doNothing } from '@test/doNothing'
 import { defineCommand } from '../registry'
 import help from './help'
-import { runCommand } from './testUtils'
+import { runCommand } from '@test/runCommand'
 
-const noop = () => {}
 const commands = [
     help,
-    defineCommand({ name: 'ls', summary: 'list', usage: 'ls', run: noop }),
-    defineCommand({ name: 'secret', summary: 'hidden thing', usage: 'secret', hidden: true, run: noop }),
+    defineCommand({ name: 'ls', summary: 'list', usage: 'ls', run: doNothing }),
+    defineCommand({ name: 'secret', summary: 'hidden thing', usage: 'secret', hidden: true, run: doNothing }),
 ]
 
 describe('help', () => {

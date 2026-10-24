@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import echo from './echo'
-import { runCommand } from './testUtils'
+import { runCommand } from '@test/runCommand'
 
 describe('echo', () => {
     test('joins arguments with one space', async () => {

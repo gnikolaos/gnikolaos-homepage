@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import home from './home'
-import { runCommand } from './testUtils'
+import { runCommand } from '@test/runCommand'
 
 describe('home', () => {
     test('navigates to the homepage', async () => {

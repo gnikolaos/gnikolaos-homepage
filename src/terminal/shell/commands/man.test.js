@@ -1,12 +1,17 @@
 import { describe, expect, test } from 'vitest'
+import { doNothing } from '@test/doNothing'
 import { stripAnsi } from '../ansi'
 import { defineCommand } from '../registry'
 import man, { manPage } from './man'
-import { runCommand } from './testUtils'
+import { runCommand } from '@test/runCommand'
 
-const noop = () => {}
-const ls = defineCommand({ name: 'ls', summary: 'list directory contents', usage: 'ls [-al] [path...]', run: noop })
-const secret = defineCommand({ name: 'secret', summary: 'hidden thing', usage: 'secret', hidden: true, run: noop })
+const ls = defineCommand({
+    name: 'ls',
+    summary: 'list directory contents',
+    usage: 'ls [-al] [path...]',
+    run: doNothing,
+})
+const secret = defineCommand({ name: 'secret', summary: 'hidden thing', usage: 'secret', hidden: true, run: doNothing })
 const commands = [man, ls, secret]
 
 const LS_PAGE = 'NAME\n       ls - list directory contents\n\nSYNOPSIS\n       ls [-al] [path...]\n'

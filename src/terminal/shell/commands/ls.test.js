@@ -1,15 +1,17 @@
 import { describe, expect, test } from 'vitest'
 import { stripAnsi } from '../ansi'
 import ls, { formatLong, humanSize } from './ls'
-import { HOME, file, runCommand } from './testUtils'
+import { HOME } from '@test/HOME'
+import { createFakeFile } from '@test/createFakeFile'
+import { runCommand } from '@test/runCommand'
 
 const tree = {
     posts: {
-        'post-1.md': file('# Hi', { size: 1234, mtime: '2025-03-05T08:30:00.000Z' }),
-        'post-2.md': file('# Two', { size: 340 }),
+        'post-1.md': createFakeFile('# Hi', { size: 1234, mtime: '2025-03-05T08:30:00.000Z' }),
+        'post-2.md': createFakeFile('# Two', { size: 340 }),
     },
-    'bio.md': file('# Bio', { size: 2048, mtime: '2026-01-02T00:00:00.000Z' }),
-    'notes.txt': file('plain', { size: 5, mtime: '2024-12-31T23:59:00.000Z' }),
+    'bio.md': createFakeFile('# Bio', { size: 2048, mtime: '2026-01-02T00:00:00.000Z' }),
+    'notes.txt': createFakeFile('plain', { size: 5, mtime: '2024-12-31T23:59:00.000Z' }),
 }
 
 /**

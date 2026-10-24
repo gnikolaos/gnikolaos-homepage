@@ -1,8 +1,8 @@
-import { isFsError } from '../fs/FsError'
+import { isFsError } from '../fs/isFsError'
 
 /** @typedef {import('./registry').Registry} Registry */
 /** @typedef {import('./registry').CompletionKind} CompletionKind */
-/** @typedef {import('../fs/vfs').Vfs} Vfs */
+/** @typedef {import('../fs/types').Vfs} Vfs */
 /** @typedef {{ start: number, end: number, candidates: string[] }} Completion */
 
 /**
@@ -139,7 +139,7 @@ const createCompleter = ({ fs, registry, getCwd }) => {
 
     /**
      * @param {string} dirPath
-     * @returns {Promise<import('../fs/vfs').Entry[]>}
+     * @returns {Promise<import('../fs/types').Entry[]>}
      */
     const listDir = async (dirPath) => {
         try {

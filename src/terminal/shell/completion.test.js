@@ -1,7 +1,8 @@
 import { describe, expect, test } from 'vitest'
 import { FsError } from '../fs/FsError'
-import { createVfs } from '../fs/vfs'
-import { HOME, ioFromTree } from './commands/testUtils'
+import { createVfs } from '../fs/createVfs'
+import { HOME } from '@test/HOME'
+import { createIoFromTree } from '@test/createIoFromTree'
 import { commonPrefix, createCompleter, displayName, escapeWord, findWordAtCursor } from './completion'
 import { createRegistry, defineCommand } from './registry'
 
@@ -24,9 +25,9 @@ const registry = createRegistry([
 ])
 
 /**
- * @param {{ cwd?: string, io?: import('../fs/vfs').FsIo }} [options]
+ * @param {{ cwd?: string, io?: import('../fs/types').FsIo }} [options]
  */
-const setup = ({ cwd = HOME, io = ioFromTree(tree) } = {}) =>
+const setup = ({ cwd = HOME, io = createIoFromTree(tree) } = {}) =>
     createCompleter({ fs: createVfs(io, { home: HOME }), registry, getCwd: () => cwd })
 
 /**
@@ -163,7 +164,7 @@ describe('createCompleter', () => {
 
     test('yields nothing when a manifest fails to load', async () => {
         const io = {
-            ...ioFromTree(tree),
+            ...createIoFromTree(tree),
             loadManifest: async (/** @type {string} */ url) => {
                 throw new FsError('EIO', url)
             },
@@ -173,7 +174,7 @@ describe('createCompleter', () => {
 
     test('rethrows errors that are not fs errors', async () => {
         const fs = {
-            ...createVfs(ioFromTree(tree), { home: HOME }),
+            ...createVfs(createIoFromTree(tree), { home: HOME }),
             readdir: async () => {
                 throw new TypeError('boom')
             },
@@ -183,7 +184,7 @@ describe('createCompleter', () => {
     })
 
     test('loads directories lazily and shares concurrent loads', async () => {
-        const base = ioFromTree(tree)
+        const base = createIoFromTree(tree)
         /** @type {string[]} */
         const loaded = []
         const io = {

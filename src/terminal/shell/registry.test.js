@@ -1,26 +1,32 @@
 import { describe, expect, test } from 'vitest'
+import { doNothing } from '@test/doNothing'
 import { createRegistry, defineCommand } from './registry.js'
-
-const noop = () => {}
 
 /** @param {string} name */
 const command = (name, hidden = false) =>
-    defineCommand({ name, summary: `${name} summary`, usage: name, hidden, run: noop })
+    defineCommand({ name, summary: `${name} summary`, usage: name, hidden, run: doNothing })
 
 describe('defineCommand', () => {
     test('defaults hidden to false and freezes the command', () => {
-        const cmd = defineCommand({ name: 'ls', summary: 'list', usage: 'ls', run: noop })
-        expect(cmd).toEqual({ name: 'ls', summary: 'list', usage: 'ls', hidden: false, complete: 'paths', run: noop })
+        const cmd = defineCommand({ name: 'ls', summary: 'list', usage: 'ls', run: doNothing })
+        expect(cmd).toEqual({
+            name: 'ls',
+            summary: 'list',
+            usage: 'ls',
+            hidden: false,
+            complete: 'paths',
+            run: doNothing,
+        })
         expect(Object.isFrozen(cmd)).toBe(true)
     })
 
     test('keeps the completion kind when given', () => {
-        const cmd = defineCommand({ name: 'cd', summary: 's', usage: 'u', complete: 'dirs', run: noop })
+        const cmd = defineCommand({ name: 'cd', summary: 's', usage: 'u', complete: 'dirs', run: doNothing })
         expect(cmd.complete).toBe('dirs')
     })
 
     test('rejects an unknown completion kind', () => {
-        const def = /** @type {any} */ ({ name: 'cd', summary: 's', usage: 'u', complete: 'files', run: noop })
+        const def = /** @type {any} */ ({ name: 'cd', summary: 's', usage: 'u', complete: 'files', run: doNothing })
         expect(() => defineCommand(def)).toThrow("unknown completion 'files'")
     })
 
@@ -29,7 +35,7 @@ describe('defineCommand', () => {
     })
 
     test.each(['', 'two words', 'tab\tname'])('rejects invalid name %j', (name) => {
-        expect(() => defineCommand({ name, summary: 's', usage: 'u', run: noop })).toThrow(TypeError)
+        expect(() => defineCommand({ name, summary: 's', usage: 'u', run: doNothing })).toThrow(TypeError)
     })
 
     test('rejects a missing run function', () => {
@@ -38,8 +44,8 @@ describe('defineCommand', () => {
     })
 
     test('rejects missing summary or usage', () => {
-        const noSummary = /** @type {any} */ ({ name: 'ls', usage: 'u', run: noop })
-        const noUsage = /** @type {any} */ ({ name: 'ls', summary: 's', run: noop })
+        const noSummary = /** @type {any} */ ({ name: 'ls', usage: 'u', run: doNothing })
+        const noUsage = /** @type {any} */ ({ name: 'ls', summary: 's', run: doNothing })
         expect(() => defineCommand(noSummary)).toThrow(TypeError)
         expect(() => defineCommand(noUsage)).toThrow(TypeError)
     })

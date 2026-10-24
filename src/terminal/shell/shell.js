@@ -16,7 +16,7 @@ import { stripAnsi } from './ansi.js'
 /**
  * @typedef {object} ShellDeps
  * @property {Registry} registry
- * @property {import('../fs/vfs').Vfs} fs
+ * @property {import('../fs/types').Vfs} fs
  * @property {{ user: string, host: string }} session
  * @property {() => string} getCwd
  * @property {(absPath: string) => void} setCwd

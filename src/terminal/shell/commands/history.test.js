@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import history from './history'
-import { runCommand } from './testUtils'
+import { runCommand } from '@test/runCommand'
 
 describe('history', () => {
     test('numbers entries zsh style from 1', async () => {

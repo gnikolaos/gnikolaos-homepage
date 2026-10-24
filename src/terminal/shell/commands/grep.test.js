@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { stripAnsi } from '../ansi'
 import grep from './grep'
-import { runCommand } from './testUtils'
+import { runCommand } from '@test/runCommand'
 
 const tree = { 'a.txt': 'apple\nBanana\ncherry\n', 'b.txt': 'banana split' }
 

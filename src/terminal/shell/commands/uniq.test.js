@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { runCommand } from './testUtils'
+import { runCommand } from '@test/runCommand'
 import uniq from './uniq'
 
 const tree = { 'a.txt': 'x\nx\ny\n' }

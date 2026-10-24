@@ -1,4 +1,4 @@
-import { isFsError } from '../../fs/FsError'
+import { isFsError } from '../../fs/isFsError'
 import { splitFlags } from '../flags'
 
 /** @typedef {import('../registry').Ctx} Ctx */

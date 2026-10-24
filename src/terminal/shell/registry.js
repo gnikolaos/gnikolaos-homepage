@@ -1,6 +1,6 @@
 /**
  * @typedef {object} Ctx
- * @property {import('../fs/vfs').Vfs} fs
+ * @property {import('../fs/types').Vfs} fs
  * @property {string} cwd
  * @property {(absPath: string) => void} setCwd
  * @property {string} home

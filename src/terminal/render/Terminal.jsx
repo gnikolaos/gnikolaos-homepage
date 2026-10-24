@@ -67,7 +67,7 @@ const Terminal = () => {
                         {(block) =>
                             block.kind === 'prompt' ? (
                                 <Prompt
-                                    path={vfs.displayPath(block.cwd)}
+                                    path={vfs.formatDisplayPath(block.cwd)}
                                     status={block.status}
                                     running={block.running}
                                     input={block.input}
@@ -79,7 +79,7 @@ const Terminal = () => {
                     </For>
                     <Show when={!terminalState.busy}>
                         <Prompt
-                            path={vfs.displayPath(terminalState.session.cwd)}
+                            path={vfs.formatDisplayPath(terminalState.session.cwd)}
                             status={activeStatus()}
                             running={false}
                             input={terminalState.editor.input}

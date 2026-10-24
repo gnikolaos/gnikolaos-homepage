@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import cd from './cd'
-import { HOME, runCommand } from './testUtils'
+import { HOME } from '@test/HOME'
+import { runCommand } from '@test/runCommand'
 
 const tree = { posts: { drafts: {}, 'post-1.md': '# Hi' }, 'bio.md': '# Bio' }
 

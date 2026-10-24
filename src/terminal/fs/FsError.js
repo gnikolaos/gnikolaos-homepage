@@ -1,11 +1,6 @@
-/** @typedef {'ENOENT' | 'ENOTDIR' | 'EISDIR' | 'EIO'} FsErrorCode */
+import { FS_ERROR_DESCRIPTIONS } from './FS_ERROR_DESCRIPTIONS'
 
-const descriptions = {
-    ENOENT: 'No such file or directory',
-    ENOTDIR: 'Not a directory',
-    EISDIR: 'Is a directory',
-    EIO: 'Input/output error',
-}
+/** @typedef {import('./types').FsErrorCode} FsErrorCode */
 
 class FsError extends Error {
     /**
@@ -13,18 +8,12 @@ class FsError extends Error {
      * @param {string} path
      */
     constructor(code, path) {
-        super(`${code}: ${descriptions[code]}, '${path}'`)
+        super(`${code}: ${FS_ERROR_DESCRIPTIONS[code]}, '${path}'`)
         this.name = 'FsError'
         this.code = code
         this.path = path
-        this.description = descriptions[code]
+        this.description = FS_ERROR_DESCRIPTIONS[code]
     }
 }
 
-/**
- * @param {unknown} error
- * @returns {error is FsError}
- */
-const isFsError = (error) => error instanceof FsError
-
-export { FsError, isFsError }
+export { FsError }

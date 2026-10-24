@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import tail from './tail'
-import { runCommand } from './testUtils'
+import { runCommand } from '@test/runCommand'
 
 const numbers = (from, to) =>
     Array.from({ length: to - from + 1 }, (_, i) => `${from + i}`)

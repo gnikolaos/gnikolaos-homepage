@@ -1,4 +1,4 @@
-import { isFsError } from '../../fs/FsError'
+import { isFsError } from '../../fs/isFsError'
 import { defineCommand } from '../registry'
 
 /** @typedef {import('../registry').Ctx} Ctx */

@@ -10,8 +10,8 @@ import {
     saveHistory,
     searchHistory,
 } from '../history/history'
-import { createVfs } from '../fs/vfs'
-import { browserIo } from '../fs/manifest'
+import { createVfs } from '../fs/createVfs'
+import { browserIo } from '../fs/browserIo'
 import { createRegistry } from '../shell/registry'
 import { createShell } from '../shell/shell'
 import { commonPrefix, createCompleter, displayName, escapeWord } from '../shell/completion'

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import profile from '../../profile'
 import open from './open'
-import { runCommand } from './testUtils'
+import { runCommand } from '@test/runCommand'
 
 describe('open', () => {
     test.each(['github', 'linkedin', 'email'])('resolves the %s alias from the profile', async (alias) => {

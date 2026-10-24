@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import { createFakeCtx, file } from './testUtils'
+import { createFakeCtx } from '@test/createFakeCtx'
+import { createFakeFile } from '@test/createFakeFile'
 import {
     concatLines,
     parseLineCount,
@@ -10,7 +11,12 @@ import {
     writeLines,
 } from './textInput'
 
-const tree = { 'a.txt': 'one\ntwo\n', 'b.txt': 'three', posts: {}, 'broken.txt': file('', { failRead: true }) }
+const tree = {
+    'a.txt': 'one\ntwo\n',
+    'b.txt': 'three',
+    posts: {},
+    'broken.txt': createFakeFile('', { failRead: true }),
+}
 
 describe('readInputs', () => {
     test('reads files labelled as typed', async () => {

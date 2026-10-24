@@ -1,5 +1,7 @@
 import { describe, expect, test } from 'vitest'
-import { createVfs } from './vfs'
+import { createIoFromTree } from '@test/createIoFromTree'
+import { expectFsError } from '@test/expectFsError'
+import { createVfs } from './createVfs'
 import { FsError } from './FsError'
 
 const tree = {
@@ -16,52 +18,21 @@ const tree = {
     projects: {},
 }
 
-/**
- * @param {Record<string, unknown>} dir
- * @returns {import('./vfs').Entry[]}
- */
-const toEntries = (dir) =>
-    Object.entries(dir).map(([name, value]) =>
-        typeof value === 'string' ? { name, type: 'file', size: value.length } : { name, type: 'dir' },
-    )
-
-/**
- * @param {string} url
- * @returns {unknown}
- */
-const lookup = (url) => {
-    /** @type {unknown} */
-    let node = tree
-    for (const segment of url
-        .replace(/^\/dirs/, '')
-        .split('/')
-        .filter(Boolean)) {
-        node =
-            typeof node === 'object' && node !== null
-                ? /** @type {Record<string, unknown>} */ (node)[segment]
-                : undefined
-    }
-    return node
-}
-
 const createFakeIo = () => {
+    const base = createIoFromTree(tree)
     /** @type {string[]} */
     const manifestCalls = []
     /** @type {string[]} */
     const fileCalls = []
-    /** @type {import('./vfs').FsIo} */
+    /** @type {import('./types').FsIo} */
     const io = {
         loadManifest: async (dirUrl) => {
             manifestCalls.push(dirUrl)
-            const node = lookup(dirUrl)
-            if (typeof node !== 'object' || node === null) throw new FsError('ENOENT', dirUrl)
-            return toEntries(/** @type {Record<string, unknown>} */ (node))
+            return base.loadManifest(dirUrl)
         },
         loadFile: async (fileUrl) => {
             fileCalls.push(fileUrl)
-            const node = lookup(fileUrl)
-            if (typeof node !== 'string') throw new FsError('ENOENT', fileUrl)
-            return node
+            return base.loadFile(fileUrl)
         },
     }
     return { io, manifestCalls, fileCalls }
@@ -70,15 +41,6 @@ const createFakeIo = () => {
 const setup = () => {
     const fake = createFakeIo()
     return { ...fake, vfs: createVfs(fake.io) }
-}
-
-/**
- * @param {Promise<unknown>} promise
- * @param {string} code
- */
-const expectFsError = async (promise, code) => {
-    await expect(promise).rejects.toBeInstanceOf(FsError)
-    await expect(promise).rejects.toMatchObject({ code })
 }
 
 describe('resolve', () => {
@@ -126,7 +88,7 @@ describe('resolve', () => {
     })
 })
 
-describe('displayPath', () => {
+describe('formatDisplayPath', () => {
     const { vfs } = setup()
 
     test.each([
@@ -137,11 +99,11 @@ describe('displayPath', () => {
         ['/', '/'],
         ['/home/visitorx', '/home/visitorx'],
     ])('%s -> %s', (path, expected) => {
-        expect(vfs.displayPath(path)).toBe(expected)
+        expect(vfs.formatDisplayPath(path)).toBe(expected)
     })
 })
 
-describe('toUrl', () => {
+describe('findContentUrl', () => {
     const { vfs } = setup()
 
     test.each([
@@ -152,7 +114,7 @@ describe('toUrl', () => {
         ['/', null],
         ['/home/visitorx/a.md', null],
     ])('%s -> %s', (path, expected) => {
-        expect(vfs.toUrl(path)).toBe(expected)
+        expect(vfs.findContentUrl(path)).toBe(expected)
     })
 })
 

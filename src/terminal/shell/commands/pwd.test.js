@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import pwd from './pwd'
-import { HOME, runCommand } from './testUtils'
+import { HOME } from '@test/HOME'
+import { runCommand } from '@test/runCommand'
 
 describe('pwd', () => {
     test('prints the absolute cwd', async () => {

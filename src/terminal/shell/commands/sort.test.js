@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import sort from './sort'
-import { runCommand } from './testUtils'
+import { runCommand } from '@test/runCommand'
 
 const tree = { 'a.txt': 'pear\napple\n', 'b.txt': 'Zebra\nbanana' }
 

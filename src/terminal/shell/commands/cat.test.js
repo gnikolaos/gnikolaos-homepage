@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vitest'
 import cat from './cat'
-import { file, runCommand } from './testUtils'
+import { createFakeFile } from '@test/createFakeFile'
+import { runCommand } from '@test/runCommand'
 
 const tree = {
-    posts: { 'post-1.md': '# Hi', 'broken.md': file('', { failRead: true }) },
+    posts: { 'post-1.md': '# Hi', 'broken.md': createFakeFile('', { failRead: true }) },
     'bio.md': '# Bio',
     'notes.txt': 'plain',
 }
