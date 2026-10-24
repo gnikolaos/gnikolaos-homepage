@@ -34,19 +34,14 @@ const createSpinnerFrame = (status) => {
  */
 const Indicator = (props) => {
     const frame = createSpinnerFrame(() => props.status)
+    const glyph = () => (frame() === null ? '❯' : SPINNER_FRAMES[/** @type {number} */ (frame())])
     return (
-        <Show
-            when={frame() !== null}
-            fallback={
-                <span
-                    classList={{ 'text-green-400': props.status !== 'error', 'text-red-400': props.status === 'error' }}
-                >
-                    ❯
-                </span>
-            }
+        <span
+            class="inline-block w-[1ch] text-center"
+            classList={{ 'text-green-400': props.status !== 'error', 'text-red-400': props.status === 'error' }}
         >
-            <span class="text-green-400">{SPINNER_FRAMES[/** @type {number} */ (frame())]}</span>
-        </Show>
+            {glyph()}
+        </span>
     )
 }
 
