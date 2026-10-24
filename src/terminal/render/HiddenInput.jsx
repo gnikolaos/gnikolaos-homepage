@@ -14,6 +14,8 @@ import {
 /** @typedef {import('../editor/keymap').Action} Action */
 /** @typedef {import('../store/terminalStore').EditOp} EditOp */
 
+const compositionInputTypes = new Set(['insertCompositionText', 'insertFromComposition'])
+
 /**
  * @param {Action} action
  * @returns {void}
@@ -76,7 +78,7 @@ const HiddenInput = (props) => {
 
     /** @param {InputEvent} e */
     const onInput = (e) => {
-        if (composing || e.isComposing) return
+        if (composing || e.isComposing || compositionInputTypes.has(e.inputType)) return
         if (e.data) typeText(e.data)
         if (el) el.value = ''
     }

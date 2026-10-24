@@ -13,6 +13,8 @@ const markdown = new Marked({
     },
 })
 
+const selectable = 'select-text selection:bg-[#00212a] selection:text-green-600'
+
 /**
  * @param {string} content
  * @returns {string}
@@ -26,12 +28,12 @@ const Output = (props) => (
     <>
         {props.output.kind === 'markdown' ? (
             <article
-                class="prose prose-sm prose-stone prose-invert md:prose-base select-text selection:bg-[#00212a] selection:text-green-600"
+                class={`prose prose-sm prose-stone prose-invert md:prose-base ${selectable}`}
                 // eslint-disable-next-line solid/no-innerhtml
                 innerHTML={toHtml(props.output.content)}
             />
         ) : (
-            <pre class="font-meslo break-words whitespace-pre-wrap">{props.output.content}</pre>
+            <pre class={`font-meslo break-words whitespace-pre-wrap ${selectable}`}>{props.output.content}</pre>
         )}
     </>
 )
