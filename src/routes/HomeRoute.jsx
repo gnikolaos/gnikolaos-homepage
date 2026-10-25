@@ -8,7 +8,7 @@ import { connection } from '@gnikolaos/connection/connection'
 
 const PLUG_IN_DELAY_MS = 900
 
-const Home = () => {
+const HomeRoute = () => {
     const navigate = useNavigate()
     const [isConnected, setIsConnected] = createSignal(connection.connected())
 
@@ -16,7 +16,10 @@ const Home = () => {
         on(
             isConnected,
             (connected) => {
-                if (!connected) return connection.disconnect()
+                if (!connected) {
+                    connection.disconnect()
+                    return
+                }
                 connection.connect()
                 const timeout = setTimeout(() => navigate('/terminal'), PLUG_IN_DELAY_MS)
                 onCleanup(() => clearTimeout(timeout))
@@ -33,10 +36,6 @@ const Home = () => {
         }
     }
 
-    /**
-     * Navigates to the terminal.
-     * @returns void
-     */
     const navigateToTerminal = () => {
         if (isConnected()) {
             navigate('/terminal')
@@ -93,4 +92,4 @@ const Home = () => {
     )
 }
 
-export default Home
+export default HomeRoute

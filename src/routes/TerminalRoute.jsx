@@ -7,20 +7,6 @@ import profile from '@gnikolaos/terminal/profile'
 import Terminal from '@gnikolaos/terminal/render/Terminal'
 import { terminal } from '@gnikolaos/terminal/store/terminal'
 
-/** @import { IntroStep } from '@gnikolaos/terminal/intro/types' */
-
-/** @type {IntroStep[]} */
-const RECONNECT_STEPS = [{ text: `Connected to ${profile.host}.\n`, delayMs: 0 }]
-
-const buildBrowserBootSteps = () =>
-    buildBootSteps({
-        reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-        user: profile.user,
-        host: profile.host,
-        ip: `10.0.0.${2 + Math.floor(Math.random() * 253)}`,
-        lastLoginAt: connection.recordLogin(),
-    })
-
 /**
  * Renders the terminal page, playing the boot or reconnect intro and then the deep link's commands on first visit.
  */
@@ -35,7 +21,19 @@ const TerminalRoute = () => {
         const lines = planDeepLink(params.path)
         const reconnect = connection.booted() || lines.length > 0
         connection.markBooted()
-        await terminal.actions.playIntro(reconnect ? RECONNECT_STEPS : buildBrowserBootSteps())
+        if (reconnect) {
+            await terminal.actions.playIntro([{ text: `Connected to ${profile.host}.\n`, delayMs: 0 }])
+        } else {
+            await terminal.actions.playIntro(
+                buildBootSteps({
+                    reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+                    user: profile.user,
+                    host: profile.host,
+                    ip: `10.0.0.${2 + Math.floor(Math.random() * 253)}`,
+                    lastLoginAt: connection.recordLogin(),
+                }),
+            )
+        }
         for (const line of lines) await terminal.actions.runLine(line)
     })
 

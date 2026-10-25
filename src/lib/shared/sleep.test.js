@@ -10,19 +10,12 @@ describe('sleep', () => {
         vi.useRealTimers()
     })
 
-    test('resolves after the given milliseconds', async () => {
+    test('resolves after the given milliseconds when the signal never aborts', async () => {
         const onResolve = vi.fn()
-        sleep(600).then(onResolve)
+        sleep(600, new AbortController().signal).then(onResolve)
         await vi.advanceTimersByTimeAsync(599)
         expect(onResolve).not.toHaveBeenCalled()
         await vi.advanceTimersByTimeAsync(1)
-        expect(onResolve).toHaveBeenCalledOnce()
-    })
-
-    test('resolves with a signal that never aborts', async () => {
-        const onResolve = vi.fn()
-        sleep(600, new AbortController().signal).then(onResolve)
-        await vi.advanceTimersByTimeAsync(600)
         expect(onResolve).toHaveBeenCalledOnce()
     })
 
