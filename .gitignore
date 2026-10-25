@@ -4,3 +4,4 @@ dist
 
 tmp/
 public/dirs/**/_manifest.json
+.workmux.yaml
