@@ -70,6 +70,7 @@ const setup = (overrides = {}) => {
         navigate: vi.fn(),
         closeSession: vi.fn(),
         openUrl: vi.fn(),
+        readBrowserInfo: vi.fn(),
         ...overrides,
     }
     return { deps, shell: createShell(deps), sink: createRecordingSink() }

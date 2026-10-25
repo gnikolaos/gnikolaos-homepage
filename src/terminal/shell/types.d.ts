@@ -1,4 +1,5 @@
 import type { Vfs } from '../fs/types'
+import type { BrowserInfo } from '../sysinfo/types'
 
 export type Stage = { argv: string[] }
 export type ParsedLine = { pipeline: Stage[] }
@@ -32,7 +33,12 @@ export interface ShellHooks {
 }
 
 export type Session = { user: string; host: string }
-export type ShellDeps = ShellHooks & { registry: Registry; fs: Vfs; session: Session }
+export type ShellDeps = ShellHooks & {
+    registry: Registry
+    fs: Vfs
+    session: Session
+    readBrowserInfo: () => BrowserInfo
+}
 
 export interface Shell {
     run: (line: string, sink: Sink, signal?: AbortSignal) => Promise<{ exitCode: number }>
@@ -49,6 +55,7 @@ export interface Ctx {
     navigate: (path: string) => void
     closeSession: () => void
     openUrl: (url: string) => void
+    readBrowserInfo: () => BrowserInfo
     signal: AbortSignal
     stdout: (text: string) => void
     stderr: (text: string) => void

@@ -17,6 +17,7 @@ import sort from './sort.command'
 import tail from './tail.command'
 import uniq from './uniq.command'
 import wc from './wc.command'
+import whoami from './whoami.command'
 
 /** @import { Command } from '../types' */
 
@@ -41,6 +42,7 @@ const commands = [
     tail,
     uniq,
     wc,
+    whoami,
 ]
 
 export { commands }

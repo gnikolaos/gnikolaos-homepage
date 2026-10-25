@@ -13,7 +13,7 @@ import { parseLine } from './parseLine'
  * @returns {Shell}
  */
 const createShell = (deps) => {
-    const { registry, fs, session, getCwd, setCwd, getHistory, navigate, closeSession, openUrl } = deps
+    const { registry, fs, session, getCwd, setCwd, getHistory, navigate, closeSession, openUrl, readBrowserInfo } = deps
 
     /**
      * @param {Sink} sink
@@ -31,6 +31,7 @@ const createShell = (deps) => {
         navigate,
         closeSession,
         openUrl,
+        readBrowserInfo,
         signal,
         stdout: sink.stdout,
         stderr: sink.stderr,

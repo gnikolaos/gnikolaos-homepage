@@ -1,16 +1,25 @@
 import { createVfs } from '@gnikolaos/terminal/fs/createVfs'
 import { createRegistry } from '@gnikolaos/terminal/shell/createRegistry'
+import { BROWSER_INFO } from './BROWSER_INFO'
 import { HOME } from './HOME'
 import { createIoFromTree } from './createIoFromTree'
 
 /** @import { Command, Ctx } from '@gnikolaos/terminal/shell/types' */
+/** @import { BrowserInfo } from '@gnikolaos/terminal/sysinfo/types' */
 /** @import { FakeTree } from './types' */
 
 /**
  * Creates a command ctx over a fake tree that records everything the command outputs.
- * @param {{ tree?: FakeTree, cwd?: string, history?: string[], commands?: Command[], signal?: AbortSignal }} [options]
+ * @param {{ tree?: FakeTree, cwd?: string, history?: string[], commands?: Command[], signal?: AbortSignal, readBrowserInfo?: () => BrowserInfo }} [options]
  */
-const createFakeCtx = ({ tree = {}, cwd = HOME, history = [], commands = [], signal } = {}) => {
+const createFakeCtx = ({
+    tree = {},
+    cwd = HOME,
+    history = [],
+    commands = [],
+    signal,
+    readBrowserInfo = () => BROWSER_INFO,
+} = {}) => {
     const recorded = {
         stdout: [],
         stderr: [],
@@ -37,6 +46,7 @@ const createFakeCtx = ({ tree = {}, cwd = HOME, history = [], commands = [], sig
             recorded.sessionCloses += 1
         },
         openUrl: (url) => recorded.opened.push(url),
+        readBrowserInfo,
         signal: signal ?? new AbortController().signal,
         stdout: (text) => recorded.stdout.push(text),
         stderr: (text) => recorded.stderr.push(text),
