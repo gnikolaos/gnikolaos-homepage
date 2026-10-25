@@ -21,10 +21,11 @@ import { HISTORY_KEY } from './HISTORY_KEY'
  * @property {(call: FakeCall) => void} [script]
  * @property {(input: string, cursor: number) => Completion} [complete]
  * @property {string[]} [history]
+ * @property {() => void} [onSessionClose]
  */
 
 /** @param {SetupOptions} [options] */
-const setup = ({ storage = createMemoryStorage(), script, complete, history } = {}) => {
+const setup = ({ storage = createMemoryStorage(), script, complete, history, onSessionClose } = {}) => {
     if (history) storage.setItem(HISTORY_KEY, JSON.stringify(history))
     /** @type {FakeCall[]} */
     const calls = []
@@ -36,6 +37,7 @@ const setup = ({ storage = createMemoryStorage(), script, complete, history } = 
         home: '/home/visitor',
         storage,
         openUrl: () => {},
+        onSessionClose,
         complete: async (input, cursor) => {
             completeCalls.push({ input, cursor })
             return complete ? complete(input, cursor) : { start: cursor, end: cursor, candidates: [] }
@@ -900,5 +902,14 @@ describe('closeSession hook', () => {
         expect(seen).toEqual([{ path: '/', blocks: 1 }])
         expect(t.state.blocks).toEqual([])
         expect(t.state.lastExitCode).toBe(0)
+    })
+
+    test('reports the closed session before navigating home', () => {
+        /** @type {string[]} */
+        const seen = []
+        const t = setup({ onSessionClose: () => seen.push('closed') })
+        t.actions.setNavigate((path) => seen.push(`navigate ${path}`))
+        t.hooks.closeSession()
+        expect(seen).toEqual(['closed', 'navigate /'])
     })
 })

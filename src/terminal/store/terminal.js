@@ -1,3 +1,4 @@
+import { connection } from '@gnikolaos/connection/connection'
 import { createBrowserStorage } from '@gnikolaos/lib/shared/createBrowserStorage'
 import { vfs } from '../fs/vfs'
 import { createCompleter } from '../shell/createCompleter'
@@ -16,6 +17,7 @@ const terminal = createTerminal({
     home: vfs.home,
     storage: createBrowserStorage('sessionStorage'),
     complete: createCompleter({ fs: vfs, registry, getCwd: () => terminal.state.session.cwd }),
+    onSessionClose: () => connection.disconnect(),
     makeShell: (hooks) =>
         createShell({ ...hooks, registry, fs: vfs, session: { user: profile.user, host: profile.host } }),
 })

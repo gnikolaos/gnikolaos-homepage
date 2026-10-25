@@ -6,26 +6,12 @@ import { createEffect, createSignal, on, onCleanup, onMount } from 'solid-js'
 import Headertwo from '@gnikolaos/components/Headertwo'
 import { connection } from '@gnikolaos/connection/connection'
 
-const PLUG_IN_DELAY_MS = 900
-
 const HomeRoute = () => {
     const navigate = useNavigate()
     const [isConnected, setIsConnected] = createSignal(connection.connected())
 
     createEffect(
-        on(
-            isConnected,
-            (connected) => {
-                if (!connected) {
-                    connection.disconnect()
-                    return
-                }
-                connection.connect()
-                const timeout = setTimeout(() => navigate('/terminal'), PLUG_IN_DELAY_MS)
-                onCleanup(() => clearTimeout(timeout))
-            },
-            { defer: true },
-        ),
+        on(isConnected, (connected) => (connected ? connection.connect() : connection.disconnect()), { defer: true }),
     )
 
     /** @param {KeyboardEvent} e */

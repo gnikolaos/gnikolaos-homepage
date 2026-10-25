@@ -49,6 +49,7 @@ const createTerminal = ({
     host = profile.host,
     openUrl = openInNewTab,
     complete: completer = completeNothing,
+    onSessionClose = () => {},
 }) => {
     /** @type {[TerminalState, SetStoreFunction<TerminalState>]} */
     const [state, setState] = createStore({
@@ -79,6 +80,7 @@ const createTerminal = ({
         getHistory: () => state.history.entries,
         navigate: (path) => navigateFn(path),
         closeSession: () => {
+            onSessionClose()
             navigateFn('/')
             endSession()
         },
