@@ -17,23 +17,44 @@ const Headertwo = (props) => {
         // z-20 keeps the hanging plug above <main>, so it can still be grabbed there.
         <header class="relative isolate z-20 flex justify-center overflow-hidden py-8 text-xs md:text-base">
             <div class="container ml-4 flex md:px-8">
-                <div class="pointer-events-none z-10 rounded-sm bg-gray-300/10 px-5 py-2 md:scale-150 md:bg-gray-300/20">
-                    {/* RJ45 socket, with the port opening the plug goes into on its right edge */}
-                    <div
-                        ref={setSocket}
-                        class="relative z-50 flex size-11 items-start justify-end gap-0.5 rounded-xs bg-gray-300 pt-0.5 pr-0.5 shadow-md ring-1 ring-gray-400/40"
-                    >
-                        <span
-                            class={`size-1.5 rounded-full bg-gray-400 transition-all ${props.isConnected ? 'animate-success-blink-alt' : 'animate-error-blink'}`}
-                        />
-                        <span
-                            class={`size-1.5 rounded-full bg-gray-400 transition-all ${props.isConnected ? 'bg-green-600/50' : 'bg-gray-400'}`}
-                        />
-                        <span
-                            class={`size-1.5 rounded-full bg-gray-400 transition-all ${props.isConnected ? 'animate-success-blink' : 'bg-gray-400'}`}
-                        />
-                        <div class="absolute top-1/2 right-0 h-3 w-[3px] -translate-y-1/2 rounded-l-[1px] bg-gray-400/40" />
+                <div class="group pointer-events-none relative z-10">
+                    <div class="pointer-events-none rounded-sm bg-gray-300/10 px-5 py-2 md:scale-150 md:bg-gray-300/20">
+                        {/* RJ45 socket, with the port opening the plug goes into on its right edge. Once connected it
+                        opens the terminal. */}
+                        <a
+                            href={props.isConnected ? '/terminal' : undefined}
+                            aria-label={props.isConnected ? 'Open terminal' : undefined}
+                            class="block outline-none"
+                            classList={{ 'pointer-events-auto cursor-pointer': props.isConnected }}
+                        >
+                            <div
+                                ref={setSocket}
+                                aria-hidden="true"
+                                class="relative z-50 flex size-11 items-start justify-end gap-0.5 rounded-xs bg-gray-300 pt-0.5 pr-0.5 shadow-md ring-1 ring-gray-400/40 transition-shadow"
+                                classList={{ 'hover:ring-white': props.isConnected }}
+                            >
+                                <span
+                                    class={`size-1.5 rounded-full bg-gray-400 transition-all motion-reduce:animate-none ${props.isConnected ? 'animate-success-blink-alt motion-reduce:bg-green-500' : 'animate-error-blink motion-reduce:bg-red-500'}`}
+                                />
+                                <span
+                                    class={`size-1.5 rounded-full bg-gray-400 transition-all motion-reduce:animate-none ${props.isConnected ? 'bg-green-600/50' : 'bg-gray-400'}`}
+                                />
+                                <span
+                                    class={`size-1.5 rounded-full bg-gray-400 transition-all motion-reduce:animate-none ${props.isConnected ? 'animate-success-blink motion-reduce:bg-green-500' : 'bg-gray-400'}`}
+                                />
+                                <div class="absolute top-1/2 right-0 h-3 w-[3px] -translate-y-1/2 rounded-l-[1px] bg-gray-400/40" />
+                            </div>
+                        </a>
                     </div>
+                    {/*
+                     * Focus ring for the socket link, kept outside the scaled box so it matches the icon links: the
+                     * socket's on-screen box plus 8px. The socket sits at 20px/8px in the box, which md:scale-150
+                     * grows by half around its centre.
+                     */}
+                    <span
+                        class="pointer-events-none absolute top-0 left-3 hidden size-15 rounded-sm outline-stone-400 group-has-[a:focus-visible]:block md:-top-[11px] md:left-px md:size-[82px]"
+                        style={{ 'outline-style': 'auto', 'outline-width': '1px', 'outline-offset': '1px' }}
+                    />
                 </div>
             </div>
             <Cable

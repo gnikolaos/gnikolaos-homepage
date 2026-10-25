@@ -57,6 +57,8 @@ const SOCKET_DEPTH_PX = 5
  * movement. Touch, and pulling a seated plug out, keep it 1:1.
  */
 const DRAG_GAIN = 1.4
+/** How long the keyboard takes to carry the plug to the socket, in ms. */
+const CARRY_MS = 700
 /** Within this distance of the socket the plug clicks in, in unscaled px. */
 const SNAP_RADIUS_PX = 14
 /** After a pull-out, the plug must get this far from the socket before it can click in again, in unscaled px. */
@@ -66,6 +68,8 @@ const ALIGN_RADIUS_PX = 120
 /** A seated plug pops out once pulled this far, in unscaled px; until then it barely moves. */
 const PULL_OUT_PX = 40
 const PULL_RESISTANCE = 0.2
+/** Padding around the plug inside its focus ring in screen px, matching the page's icon links. */
+const FOCUS_PADDING_PX = 8
 /** Cable thickness in unscaled px, matching the plug boot. */
 const THICKNESS_PX = 4
 /** Below this per-step movement (px) the rope counts as resting. */
@@ -104,6 +108,11 @@ const Cable = (props) => {
     let headRef
     /** @type {{ pointerId: number, pointer: Point, lastPointer: Point, client: Point, gain: number, offset: Point, fraction: number, canSnap: boolean } | null} */
     let grab = null
+    /**
+     * A keyboard connect in progress: the plug is held at its middle and carried from `from` to the socket.
+     * @type {{ from: Point, start: number } | null}
+     */
+    let carry = null
     let cableLength = 0
     /** How far the anchor turn has eased in, from 0 (free) to 1 (seated). */
     let leadMix = 0
@@ -131,6 +140,7 @@ const Cable = (props) => {
     const releaseGrab = () => {
         if (grab && plugRef?.hasPointerCapture(grab.pointerId)) plugRef.releasePointerCapture(grab.pointerId)
         grab = null
+        carry = null
         setIsHeld(false)
     }
 
@@ -270,6 +280,19 @@ const Cable = (props) => {
         }
     }
 
+    /**
+     * Where the carried plug's middle is at `time`, easing from where it started to its seated position.
+     * @param {Layout} layout
+     * @param {{ from: Point, start: number }} carried
+     * @param {number} time
+     * @returns {Point}
+     */
+    const carryPoint = (layout, carried, time) => {
+        const t = reducedMotion.matches ? 1 : Math.min(1, Math.max(0, (time - carried.start) / CARRY_MS))
+        const eased = t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2
+        return lerp(carried.from, { x: layout.socket.x + layout.plugLength / 2, y: layout.socket.y }, eased)
+    }
+
     const tick = (time) => {
         const layout = measure()
         if (!layout) {
@@ -277,6 +300,7 @@ const Cable = (props) => {
             return
         }
         followLayout(layout)
+        if (carry && grab) grab.pointer = carryPoint(layout, carry, time)
         const from = grab ? grab.lastPointer : { x: 0, y: 0 }
         const to = grab ? grab.pointer : from
         if (reducedMotion.matches) {
@@ -308,6 +332,7 @@ const Cable = (props) => {
     const handlePointerDown = (e) => {
         if (e.button !== 0 || !plugRef) return
         e.preventDefault()
+        carry = null
         plugRef.setPointerCapture(e.pointerId)
         const tip = rope.tip()
         const boot = rope.boot()
@@ -349,6 +374,34 @@ const Cable = (props) => {
     const handlePointerUp = (e) => {
         if (!grab || e.pointerId !== grab.pointerId) return
         releaseGrab()
+        wake()
+    }
+
+    /**
+     * Enter or Space plugs the cable in, carrying the plug to the socket, or pulls it out.
+     * @param {KeyboardEvent} e
+     */
+    const handleKeyDown = (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return
+        e.preventDefault()
+        if (e.repeat || grab) return
+        if (props.connected) {
+            props.onConnectedChange(false)
+            playCableSound()
+        } else {
+            const middle = lerp(rope.tip(), rope.boot(), 0.5)
+            grab = {
+                pointerId: -1,
+                pointer: middle,
+                lastPointer: middle,
+                client: middle,
+                gain: 1,
+                offset: { x: 0, y: 0 },
+                fraction: 0.5,
+                canSnap: true,
+            }
+            carry = { from: middle, start: performance.now() }
+        }
         wake()
     }
 
@@ -400,17 +453,22 @@ const Cable = (props) => {
             {/* RJ45 plug, positioned by its tip (left middle) and rotated around it. */}
             <div
                 ref={plugRef}
-                class="fixed top-0 left-0 origin-top-left touch-none"
+                class="peer fixed top-0 left-0 origin-top-left touch-none outline-none"
                 classList={{ 'cursor-grab': !isHeld(), 'cursor-grabbing': isHeld() }}
                 style={{
-                    transform: `translate(${plug().x}px, ${plug().y}px) rotate(${plug().angle}rad) scale(${plug().scale})`,
+                    transform: `translate(${plug().x}px, ${plug().y}px) rotate(${plug().angle}rad) scale(${plug().scale}) translateY(-50%)`,
                 }}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
                 onPointerCancel={handlePointerUp}
+                onKeyDown={handleKeyDown}
+                tabIndex={0}
+                role="button"
+                aria-label="Network cable"
+                aria-pressed={props.connected}
             >
-                <div ref={headRef} class="flex -translate-y-1/2 items-center shadow-xl">
+                <div ref={headRef} class="flex items-center shadow-xl">
                     <div class="relative flex items-center">
                         <div class="h-2.5 w-2 bg-gray-300">
                             <div class="flex size-full items-center">
@@ -429,6 +487,21 @@ const Cable = (props) => {
                     <div class="h-2 w-0.5 rounded-r-xs bg-gray-400" />
                 </div>
             </div>
+            {/*
+             * Focus ring for the plug, drawn unscaled around it with the icon links' padding, radius and outline, so it
+             * matches the page's other focus rings.
+             */}
+            <div
+                class="pointer-events-none fixed top-0 left-0 hidden origin-top-left rounded-sm outline-stone-400 peer-focus-visible:block"
+                style={{
+                    width: `${(headRef?.offsetWidth ?? 0) * plug().scale + FOCUS_PADDING_PX * 2}px`,
+                    height: `${(headRef?.offsetHeight ?? 0) * plug().scale + FOCUS_PADDING_PX * 2}px`,
+                    transform: `translate(${plug().x}px, ${plug().y}px) rotate(${plug().angle}rad) translate(-${FOCUS_PADDING_PX}px, -50%)`,
+                    'outline-style': 'auto',
+                    'outline-width': '1px',
+                    'outline-offset': '1px',
+                }}
+            />
         </>
     )
 }
