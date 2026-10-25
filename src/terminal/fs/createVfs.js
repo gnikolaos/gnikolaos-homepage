@@ -72,7 +72,7 @@ const loadWithCache = (cache, key, load) => {
  * @param {FsIo} io
  * @param {{ home?: string }} [options]
  */
-const createVfs = (io, { home = '/home/visitor' } = {}) => {
+const createVfs = (io, { home = '/home/guest' } = {}) => {
     const homeSegments = splitPath(home)
     /** @type {Map<string, Promise<Entry[]>>} */
     const manifestCache = new Map()

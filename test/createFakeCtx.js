@@ -29,7 +29,7 @@ const createFakeCtx = ({ tree = {}, cwd = HOME, history = [], commands = [], sig
             ctx.cwd = absPath
         },
         home: HOME,
-        session: { user: 'visitor', host: 'gnikolaos.gr' },
+        session: { user: 'guest', host: 'gnikolaos.gr' },
         history,
         registry: createRegistry(commands),
         navigate: (path) => recorded.navigations.push(path),

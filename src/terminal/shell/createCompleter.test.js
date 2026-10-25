@@ -99,7 +99,7 @@ describe('createCompleter', () => {
         expect(await candidates('cat ~/pos', { cwd: '/' })).toEqual(['~/posts/'])
         expect(await candidates('cat ../ab', { cwd: `${HOME}/posts` })).toEqual(['../about-me/'])
         expect(await candidates('cd /')).toEqual(['/home/'])
-        expect(await candidates('cd /home/')).toEqual(['/home/visitor/'])
+        expect(await candidates('cd /home/')).toEqual(['/home/guest/'])
         expect(await candidates('cat ./r')).toEqual(['./readme.md'])
         expect(await complete('cd ~')).toEqual({ start: 3, end: 4, candidates: ['~/'] })
         expect(await candidates('cat ~')).toEqual(['~/'])

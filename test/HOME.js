@@ -1,3 +1,3 @@
-const HOME = '/home/visitor'
+const HOME = '/home/guest'
 
 export { HOME }

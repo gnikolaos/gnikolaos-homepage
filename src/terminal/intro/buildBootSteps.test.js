@@ -4,7 +4,7 @@ import { formatMotd } from './formatMotd'
 
 const options = {
     reducedMotion: false,
-    user: 'visitor',
+    user: 'guest',
     host: 'gnikolaos.gr',
     ip: '10.0.0.42',
     lastLoginAt: new Date(2026, 9, 24, 19, 51, 10),
@@ -26,7 +26,7 @@ describe('buildBootSteps', () => {
                 'DHCPREQUEST for 10.0.0.42 on eth0 to 255.255.255.255 port 67\n' +
                 'DHCPACK of 10.0.0.42 from 10.0.0.1\n' +
                 'bound to 10.0.0.42 -- renewal in 43200 seconds.\n' +
-                '\n$ ssh visitor@gnikolaos.gr\n' +
+                '\n$ ssh guest@gnikolaos.gr\n' +
                 motd,
         )
     })
@@ -34,7 +34,7 @@ describe('buildBootSteps', () => {
     test('the ssh command is typed one character per step at 45 ms', () => {
         const steps = buildBootSteps(options)
         const start = steps.findIndex((step) => step.text === '\n$ ') + 1
-        const command = 'ssh visitor@gnikolaos.gr'
+        const command = 'ssh guest@gnikolaos.gr'
         const typed = steps.slice(start, start + command.length)
         expect(typed).toEqual([...command].map((char) => ({ text: char, delayMs: 45 })))
         expect(steps[start + command.length]).toEqual({ text: '\n', delayMs: 0 })
