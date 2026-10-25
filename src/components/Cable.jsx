@@ -52,6 +52,11 @@ const ANCHOR_LEAD_PX = { x: -20, y: 30 }
 const ANCHOR_LEAD_SPEED = 3
 /** How deep the plug tip sits inside the socket, in unscaled px. */
 const SOCKET_DEPTH_PX = 5
+/**
+ * With a mouse or touchpad the plug moves this many times as far as the pointer, so the socket is reached with less
+ * movement. Touch, and pulling a seated plug out, keep it 1:1.
+ */
+const DRAG_GAIN = 1.4
 /** Within this distance of the socket the plug clicks in, in unscaled px. */
 const SNAP_RADIUS_PX = 14
 /** After a pull-out, the plug must get this far from the socket before it can click in again, in unscaled px. */
@@ -97,7 +102,7 @@ const Cable = (props) => {
     let plugRef
     /** @type {HTMLDivElement | undefined} */
     let headRef
-    /** @type {{ pointerId: number, pointer: Point, lastPointer: Point, offset: Point, fraction: number, canSnap: boolean } | null} */
+    /** @type {{ pointerId: number, pointer: Point, lastPointer: Point, client: Point, gain: number, offset: Point, fraction: number, canSnap: boolean } | null} */
     let grab = null
     let cableLength = 0
     /** How far the anchor turn has eased in, from 0 (free) to 1 (seated). */
@@ -315,6 +320,8 @@ const Cable = (props) => {
             pointerId: e.pointerId,
             pointer,
             lastPointer: pointer,
+            client: pointer,
+            gain: e.pointerType === 'mouse' ? DRAG_GAIN : 1,
             offset: { x: pointer.x - held.x, y: pointer.y - held.y },
             fraction,
             canSnap: true,
@@ -326,7 +333,15 @@ const Cable = (props) => {
     /** @param {PointerEvent} e */
     const handlePointerMove = (e) => {
         if (!grab || e.pointerId !== grab.pointerId) return
-        grab.pointer = { x: e.clientX, y: e.clientY }
+        // The plug follows the pointer's movement scaled by the gain, kept within the window. Pulling a seated plug
+        // out stays 1:1, so the pull-out resistance feels the same.
+        const client = { x: e.clientX, y: e.clientY }
+        const gain = props.connected ? 1 : grab.gain
+        grab.pointer = {
+            x: Math.min(window.innerWidth, Math.max(0, grab.pointer.x + (client.x - grab.client.x) * gain)),
+            y: Math.min(window.innerHeight, Math.max(0, grab.pointer.y + (client.y - grab.client.y) * gain)),
+        }
+        grab.client = client
         wake()
     }
 
