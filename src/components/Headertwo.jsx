@@ -18,10 +18,10 @@ const Headertwo = (props) => {
         <header class="relative isolate z-20 flex justify-center overflow-hidden py-8 text-xs md:text-base">
             <div class="container ml-4 flex md:px-8">
                 <div class="pointer-events-none z-10 rounded-sm bg-gray-300/10 px-5 py-2 md:scale-150 md:bg-gray-300/20">
-                    {/* RJ45 socket */}
+                    {/* RJ45 socket, with the port opening the plug goes into on its right edge */}
                     <div
                         ref={setSocket}
-                        class="z-50 flex size-11 items-start justify-end gap-0.5 rounded-xs bg-gray-300 pt-0.5 pr-0.5 shadow-md"
+                        class="relative z-50 flex size-11 items-start justify-end gap-0.5 rounded-xs bg-gray-300 pt-0.5 pr-0.5 shadow-md ring-1 ring-gray-400/40"
                     >
                         <span
                             class={`size-1.5 rounded-full bg-gray-400 transition-all ${props.isConnected ? 'animate-success-blink-alt' : 'animate-error-blink'}`}
@@ -32,6 +32,7 @@ const Headertwo = (props) => {
                         <span
                             class={`size-1.5 rounded-full bg-gray-400 transition-all ${props.isConnected ? 'animate-success-blink' : 'bg-gray-400'}`}
                         />
+                        <div class="absolute top-1/2 right-0 h-3 w-[3px] -translate-y-1/2 rounded-l-[1px] bg-gray-400/40" />
                     </div>
                 </div>
             </div>
