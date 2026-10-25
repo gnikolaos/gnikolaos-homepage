@@ -37,7 +37,8 @@ describe('formatMotd', () => {
     test('a null last login omits the line and its preceding blank line', () => {
         const motd = formatMotd({ host, ip, lastLoginAt: null })
         expect(motd).not.toContain('Last login')
-        expect(motd.endsWith(`${style(host, 'bold')}\n\nType 'help' to get started.\n`)).toBe(true)
+        const tail = `${style(host, 'bold')}\n\nType 'help' to get started.\n`
+        expect(motd.slice(-tail.length)).toBe(tail)
     })
 
     test('the mark fits 8 lines of at most 40 columns without trailing spaces', () => {
@@ -49,10 +50,5 @@ describe('formatMotd', () => {
             expect(line.length).toBeLessThanOrEqual(40)
             expect(line).toBe(line.trimEnd())
         }
-    })
-
-    test('every line is terminated by a newline', () => {
-        expect(formatMotd({ host, ip, lastLoginAt: null }).endsWith('\n')).toBe(true)
-        expect(formatMotd({ host, ip, lastLoginAt: new Date(2026, 0, 1) }).endsWith('\n')).toBe(true)
     })
 })

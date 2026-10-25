@@ -112,7 +112,10 @@ describe('disconnect', () => {
 
     test('does not throw when storage is full', () => {
         const { connection } = setup({ session: createFullStorage() })
+        connection.markBooted()
         expect(() => connection.disconnect()).not.toThrow()
+        expect(connection.connected()).toBe(false)
+        expect(connection.booted()).toBe(false)
     })
 })
 

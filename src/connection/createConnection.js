@@ -65,12 +65,12 @@ const parseDateOrNull = (iso) => {
  * @param {() => Date} [options.now]
  */
 const createConnection = ({ session, local, now = () => new Date() }) => {
-    const initial = readRecord(session)
-    const [connected, setConnected] = createSignal(initial.connected)
-    const [booted, setBooted] = createSignal(initial.booted)
+    const initialRecord = readRecord(session)
+    const [connected, setConnected] = createSignal(initialRecord.connected)
+    const [booted, setBooted] = createSignal(initialRecord.booted)
 
     /** @param {ConnectionRecord} record */
-    const update = (record) => {
+    const commitRecord = (record) => {
         setConnected(record.connected)
         setBooted(record.booted)
         writeItem(session, CONNECTION_KEY, JSON.stringify(record))
@@ -79,9 +79,9 @@ const createConnection = ({ session, local, now = () => new Date() }) => {
     return {
         connected,
         booted,
-        connect: () => update({ connected: true, booted: booted() }),
-        disconnect: () => update(DISCONNECTED),
-        markBooted: () => update({ connected: true, booted: true }),
+        connect: () => commitRecord({ connected: true, booted: booted() }),
+        disconnect: () => commitRecord(DISCONNECTED),
+        markBooted: () => commitRecord({ connected: true, booted: true }),
         recordLogin: () => {
             const previous = parseDateOrNull(local.getItem(LAST_LOGIN_KEY))
             writeItem(local, LAST_LOGIN_KEY, now().toISOString())

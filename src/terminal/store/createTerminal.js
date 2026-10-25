@@ -347,14 +347,14 @@ const createTerminal = ({
         const run = { controller: new AbortController(), steps, next: 0, openPlainId: null }
         intro = run
         setState({ busy: true, introPlaying: true })
-        try {
-            while (run.next < steps.length) {
+        while (run.next < steps.length) {
+            try {
                 await sleep(steps[run.next].delayMs, run.controller.signal)
-                appendPlain(run, steps[run.next].text)
-                run.next += 1
+            } catch {
+                return
             }
-        } catch {
-            return
+            appendPlain(run, steps[run.next].text)
+            run.next += 1
         }
         finishIntro()
     }

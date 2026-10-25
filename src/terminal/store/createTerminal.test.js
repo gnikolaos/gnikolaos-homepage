@@ -733,7 +733,7 @@ const STEPS = [
  * @param {ReturnType<typeof setup>} t
  * @returns {string}
  */
-const readOnlyOutput = (t) => {
+const readSingleOutput = (t) => {
     expect(t.state.blocks).toHaveLength(1)
     const [block] = t.state.blocks
     assert(block.kind === 'output', 'expected an output block')
@@ -755,12 +755,12 @@ describe('playIntro', () => {
         await vi.advanceTimersByTimeAsync(99)
         expect(t.state.blocks).toEqual([])
         await vi.advanceTimersByTimeAsync(1)
-        expect(readOnlyOutput(t)).toBe('link up\n')
+        expect(readSingleOutput(t)).toBe('link up\n')
         await vi.advanceTimersByTimeAsync(50)
-        expect(readOnlyOutput(t)).toBe('link up\n$ ')
+        expect(readSingleOutput(t)).toBe('link up\n$ ')
         await vi.advanceTimersByTimeAsync(200)
         await done
-        expect(readOnlyOutput(t)).toBe('link up\n$ ssh\n')
+        expect(readSingleOutput(t)).toBe('link up\n$ ssh\n')
         expect(t.state.blocks[0]).toMatchObject({ kind: 'output', output: { kind: 'plain' } })
     })
 
@@ -812,19 +812,19 @@ describe('skipIntro', () => {
         const done = t.actions.playIntro(STEPS)
         await vi.advanceTimersByTimeAsync(100)
         t.actions.skipIntro()
-        expect(readOnlyOutput(t)).toBe('link up\n$ ssh\n')
+        expect(readSingleOutput(t)).toBe('link up\n$ ssh\n')
         expect(t.state.busy).toBe(false)
         expect(t.state.introPlaying).toBe(false)
         await done
         await vi.advanceTimersByTimeAsync(350)
-        expect(readOnlyOutput(t)).toBe('link up\n$ ssh\n')
+        expect(readSingleOutput(t)).toBe('link up\n$ ssh\n')
     })
 
     test('before the first step writes the whole transcript', async () => {
         const t = setup()
         const done = t.actions.playIntro(STEPS)
         t.actions.skipIntro()
-        expect(readOnlyOutput(t)).toBe('link up\n$ ssh\n')
+        expect(readSingleOutput(t)).toBe('link up\n$ ssh\n')
         await done
     })
 
@@ -862,22 +862,30 @@ describe('endSession', () => {
         await done
     })
 
-    test('stops an intro in flight and discards its text', async () => {
-        vi.useFakeTimers()
-        const t = setup()
-        const done = t.actions.playIntro([
-            { text: 'first\n', delayMs: 10 },
-            { text: 'second\n', delayMs: 10 },
-        ])
-        await vi.advanceTimersByTimeAsync(10)
-        t.actions.endSession()
-        expect(t.state.blocks).toEqual([])
-        expect(t.state.busy).toBe(false)
-        expect(t.state.introPlaying).toBe(false)
-        await done
-        await vi.advanceTimersByTimeAsync(50)
-        expect(t.state.blocks).toEqual([])
-        vi.useRealTimers()
+    describe('during an intro', () => {
+        beforeEach(() => {
+            vi.useFakeTimers()
+        })
+
+        afterEach(() => {
+            vi.useRealTimers()
+        })
+
+        test('stops an intro in flight and discards its text', async () => {
+            const t = setup()
+            const done = t.actions.playIntro([
+                { text: 'first\n', delayMs: 10 },
+                { text: 'second\n', delayMs: 10 },
+            ])
+            await vi.advanceTimersByTimeAsync(10)
+            t.actions.endSession()
+            expect(t.state.blocks).toEqual([])
+            expect(t.state.busy).toBe(false)
+            expect(t.state.introPlaying).toBe(false)
+            await done
+            await vi.advanceTimersByTimeAsync(50)
+            expect(t.state.blocks).toEqual([])
+        })
     })
 })
 

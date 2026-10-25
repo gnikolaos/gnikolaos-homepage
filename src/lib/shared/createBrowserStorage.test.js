@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, assert, describe, expect, test, vi } from 'vitest'
 import { createBrowserStorage } from './createBrowserStorage'
 import { createMemoryStorage } from './createMemoryStorage'
 
@@ -16,7 +16,6 @@ describe('createBrowserStorage', () => {
     test('returns localStorage when it is available', () => {
         const localStorage = createMemoryStorage()
         vi.stubGlobal('localStorage', localStorage)
-        vi.stubGlobal('sessionStorage', createMemoryStorage())
         expect(createBrowserStorage('localStorage')).toBe(localStorage)
     })
 
@@ -29,6 +28,7 @@ describe('createBrowserStorage', () => {
 
     test('falls back to a memory storage when accessing the storage throws', () => {
         const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'sessionStorage')
+        assert(descriptor, 'sessionStorage descriptor missing')
         Object.defineProperty(globalThis, 'sessionStorage', {
             configurable: true,
             get: () => {
@@ -40,8 +40,7 @@ describe('createBrowserStorage', () => {
             storage.setItem('key', 'value')
             expect(storage.getItem('key')).toBe('value')
         } finally {
-            if (descriptor) Object.defineProperty(globalThis, 'sessionStorage', descriptor)
-            else delete globalThis.sessionStorage
+            Object.defineProperty(globalThis, 'sessionStorage', descriptor)
         }
     })
 })

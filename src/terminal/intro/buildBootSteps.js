@@ -1,8 +1,8 @@
 import { formatMotd } from './formatMotd'
 
-/** @import { IntroStep } from './types' */
+/** @import { BootOptions, IntroStep } from './types' */
 
-const LINK_UP_DELAY_MS = 400
+const LINK_UP_DELAY_MS = 150
 const DISCOVER_DELAY_MS = 300
 const OFFER_DELAY_MS = 250
 const REQUEST_DELAY_MS = 120
@@ -15,7 +15,7 @@ const GATEWAY_IP = '10.0.0.1'
 
 /**
  * Builds the intro steps: a DHCP boot, a typed ssh command and the motd, or the motd alone for reduced motion.
- * @param {{ reducedMotion: boolean, user: string, host: string, ip: string, lastLoginAt: Date | null }} options
+ * @param {BootOptions} options
  * @returns {IntroStep[]}
  */
 const buildBootSteps = ({ reducedMotion, user, host, ip, lastLoginAt }) => {
