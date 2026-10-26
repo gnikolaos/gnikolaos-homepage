@@ -14,5 +14,6 @@ export default defineCommand({
     name: 'tail',
     summary: 'print the last lines of files',
     usage: USAGE,
+    hidden: true,
     run: (ctx, argv, stdin) => runLinePicker(ctx, argv, stdin, { name: 'tail', usage: USAGE, pick: pickLastLines }),
 })

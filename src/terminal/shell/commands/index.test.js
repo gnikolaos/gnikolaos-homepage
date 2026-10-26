@@ -29,4 +29,11 @@ describe('commands', () => {
         ])
         expect(() => createRegistry(commands)).not.toThrow()
     })
+
+    test('keeps only the basic commands visible to plain help', () => {
+        const visible = createRegistry(commands)
+            .list()
+            .map((command) => command.name)
+        expect(visible).toEqual(['cat', 'cd', 'clear', 'exit', 'help', 'ls', 'man', 'open'])
+    })
 })

@@ -15,11 +15,13 @@ const alignLines = (commands) => {
 export default defineCommand({
     name: 'help',
     summary: 'list available commands',
-    usage: 'help [--all]',
+    usage: 'help [-a|--all]',
     complete: 'none',
     run: (ctx, argv) => {
-        const includeHidden = splitFlags(argv).flags.has('all')
+        const { flags } = splitFlags(argv)
+        const includeHidden = flags.has('a') || flags.has('all')
         ctx.stdout('Available commands:\n')
         for (const line of alignLines(ctx.registry.list({ includeHidden }))) ctx.stdout(`${line}\n`)
+        if (!includeHidden) ctx.stdout("\nType 'help -a' to see all commands.\n")
     },
 })

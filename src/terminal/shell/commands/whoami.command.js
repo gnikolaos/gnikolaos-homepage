@@ -4,6 +4,7 @@ export default defineCommand({
     name: 'whoami',
     summary: 'show what your browser tells this page',
     usage: 'whoami',
+    hidden: true,
     complete: 'none',
     run: (ctx, argv) => {
         if (argv.length > 0) {

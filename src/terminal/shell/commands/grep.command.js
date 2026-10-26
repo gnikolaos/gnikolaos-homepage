@@ -74,5 +74,6 @@ export default defineCommand({
     name: 'grep',
     summary: 'print lines matching a pattern',
     usage: USAGE,
+    hidden: true,
     run,
 })

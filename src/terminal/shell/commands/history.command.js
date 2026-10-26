@@ -11,6 +11,7 @@ export default defineCommand({
     name: 'history',
     summary: 'show command history',
     usage: 'history',
+    hidden: true,
     complete: 'none',
     run: (ctx) => {
         ctx.history.forEach((line, index) => ctx.stdout(numberLine(line, index)))

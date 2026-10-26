@@ -4,6 +4,7 @@ export default defineCommand({
     name: 'pwd',
     summary: 'print the working directory',
     usage: 'pwd',
+    hidden: true,
     complete: 'none',
     run: (ctx) => {
         ctx.stdout(`${ctx.cwd}\n`)

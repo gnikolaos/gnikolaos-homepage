@@ -50,5 +50,6 @@ export default defineCommand({
     name: 'uniq',
     summary: 'collapse adjacent duplicate lines',
     usage: USAGE,
+    hidden: true,
     run,
 })

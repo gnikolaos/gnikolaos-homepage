@@ -73,5 +73,6 @@ export default defineCommand({
     name: 'wc',
     summary: 'count lines, words and bytes',
     usage: USAGE,
+    hidden: true,
     run,
 })

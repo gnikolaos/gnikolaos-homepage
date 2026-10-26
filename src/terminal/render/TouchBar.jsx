@@ -4,8 +4,8 @@ import { For } from 'solid-js'
 
 /** @type {readonly { label: string, ariaLabel: string, action: Action }[]} */
 const TOUCH_KEYS = [
-    { label: 'ls', ariaLabel: 'Run ls', action: { type: 'run', line: 'ls' } },
     { label: 'help', ariaLabel: 'Run help', action: { type: 'run', line: 'help' } },
+    { label: 'ls', ariaLabel: 'Run ls', action: { type: 'run', line: 'ls' } },
     { label: 'clear', ariaLabel: 'Clear the screen', action: { type: 'clearScreen' } },
     { label: '↑', ariaLabel: 'Previous command', action: { type: 'historyPrev' } },
     { label: '↓', ariaLabel: 'Next command', action: { type: 'historyNext' } },

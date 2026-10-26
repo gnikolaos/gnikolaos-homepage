@@ -14,5 +14,6 @@ export default defineCommand({
     name: 'head',
     summary: 'print the first lines of files',
     usage: USAGE,
+    hidden: true,
     run: (ctx, argv, stdin) => runLinePicker(ctx, argv, stdin, { name: 'head', usage: USAGE, pick: pickFirstLines }),
 })

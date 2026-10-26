@@ -57,5 +57,6 @@ export default defineCommand({
     name: 'sort',
     summary: 'sort lines of text',
     usage: USAGE,
+    hidden: true,
     run,
 })
