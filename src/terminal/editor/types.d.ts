@@ -1,9 +1,11 @@
 export type EditorState = { readonly input: string; readonly cursor: number }
 export type EditOp = keyof typeof import('./lineEditor').lineEditor
+export type ScrollAction = { type: 'scroll'; by: 'line' | 'page' | 'edge'; direction: -1 | 1 }
 export type Action =
     | { type: 'edit'; op: EditOp }
     | { type: 'submit' | 'historyPrev' | 'historyNext' | 'clearScreen' | 'interrupt' | 'eof' | 'complete' }
     | { type: 'historySearch' | 'acceptSearch' | 'cancel' }
+    | ScrollAction
 export interface KeyLike {
     key: string
     ctrlKey?: boolean

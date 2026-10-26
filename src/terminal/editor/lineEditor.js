@@ -114,16 +114,6 @@ const lineEditor = Object.freeze({
     },
 
     /**
-     * Deletes everything after the cursor.
-     * @param {EditorState} editor
-     * @returns {EditorState}
-     */
-    killToEnd: (editor) => {
-        const { input, cursor } = clampCursor(editor)
-        return createEditorState(input.slice(0, cursor), cursor)
-    },
-
-    /**
      * Deletes the whole line.
      * @param {EditorState} editor
      * @returns {EditorState}

@@ -14,6 +14,7 @@ const createCtrlKeyEvent = (key) => createKeyEvent(key, { ctrlKey: true })
 const createAltKeyEvent = (key) => createKeyEvent(key, { altKey: true })
 const createMetaKeyEvent = (key) => createKeyEvent(key, { metaKey: true })
 const createEditAction = (op) => ({ type: 'edit', op })
+const createScrollAction = (by, direction) => ({ type: 'scroll', by, direction })
 
 describe('resolveKey', () => {
     test.each([
@@ -28,6 +29,8 @@ describe('resolveKey', () => {
         ['Delete', createEditAction('deleteForward')],
         ['Tab', { type: 'complete' }],
         ['Escape', { type: 'acceptSearch' }],
+        ['PageUp', createScrollAction('page', -1)],
+        ['PageDown', createScrollAction('page', 1)],
     ])('plain %s', (key, action) => {
         expect(resolveKey(createKeyEvent(key))).toEqual(action)
     })
@@ -37,7 +40,8 @@ describe('resolveKey', () => {
         ['e', createEditAction('moveEnd')],
         ['w', createEditAction('killWord')],
         ['u', createEditAction('clearLine')],
-        ['k', createEditAction('killToEnd')],
+        ['j', createScrollAction('line', 1)],
+        ['k', createScrollAction('line', -1)],
         ['l', { type: 'clearScreen' }],
         ['c', { type: 'interrupt' }],
         ['d', { type: 'eof' }],
@@ -45,6 +49,8 @@ describe('resolveKey', () => {
         ['g', { type: 'cancel' }],
         ['ArrowLeft', createEditAction('moveWordLeft')],
         ['ArrowRight', createEditAction('moveWordRight')],
+        ['Home', createScrollAction('edge', -1)],
+        ['End', createScrollAction('edge', 1)],
     ])('Ctrl+%s', (key, action) => {
         expect(resolveKey(createCtrlKeyEvent(key))).toEqual(action)
     })
@@ -81,7 +87,7 @@ describe('resolveKey', () => {
         expect(resolveKey(createKeyEvent(key, { ctrlKey: true, shiftKey: true }))).toBeNull()
     })
 
-    test.each(['F1', 'F12', 'PageUp', 'Shift', 'Control'])('%s is not an action', (key) => {
+    test.each(['F1', 'F12', 'Insert', 'Shift', 'Control'])('%s is not an action', (key) => {
         expect(resolveKey(createKeyEvent(key))).toBeNull()
     })
 
@@ -109,7 +115,7 @@ describe('resolveKey', () => {
         const plainEditKeys = ['ArrowLeft', 'ArrowRight', 'Home', 'End', 'Backspace', 'Delete']
         const editKeyEvents = [
             ...plainEditKeys.map((key) => createKeyEvent(key)),
-            ...['a', 'e', 'w', 'u', 'k', 'ArrowLeft', 'ArrowRight'].map(createCtrlKeyEvent),
+            ...['a', 'e', 'w', 'u', 'ArrowLeft', 'ArrowRight'].map(createCtrlKeyEvent),
             ...['ArrowLeft', 'ArrowRight', 'Backspace'].map(createAltKeyEvent),
             ...['ArrowLeft', 'ArrowRight'].map(createMetaKeyEvent),
         ]

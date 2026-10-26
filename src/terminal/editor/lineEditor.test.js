@@ -133,12 +133,6 @@ describe('killWord', () => {
     })
 })
 
-describe('killToEnd', () => {
-    test('removes everything after the cursor', () => {
-        expect(lineEditor.killToEnd(createEditorAt('cat file', 3))).toEqual(createEditorAt('cat', 3))
-    })
-})
-
 describe('clearLine', () => {
     test('empties the line', () => {
         expect(lineEditor.clearLine(createEditorAt('cat file', 3))).toEqual(createEditorAt('', 0))

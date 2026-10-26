@@ -8,6 +8,8 @@ import Output from './Output'
 import Prompt from './Prompt'
 import TerminalFooter from './TerminalFooter'
 
+/** @import { ScrollAction } from '../editor/types' */
+
 const BOTTOM_THRESHOLD_PX = 8
 const MIN_COLUMNS = 20
 const PROBE_CHARS = 10
@@ -70,6 +72,14 @@ const Terminal = () => {
         settledPromptId = prompt.id
     }
 
+    /** @param {ScrollAction} action */
+    const scrollView = ({ by, direction }) => {
+        if (!main || !probe) return
+        const lineHeight = probe.getBoundingClientRect().height
+        const distance = { line: lineHeight, page: main.clientHeight - lineHeight, edge: main.scrollHeight }[by]
+        main.scrollTop += direction * distance
+    }
+
     const measureColumns = () => {
         const cellWidth = (probe?.getBoundingClientRect().width ?? 0) / PROBE_CHARS
         if (!content || cellWidth <= 0) return
@@ -130,7 +140,7 @@ const Terminal = () => {
                     </span>
                 </div>
             </main>
-            <HiddenInput ref={(el) => (input = el)} />
+            <HiddenInput ref={(el) => (input = el)} scroll={scrollView} />
             <TerminalFooter />
         </div>
     )

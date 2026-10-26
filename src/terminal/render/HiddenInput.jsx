@@ -3,43 +3,12 @@ import { resolveKey } from '../editor/resolveKey'
 import { terminal } from '../store/terminal'
 import { hasTextSelection } from './hasTextSelection'
 
-/** @import { Action } from '../editor/types' */
+/** @import { Action, ScrollAction } from '../editor/types' */
 
 const COMPOSITION_INPUT_TYPES = new Set(['insertCompositionText', 'insertFromComposition'])
 const MODIFIER_KEYS = new Set(['Shift', 'Control', 'Alt', 'Meta'])
 
 const { state, actions } = terminal
-
-/**
- * @param {Action} action
- * @returns {void}
- */
-const dispatchKeyAction = (action) => {
-    switch (action.type) {
-        case 'edit':
-            return actions.applyEdit(action.op)
-        case 'submit':
-            return void actions.submit()
-        case 'historyPrev':
-            return actions.historyPrev()
-        case 'historyNext':
-            return actions.historyNext()
-        case 'clearScreen':
-            return actions.clearScreen()
-        case 'interrupt':
-            return actions.interrupt()
-        case 'eof':
-            return void actions.eof()
-        case 'complete':
-            return void actions.complete()
-        case 'historySearch':
-            return actions.historySearch()
-        case 'acceptSearch':
-            return actions.acceptSearch()
-        case 'cancel':
-            return actions.cancel()
-    }
-}
 
 /**
  * @param {KeyboardEvent} e
@@ -48,27 +17,8 @@ const dispatchKeyAction = (action) => {
 const isCopyShortcut = (e) => (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c' && hasTextSelection()
 
 /**
- * @param {KeyboardEvent} e
- * @returns {void}
- */
-const onKeyDown = (e) => {
-    if (isCopyShortcut(e)) return
-    if (MODIFIER_KEYS.has(e.key)) return
-    if (state.introPlaying) {
-        e.preventDefault()
-        actions.skipIntro()
-        return
-    }
-    const action = resolveKey(e)
-    if (!action) return
-    if (action.type === 'complete' && state.editor.input === '' && !state.search) return
-    e.preventDefault()
-    dispatchKeyAction(action)
-}
-
-/**
  * Renders the visually hidden input that captures keyboard, composition and paste input for the terminal.
- * @param {{ ref?: (el: HTMLInputElement) => void }} props
+ * @param {{ ref?: (el: HTMLInputElement) => void, scroll: (action: ScrollAction) => void }} props
  */
 const HiddenInput = (props) => {
     /** @type {HTMLInputElement | undefined} */
@@ -77,6 +27,52 @@ const HiddenInput = (props) => {
     let pointerDown = false
 
     const focus = () => el?.focus({ preventScroll: true })
+
+    /** @param {Action} action */
+    const dispatchKeyAction = (action) => {
+        switch (action.type) {
+            case 'edit':
+                return actions.applyEdit(action.op)
+            case 'submit':
+                return void actions.submit()
+            case 'historyPrev':
+                return actions.historyPrev()
+            case 'historyNext':
+                return actions.historyNext()
+            case 'clearScreen':
+                return actions.clearScreen()
+            case 'interrupt':
+                return actions.interrupt()
+            case 'eof':
+                return void actions.eof()
+            case 'complete':
+                return void actions.complete()
+            case 'historySearch':
+                return actions.historySearch()
+            case 'acceptSearch':
+                return actions.acceptSearch()
+            case 'cancel':
+                return actions.cancel()
+            case 'scroll':
+                return props.scroll(action)
+        }
+    }
+
+    /** @param {KeyboardEvent} e */
+    const onKeyDown = (e) => {
+        if (isCopyShortcut(e)) return
+        if (MODIFIER_KEYS.has(e.key)) return
+        if (state.introPlaying) {
+            e.preventDefault()
+            actions.skipIntro()
+            return
+        }
+        const action = resolveKey(e)
+        if (!action) return
+        if (action.type === 'complete' && state.editor.input === '' && !state.search) return
+        e.preventDefault()
+        dispatchKeyAction(action)
+    }
 
     /** @param {InputEvent} e */
     const onInput = (e) => {
