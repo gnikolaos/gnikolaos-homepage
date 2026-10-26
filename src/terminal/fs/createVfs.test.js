@@ -47,7 +47,7 @@ const setup = () => {
 
 describe('resolve', () => {
     const { vfs } = setup()
-    const home = '/home/visitor'
+    const home = '/home/guest'
 
     test.each([
         ['~', home],
@@ -64,19 +64,19 @@ describe('resolve', () => {
         ['posts//drafts///', `${home}/posts/drafts`],
         ['//etc//', '/etc'],
         ['./posts/./drafts', `${home}/posts/drafts`],
-        ['/home/visitor/posts/../../visitor', home],
+        ['/home/guest/posts/../../guest', home],
     ])('from home: %s -> %s', (path, expected) => {
         expect(vfs.resolve(home, path)).toBe(expected)
     })
 
     test('empty path returns cwd', () => {
-        expect(vfs.resolve('/home/visitor/posts', '')).toBe('/home/visitor/posts')
+        expect(vfs.resolve('/home/guest/posts', '')).toBe('/home/guest/posts')
     })
 
     test('relative paths join on a nested cwd', () => {
-        expect(vfs.resolve('/home/visitor/posts/drafts', 'draft.md')).toBe('/home/visitor/posts/drafts/draft.md')
-        expect(vfs.resolve('/home/visitor/posts/drafts', '../../about-me/bio.md')).toBe('/home/visitor/about-me/bio.md')
-        expect(vfs.resolve('/home/visitor/posts/drafts', '~/projects')).toBe('/home/visitor/projects')
+        expect(vfs.resolve('/home/guest/posts/drafts', 'draft.md')).toBe('/home/guest/posts/drafts/draft.md')
+        expect(vfs.resolve('/home/guest/posts/drafts', '../../about-me/bio.md')).toBe('/home/guest/about-me/bio.md')
+        expect(vfs.resolve('/home/guest/posts/drafts', '~/projects')).toBe('/home/guest/projects')
     })
 
     test('relative paths from root', () => {
@@ -94,12 +94,12 @@ describe('formatDisplayPath', () => {
     const { vfs } = setup()
 
     test.each([
-        ['/home/visitor', '~'],
-        ['/home/visitor/posts', '~/posts'],
-        ['/home/visitor/posts/drafts', '~/posts/drafts'],
+        ['/home/guest', '~'],
+        ['/home/guest/posts', '~/posts'],
+        ['/home/guest/posts/drafts', '~/posts/drafts'],
         ['/home', '/home'],
         ['/', '/'],
-        ['/home/visitorx', '/home/visitorx'],
+        ['/home/guestx', '/home/guestx'],
     ])('%s -> %s', (path, expected) => {
         expect(vfs.formatDisplayPath(path)).toBe(expected)
     })
@@ -109,12 +109,12 @@ describe('findContentUrl', () => {
     const { vfs } = setup()
 
     test.each([
-        ['/home/visitor', '/dirs'],
-        ['/home/visitor/posts', '/dirs/posts'],
-        ['/home/visitor/posts/x.md', '/dirs/posts/x.md'],
+        ['/home/guest', '/dirs'],
+        ['/home/guest/posts', '/dirs/posts'],
+        ['/home/guest/posts/x.md', '/dirs/posts/x.md'],
         ['/home', null],
         ['/', null],
-        ['/home/visitorx/a.md', null],
+        ['/home/guestx/a.md', null],
     ])('%s -> %s', (path, expected) => {
         expect(vfs.findContentUrl(path)).toBe(expected)
     })
@@ -125,27 +125,27 @@ describe('stat', () => {
         const { vfs, manifestCalls } = setup()
         expect(await vfs.stat('/')).toEqual({ name: '/', type: 'dir' })
         expect(await vfs.stat('/home')).toEqual({ name: 'home', type: 'dir' })
-        expect(await vfs.stat('/home/visitor')).toEqual({ name: 'visitor', type: 'dir' })
+        expect(await vfs.stat('/home/guest')).toEqual({ name: 'guest', type: 'dir' })
         expect(manifestCalls).toEqual([])
     })
 
     test('returns the manifest entry for files and dirs', async () => {
         const { vfs } = setup()
-        expect(await vfs.stat('/home/visitor/posts')).toEqual({ name: 'posts', type: 'dir' })
-        expect(await vfs.stat('/home/visitor/posts/post-1.md')).toEqual({ name: 'post-1.md', type: 'file', size: 8 })
+        expect(await vfs.stat('/home/guest/posts')).toEqual({ name: 'posts', type: 'dir' })
+        expect(await vfs.stat('/home/guest/posts/post-1.md')).toEqual({ name: 'post-1.md', type: 'file', size: 8 })
     })
 
     test('missing paths throw ENOENT', async () => {
         const { vfs } = setup()
-        await expectFsError(vfs.stat('/home/visitor/nope'), 'ENOENT')
-        await expectFsError(vfs.stat('/home/visitor/nope/deeper'), 'ENOENT')
+        await expectFsError(vfs.stat('/home/guest/nope'), 'ENOENT')
+        await expectFsError(vfs.stat('/home/guest/nope/deeper'), 'ENOENT')
         await expectFsError(vfs.stat('/etc'), 'ENOENT')
         await expectFsError(vfs.stat('/home/other'), 'ENOENT')
     })
 
     test('a file in the middle of a path throws ENOTDIR', async () => {
         const { vfs } = setup()
-        await expectFsError(vfs.stat('/home/visitor/posts/post-1.md/x'), 'ENOTDIR')
+        await expectFsError(vfs.stat('/home/guest/posts/post-1.md/x'), 'ENOTDIR')
     })
 })
 
@@ -153,53 +153,53 @@ describe('readdir', () => {
     test('synthetic dirs list their single child', async () => {
         const { vfs, manifestCalls } = setup()
         expect(await vfs.readdir('/')).toEqual([{ name: 'home', type: 'dir' }])
-        expect(await vfs.readdir('/home')).toEqual([{ name: 'visitor', type: 'dir' }])
+        expect(await vfs.readdir('/home')).toEqual([{ name: 'guest', type: 'dir' }])
         expect(manifestCalls).toEqual([])
     })
 
     test('home loads the root manifest', async () => {
         const { vfs, manifestCalls } = setup()
-        const entries = await vfs.readdir('/home/visitor')
+        const entries = await vfs.readdir('/home/guest')
         expect(entries.map((entry) => entry.name)).toEqual(['about-me', 'posts', 'projects'])
         expect(manifestCalls).toEqual(['/dirs'])
     })
 
     test('loads every directory along the path once', async () => {
         const { vfs, manifestCalls } = setup()
-        const entries = await vfs.readdir('/home/visitor/posts/drafts')
+        const entries = await vfs.readdir('/home/guest/posts/drafts')
         expect(entries).toEqual([{ name: 'draft.md', type: 'file', size: 7 }])
-        await vfs.readdir('/home/visitor/posts/drafts')
-        await vfs.readdir('/home/visitor/posts')
-        await vfs.stat('/home/visitor/posts/post-1.md')
+        await vfs.readdir('/home/guest/posts/drafts')
+        await vfs.readdir('/home/guest/posts')
+        await vfs.stat('/home/guest/posts/post-1.md')
         expect(manifestCalls).toEqual(['/dirs', '/dirs/posts', '/dirs/posts/drafts'])
     })
 
     test('concurrent calls share one load per directory', async () => {
         const { vfs, manifestCalls } = setup()
         await Promise.all([
-            vfs.readdir('/home/visitor/posts'),
-            vfs.readdir('/home/visitor/posts'),
-            vfs.readdir('/home/visitor/about-me'),
-            vfs.stat('/home/visitor/posts/post-1.md'),
+            vfs.readdir('/home/guest/posts'),
+            vfs.readdir('/home/guest/posts'),
+            vfs.readdir('/home/guest/about-me'),
+            vfs.stat('/home/guest/posts/post-1.md'),
         ])
         expect([...manifestCalls].sort()).toEqual(['/dirs', '/dirs/about-me', '/dirs/posts'])
     })
 
     test('empty directories return an empty list', async () => {
         const { vfs } = setup()
-        expect(await vfs.readdir('/home/visitor/projects')).toEqual([])
+        expect(await vfs.readdir('/home/guest/projects')).toEqual([])
     })
 
     test('missing dir throws ENOENT', async () => {
         const { vfs } = setup()
-        await expectFsError(vfs.readdir('/home/visitor/nope'), 'ENOENT')
+        await expectFsError(vfs.readdir('/home/guest/nope'), 'ENOENT')
         await expectFsError(vfs.readdir('/var'), 'ENOENT')
     })
 
     test('a file throws ENOTDIR', async () => {
         const { vfs } = setup()
-        await expectFsError(vfs.readdir('/home/visitor/posts/post-1.md'), 'ENOTDIR')
-        await expectFsError(vfs.readdir('/home/visitor/posts/post-1.md/x'), 'ENOTDIR')
+        await expectFsError(vfs.readdir('/home/guest/posts/post-1.md'), 'ENOTDIR')
+        await expectFsError(vfs.readdir('/home/guest/posts/post-1.md/x'), 'ENOTDIR')
     })
 
     test('a failed load is retried on the next call', async () => {
@@ -212,8 +212,8 @@ describe('readdir', () => {
                 return io.loadManifest(dirUrl)
             },
         })
-        await expectFsError(vfs.readdir('/home/visitor'), 'EIO')
-        expect(await vfs.readdir('/home/visitor')).toHaveLength(3)
+        await expectFsError(vfs.readdir('/home/guest'), 'EIO')
+        expect(await vfs.readdir('/home/guest')).toHaveLength(3)
         expect(manifestCalls).toEqual(['/dirs'])
     })
 })
@@ -221,28 +221,28 @@ describe('readdir', () => {
 describe('readFile', () => {
     test('loads content from the mapped url', async () => {
         const { vfs, fileCalls } = setup()
-        expect(await vfs.readFile('/home/visitor/about-me/bio.md')).toBe('# About me')
+        expect(await vfs.readFile('/home/guest/about-me/bio.md')).toBe('# About me')
         expect(fileCalls).toEqual(['/dirs/about-me/bio.md'])
     })
 
     test('caches content after the first load', async () => {
         const { vfs, fileCalls } = setup()
-        await Promise.all([vfs.readFile('/home/visitor/about-me/cv.md'), vfs.readFile('/home/visitor/about-me/cv.md')])
-        await vfs.readFile('/home/visitor/about-me/cv.md')
+        await Promise.all([vfs.readFile('/home/guest/about-me/cv.md'), vfs.readFile('/home/guest/about-me/cv.md')])
+        await vfs.readFile('/home/guest/about-me/cv.md')
         expect(fileCalls).toEqual(['/dirs/about-me/cv.md'])
     })
 
     test('a directory throws EISDIR', async () => {
         const { vfs, fileCalls } = setup()
-        await expectFsError(vfs.readFile('/home/visitor/posts'), 'EISDIR')
-        await expectFsError(vfs.readFile('/home/visitor'), 'EISDIR')
+        await expectFsError(vfs.readFile('/home/guest/posts'), 'EISDIR')
+        await expectFsError(vfs.readFile('/home/guest'), 'EISDIR')
         await expectFsError(vfs.readFile('/'), 'EISDIR')
         expect(fileCalls).toEqual([])
     })
 
     test('a missing file throws ENOENT without fetching', async () => {
         const { vfs, fileCalls } = setup()
-        await expectFsError(vfs.readFile('/home/visitor/posts/nope.md'), 'ENOENT')
+        await expectFsError(vfs.readFile('/home/guest/posts/nope.md'), 'ENOENT')
         await expectFsError(vfs.readFile('/etc/passwd'), 'ENOENT')
         expect(fileCalls).toEqual([])
     })
@@ -255,7 +255,7 @@ describe('readFile', () => {
                 throw new TypeError('Failed to fetch')
             },
         })
-        await expectFsError(vfs.readFile('/home/visitor/posts/post-1.md'), 'EIO')
+        await expectFsError(vfs.readFile('/home/guest/posts/post-1.md'), 'EIO')
     })
 
     test('FsErrors from io pass through', async () => {
@@ -266,7 +266,7 @@ describe('readFile', () => {
                 throw new FsError('ENOENT', url)
             },
         })
-        await expectFsError(vfs.readFile('/home/visitor/posts/post-1.md'), 'ENOENT')
+        await expectFsError(vfs.readFile('/home/guest/posts/post-1.md'), 'ENOENT')
     })
 })
 

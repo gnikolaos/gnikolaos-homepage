@@ -34,7 +34,7 @@ const setup = ({ storage = createMemoryStorage(), script, complete, history, onS
     /** @type {ShellHooks | null} */
     let hooks = null
     const terminal = createTerminal({
-        home: '/home/visitor',
+        home: '/home/guest',
         storage,
         openUrl: () => {},
         onSessionClose,
@@ -96,7 +96,7 @@ describe('submit', () => {
         const t = setup({ script: (call) => call.resolve(0) })
         const done = typeAndSubmit(t, '  pwd  ')
         expect(t.state.blocks).toEqual([
-            { id: 1, kind: 'prompt', cwd: '/home/visitor', input: 'pwd', status: 'ok', running: true },
+            { id: 1, kind: 'prompt', cwd: '/home/guest', input: 'pwd', status: 'ok', running: true },
         ])
         expect(t.state.busy).toBe(true)
         expect(t.state.editor).toEqual({ input: '', cursor: 0 })
@@ -177,7 +177,7 @@ describe('submit', () => {
         const t = setup()
         await typeAndSubmit(t, '   ')
         expect(t.state.blocks).toEqual([
-            { id: 1, kind: 'prompt', cwd: '/home/visitor', input: '', status: 'ok', running: false },
+            { id: 1, kind: 'prompt', cwd: '/home/guest', input: '', status: 'ok', running: false },
         ])
         expect(t.calls).toHaveLength(0)
         expect(t.state.history.entries).toEqual([])
@@ -198,10 +198,10 @@ describe('submit', () => {
 
     test('setCwd from the shell updates the session cwd used by the next prompt', async () => {
         const t = setup({ script: (call) => call.resolve(0) })
-        t.hooks.setCwd('/home/visitor/posts')
+        t.hooks.setCwd('/home/guest/posts')
         await typeAndSubmit(t, 'ls')
-        expect(t.hooks.getCwd()).toBe('/home/visitor/posts')
-        expect(t.state.blocks[0]).toMatchObject({ cwd: '/home/visitor/posts' })
+        expect(t.hooks.getCwd()).toBe('/home/guest/posts')
+        expect(t.state.blocks[0]).toMatchObject({ cwd: '/home/guest/posts' })
     })
 
     test('navigate hook calls the function given to setNavigate', () => {
@@ -287,7 +287,7 @@ describe('interrupt', () => {
         t.actions.interrupt()
         expect(t.calls[0].signal.aborted).toBe(true)
         expect(t.state.blocks).toEqual([
-            { id: 1, kind: 'prompt', cwd: '/home/visitor', input: 'slow', status: 'ok', running: false },
+            { id: 1, kind: 'prompt', cwd: '/home/guest', input: 'slow', status: 'ok', running: false },
             { id: 2, kind: 'output', output: { kind: 'plain', content: 'partial\n^C' } },
         ])
         expect(t.state.busy).toBe(false)
@@ -311,7 +311,7 @@ describe('interrupt', () => {
         t.actions.typeText('ech')
         t.actions.interrupt()
         expect(t.state.blocks).toEqual([
-            { id: 1, kind: 'prompt', cwd: '/home/visitor', input: 'ech^C', status: 'ok', running: false },
+            { id: 1, kind: 'prompt', cwd: '/home/guest', input: 'ech^C', status: 'ok', running: false },
         ])
         expect(t.state.editor).toEqual({ input: '', cursor: 0 })
         expect(t.state.history.entries).toEqual([])
@@ -389,7 +389,7 @@ describe('runLine', () => {
 
     test('a throwing shell ends the run with exit 1', async () => {
         const t = createTerminal({
-            home: '/home/visitor',
+            home: '/home/guest',
             storage: createMemoryStorage(),
             makeShell: () => ({ run: () => Promise.reject(new Error('boom')) }),
             onSessionClose: () => {},
@@ -470,7 +470,7 @@ describe('complete', () => {
         t.actions.setColumns(20)
         await t.actions.complete()
         expect(t.state.blocks).toEqual([
-            { id: 1, kind: 'prompt', cwd: '/home/visitor', input: 'ls p', status: 'ok', running: false },
+            { id: 1, kind: 'prompt', cwd: '/home/guest', input: 'ls p', status: 'ok', running: false },
             { id: 2, kind: 'output', output: { kind: 'plain', content: 'posts/  pics/  p.md\n' } },
         ])
         expect(t.state.editor).toEqual({ input: 'ls p', cursor: 4 })
@@ -511,7 +511,7 @@ describe('complete', () => {
         /** @type {(completion: Completion) => void} */
         let resolve = () => {}
         const t = createTerminal({
-            home: '/home/visitor',
+            home: '/home/guest',
             storage: createMemoryStorage(),
             makeShell: () => ({ run: async () => ({ exitCode: 0 }) }),
             complete: () => new Promise((r) => (resolve = r)),

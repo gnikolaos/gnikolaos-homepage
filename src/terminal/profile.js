@@ -7,7 +7,7 @@
 
 /** @type {Readonly<Profile>} */
 const profile = Object.freeze({
-    user: 'visitor',
+    user: 'guest',
     host: 'gnikolaos.gr',
     links: Object.freeze({
         github: 'https://github.com/gnikolaos',

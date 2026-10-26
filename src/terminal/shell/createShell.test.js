@@ -62,14 +62,15 @@ const commands = [
 const setup = (overrides = {}) => {
     const deps = {
         registry: createRegistry(commands),
-        fs: /** @type {any} */ ({ home: '/home/visitor' }),
-        session: { user: 'visitor', host: 'gnikolaos.gr' },
-        getCwd: () => '/home/visitor',
+        fs: /** @type {any} */ ({ home: '/home/guest' }),
+        session: { user: 'guest', host: 'gnikolaos.gr' },
+        getCwd: () => '/home/guest',
         setCwd: vi.fn(),
         getHistory: () => [],
         navigate: vi.fn(),
         closeSession: vi.fn(),
         openUrl: vi.fn(),
+        readBrowserInfo: vi.fn(),
         ...overrides,
     }
     return { deps, shell: createShell(deps), sink: createRecordingSink() }
@@ -141,7 +142,7 @@ describe('createShell', () => {
     })
 
     test('builds ctx from live cwd, history and deps', async () => {
-        let cwd = '/home/visitor'
+        let cwd = '/home/guest'
         /** @type {Ctx[]} */
         const seen = []
         const spy = defineFakeCommand('spy', {
@@ -155,13 +156,13 @@ describe('createShell', () => {
             getHistory: () => ['ls', 'pwd'],
         })
         await shell.run('spy', sink)
-        cwd = '/home/visitor/posts'
+        cwd = '/home/guest/posts'
         await shell.run('spy', sink)
 
-        expect(seen.map((ctx) => ctx.cwd)).toEqual(['/home/visitor', '/home/visitor/posts'])
+        expect(seen.map((ctx) => ctx.cwd)).toEqual(['/home/guest', '/home/guest/posts'])
         expect(seen[0]).toMatchObject({
             fs: deps.fs,
-            home: '/home/visitor',
+            home: '/home/guest',
             session: deps.session,
             history: ['ls', 'pwd'],
             registry: deps.registry,

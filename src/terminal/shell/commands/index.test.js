@@ -3,7 +3,7 @@ import { createRegistry } from '../createRegistry'
 import { commands } from './index'
 
 describe('commands', () => {
-    test('exports all nineteen commands with unique names', () => {
+    test('exports all twenty commands with unique names', () => {
         const names = commands.map((command) => command.name).sort()
         expect(names).toEqual([
             'cat',
@@ -25,6 +25,7 @@ describe('commands', () => {
             'tail',
             'uniq',
             'wc',
+            'whoami',
         ])
         expect(() => createRegistry(commands)).not.toThrow()
     })

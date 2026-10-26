@@ -4,6 +4,7 @@ import { vfs } from '../fs/vfs'
 import { createCompleter } from '../shell/createCompleter'
 import { createShell } from '../shell/createShell'
 import { registry } from '../shell/registry'
+import { readBrowserInfo } from '../sysinfo/readBrowserInfo'
 import profile from '../profile'
 import { createTerminal } from './createTerminal'
 
@@ -19,7 +20,13 @@ const terminal = createTerminal({
     complete: createCompleter({ fs: vfs, registry, getCwd: () => terminal.state.session.cwd }),
     onSessionClose: connection.disconnect,
     makeShell: (hooks) =>
-        createShell({ ...hooks, registry, fs: vfs, session: { user: profile.user, host: profile.host } }),
+        createShell({
+            ...hooks,
+            registry,
+            fs: vfs,
+            session: { user: profile.user, host: profile.host },
+            readBrowserInfo,
+        }),
 })
 
 export { terminal }

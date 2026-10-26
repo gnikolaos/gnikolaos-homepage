@@ -61,9 +61,9 @@ describe('ls', () => {
     test('-l prints coreutils columns', async () => {
         const { plain } = await runPlainLs(['-l'])
         expect(plain.split('\n')).toEqual([
-            'drwxr-xr-x 2 visitor visitor    - -            posts',
-            '-rw-r--r-- 1 visitor visitor 2.0K Jan  2  2026 bio.md',
-            '-rw-r--r-- 1 visitor visitor    5 Dec 31  2024 notes.txt',
+            'drwxr-xr-x 2 guest guest    - -            posts',
+            '-rw-r--r-- 1 guest guest 2.0K Jan  2  2026 bio.md',
+            '-rw-r--r-- 1 guest guest    5 Dec 31  2024 notes.txt',
             '',
         ])
     })
@@ -76,10 +76,10 @@ describe('ls', () => {
     test('-la combines both flags', async () => {
         const { plain } = await runPlainLs(['-la', 'posts'])
         expect(plain.split('\n')).toEqual([
-            'drwxr-xr-x 2 visitor visitor    - -            .',
-            'drwxr-xr-x 2 visitor visitor    - -            ..',
-            '-rw-r--r-- 1 visitor visitor 1.2K Mar  5  2025 post-1.md',
-            '-rw-r--r-- 1 visitor visitor  340 -            post-2.md',
+            'drwxr-xr-x 2 guest guest    - -            .',
+            'drwxr-xr-x 2 guest guest    - -            ..',
+            '-rw-r--r-- 1 guest guest 1.2K Mar  5  2025 post-1.md',
+            '-rw-r--r-- 1 guest guest  340 -            post-2.md',
             '',
         ])
     })
@@ -147,23 +147,23 @@ describe('ls -l', () => {
     const listSizeColumn = async (size) => (await listLong({ f: createFakeFile('', { size }) }))[0].split(/ +/)[4]
 
     test('shows the time for files modified within six months', async () => {
-        expect(await listFileLine('2026-10-24T12:00:00.000Z')).toBe('-rw-r--r-- 1 visitor visitor 1 Oct 24 12:00 a.md')
-        expect(await listFileLine('2026-05-01T09:05:00.000Z')).toBe('-rw-r--r-- 1 visitor visitor 1 May  1 09:05 a.md')
+        expect(await listFileLine('2026-10-24T12:00:00.000Z')).toBe('-rw-r--r-- 1 guest guest 1 Oct 24 12:00 a.md')
+        expect(await listFileLine('2026-05-01T09:05:00.000Z')).toBe('-rw-r--r-- 1 guest guest 1 May  1 09:05 a.md')
     })
 
     test('shows the year for older or future files', async () => {
-        expect(await listFileLine('2025-10-24T12:00:00.000Z')).toBe('-rw-r--r-- 1 visitor visitor 1 Oct 24  2025 a.md')
-        expect(await listFileLine('2026-04-24T12:00:00.000Z')).toBe('-rw-r--r-- 1 visitor visitor 1 Apr 24  2026 a.md')
-        expect(await listFileLine('2027-01-01T00:00:00.000Z')).toBe('-rw-r--r-- 1 visitor visitor 1 Jan  1  2027 a.md')
+        expect(await listFileLine('2025-10-24T12:00:00.000Z')).toBe('-rw-r--r-- 1 guest guest 1 Oct 24  2025 a.md')
+        expect(await listFileLine('2026-04-24T12:00:00.000Z')).toBe('-rw-r--r-- 1 guest guest 1 Apr 24  2026 a.md')
+        expect(await listFileLine('2027-01-01T00:00:00.000Z')).toBe('-rw-r--r-- 1 guest guest 1 Jan  1  2027 a.md')
     })
 
     test('formats in UTC', async () => {
-        expect(await listFileLine('2026-10-23T23:30:00.000Z')).toBe('-rw-r--r-- 1 visitor visitor 1 Oct 23 23:30 a.md')
+        expect(await listFileLine('2026-10-23T23:30:00.000Z')).toBe('-rw-r--r-- 1 guest guest 1 Oct 23 23:30 a.md')
     })
 
     test('prints - for missing or invalid dates', async () => {
-        expect(await listFileLine(undefined)).toBe('-rw-r--r-- 1 visitor visitor 1 - a.md')
-        expect(await listFileLine('not a date')).toBe('-rw-r--r-- 1 visitor visitor 1 - a.md')
+        expect(await listFileLine(undefined)).toBe('-rw-r--r-- 1 guest guest 1 - a.md')
+        expect(await listFileLine('not a date')).toBe('-rw-r--r-- 1 guest guest 1 - a.md')
     })
 
     test('aligns links and size right and date left', async () => {
@@ -172,8 +172,8 @@ describe('ls -l', () => {
             'big.md': createFakeFile('', { size: 12 * 1024, mtime: '2026-10-24T12:00:00.000Z' }),
         })
         expect(lines).toEqual([
-            'drwxr-xr-x 2 visitor visitor   - -            posts',
-            '-rw-r--r-- 1 visitor visitor 12K Oct 24 12:00 big.md',
+            'drwxr-xr-x 2 guest guest   - -            posts',
+            '-rw-r--r-- 1 guest guest 12K Oct 24 12:00 big.md',
         ])
     })
 
