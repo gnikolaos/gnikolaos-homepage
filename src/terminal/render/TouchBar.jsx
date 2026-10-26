@@ -5,8 +5,6 @@ import { For } from 'solid-js'
 /** @type {readonly { label: string, ariaLabel: string, action: Action }[]} */
 const TOUCH_KEYS = [
     { label: 'ls', ariaLabel: 'Run ls', action: { type: 'run', line: 'ls' } },
-    { label: 'cd ..', ariaLabel: 'Run cd ..', action: { type: 'run', line: 'cd ..' } },
-    { label: 'cat', ariaLabel: 'Type cat', action: { type: 'insert', text: 'cat ' } },
     { label: 'help', ariaLabel: 'Run help', action: { type: 'run', line: 'help' } },
     { label: 'clear', ariaLabel: 'Clear the screen', action: { type: 'clearScreen' } },
     { label: '↑', ariaLabel: 'Previous command', action: { type: 'historyPrev' } },

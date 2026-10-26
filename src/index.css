@@ -138,7 +138,12 @@
     }
 
     body:has(#terminal) {
-        @apply h-dvh bg-black;
+        @apply bg-black;
+        height: var(--terminal-height, 100dvh);
+    }
+
+    html:has(#terminal) {
+        @apply bg-[#00212a];
     }
 
     #app {

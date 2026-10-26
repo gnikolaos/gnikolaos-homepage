@@ -40,7 +40,8 @@ const Terminal = () => {
         if (!atBottom) settledPromptId = findLastPrompt()?.id
     }
 
-    const onPointerUp = () => {
+    // Bound with on:click, not the delegated onClick: iOS only fires click on elements with their own listener.
+    const onClick = () => {
         if (hasTextSelection()) return
         input?.focus({ preventScroll: true })
         if (state.introPlaying) actions.skipIntro()
@@ -102,6 +103,24 @@ const Terminal = () => {
         onCleanup(() => observer.disconnect())
     })
 
+    onMount(() => {
+        const viewport = window.visualViewport
+        if (!viewport) return
+        const root = document.documentElement
+        const fitViewport = () => {
+            root.style.setProperty('--terminal-height', `${viewport.height}px`)
+            window.scrollTo(0, 0)
+        }
+        fitViewport()
+        viewport.addEventListener('resize', fitViewport)
+        viewport.addEventListener('scroll', fitViewport)
+        onCleanup(() => {
+            viewport.removeEventListener('resize', fitViewport)
+            viewport.removeEventListener('scroll', fitViewport)
+            root.style.removeProperty('--terminal-height')
+        })
+    })
+
     createEffect(on(() => [state.editor.input, state.editor.cursor, state.search], scrollToBottom, { defer: true }))
 
     return (
@@ -111,7 +130,7 @@ const Terminal = () => {
                 id="terminal"
                 class="relative flex-1 overflow-y-auto p-4 text-sm leading-normal sm:text-base"
                 onScroll={onScroll}
-                onPointerUp={onPointerUp}
+                on:click={onClick}
             >
                 <div ref={content}>
                     <For each={state.blocks}>

@@ -65,17 +65,13 @@ const HiddenInput = (props) => {
         actions.typeText(text.replace(/\r?\n/g, ' '))
     }
 
+    const isCoarsePointer = () => matchMedia('(pointer: coarse)').matches
+
     const isFocusOnBody = () => document.activeElement === null || document.activeElement === document.body
 
     const onBlur = () => {
         setTimeout(() => {
-            if (
-                matchMedia('(pointer: coarse)').matches ||
-                pointerDown ||
-                !document.hasFocus() ||
-                !isFocusOnBody() ||
-                hasTextSelection()
-            )
+            if (isCoarsePointer() || pointerDown || !document.hasFocus() || !isFocusOnBody() || hasTextSelection())
                 return
             focus()
         }, 0)
@@ -97,7 +93,7 @@ const HiddenInput = (props) => {
     }
 
     onMount(() => {
-        focus()
+        if (!isCoarsePointer()) focus()
         document.addEventListener('keydown', onDocumentKeyDown)
         document.addEventListener('pointerdown', onPointerDown, true)
         document.addEventListener('pointerup', onPointerUp, true)
@@ -118,7 +114,7 @@ const HiddenInput = (props) => {
                 props.ref?.(input)
             }}
             type="text"
-            class="sr-only text-base"
+            class="sr-only text-base select-text"
             autocomplete="off"
             autocapitalize="off"
             autocorrect="off"
