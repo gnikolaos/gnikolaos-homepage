@@ -1,4 +1,4 @@
-import { For, onCleanup, onMount, Show } from 'solid-js'
+import { createEffect, For, on, onCleanup, onMount, Show } from 'solid-js'
 import { vfs } from '../fs/vfs'
 import { derivePromptStatus } from '../store/derivePromptStatus'
 import { terminal } from '../store/terminal'
@@ -27,10 +27,13 @@ const Terminal = () => {
     /** @type {HTMLSpanElement | undefined} */
     let probe
     let atBottom = true
+    const findLastPrompt = () => state.blocks.findLast((block) => block.kind === 'prompt')
+    let settledPromptId = findLastPrompt()?.id
 
     const onScroll = () => {
         if (!main) return
         atBottom = main.scrollHeight - main.scrollTop - main.clientHeight <= BOTTOM_THRESHOLD_PX
+        if (!atBottom) settledPromptId = findLastPrompt()?.id
     }
 
     const onPointerUp = () => {
@@ -39,8 +42,32 @@ const Terminal = () => {
         if (state.introPlaying) actions.skipIntro()
     }
 
-    const scrollToBottomIfPinned = () => {
-        if (main && atBottom) main.scrollTop = main.scrollHeight
+    const scrollToBottom = () => {
+        if (!main) return
+        main.scrollTop = main.scrollHeight
+        atBottom = true
+    }
+
+    /**
+     * Anchors a new command's overflowing output at its prompt line, otherwise keeps the view pinned to the bottom.
+     */
+    const followOutput = () => {
+        if (!main || !content) return
+        const prompt = findLastPrompt()
+        if (!prompt || prompt.id === settledPromptId) {
+            if (atBottom) scrollToBottom()
+            return
+        }
+        const anchor = /** @type {HTMLElement} */ (content.querySelector(`[data-prompt-id="${prompt.id}"]`))
+        const anchorTop = anchor.offsetTop - content.offsetTop
+        if (main.scrollHeight - anchorTop <= main.clientHeight) {
+            scrollToBottom()
+            if (!state.busy) settledPromptId = prompt.id
+            return
+        }
+        main.scrollTop = anchorTop
+        atBottom = false
+        settledPromptId = prompt.id
     }
 
     const measureColumns = () => {
@@ -54,11 +81,13 @@ const Terminal = () => {
         if (!content) return
         const observer = new ResizeObserver(() => {
             measureColumns()
-            scrollToBottomIfPinned()
+            followOutput()
         })
         observer.observe(content)
         onCleanup(() => observer.disconnect())
     })
+
+    createEffect(on(() => [state.editor.input, state.editor.cursor, state.search], scrollToBottom, { defer: true }))
 
     return (
         <div class="font-meslo relative flex size-full flex-col bg-black text-slate-100">
@@ -73,12 +102,14 @@ const Terminal = () => {
                     <For each={state.blocks}>
                         {(block) =>
                             block.kind === 'prompt' ? (
-                                <Prompt
-                                    path={vfs.formatDisplayPath(block.cwd)}
-                                    status={block.status}
-                                    running={block.running}
-                                    input={block.input}
-                                />
+                                <div data-prompt-id={block.id}>
+                                    <Prompt
+                                        path={vfs.formatDisplayPath(block.cwd)}
+                                        status={block.status}
+                                        running={block.running}
+                                        input={block.input}
+                                    />
+                                </div>
                             ) : (
                                 <Output output={block.output} />
                             )
