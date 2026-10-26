@@ -5,6 +5,8 @@ export type Action =
     | { type: 'edit'; op: EditOp }
     | { type: 'submit' | 'historyPrev' | 'historyNext' | 'clearScreen' | 'interrupt' | 'eof' | 'complete' }
     | { type: 'historySearch' | 'acceptSearch' | 'cancel' }
+    | { type: 'insert'; text: string }
+    | { type: 'run'; line: string }
     | ScrollAction
 export interface KeyLike {
     key: string

@@ -3,7 +3,7 @@ import { resolveKey } from '../editor/resolveKey'
 import { terminal } from '../store/terminal'
 import { hasTextSelection } from './hasTextSelection'
 
-/** @import { Action, ScrollAction } from '../editor/types' */
+/** @import { Action } from '../editor/types' */
 
 const COMPOSITION_INPUT_TYPES = new Set(['insertCompositionText', 'insertFromComposition'])
 const MODIFIER_KEYS = new Set(['Shift', 'Control', 'Alt', 'Meta'])
@@ -18,7 +18,7 @@ const isCopyShortcut = (e) => (e.ctrlKey || e.metaKey) && e.key.toLowerCase() ==
 
 /**
  * Renders the visually hidden input that captures keyboard, composition and paste input for the terminal.
- * @param {{ ref?: (el: HTMLInputElement) => void, scroll: (action: ScrollAction) => void }} props
+ * @param {{ ref?: (el: HTMLInputElement) => void, dispatch: (action: Action) => void }} props
  */
 const HiddenInput = (props) => {
     /** @type {HTMLInputElement | undefined} */
@@ -27,36 +27,6 @@ const HiddenInput = (props) => {
     let pointerDown = false
 
     const focus = () => el?.focus({ preventScroll: true })
-
-    /** @param {Action} action */
-    const dispatchKeyAction = (action) => {
-        switch (action.type) {
-            case 'edit':
-                return actions.applyEdit(action.op)
-            case 'submit':
-                return void actions.submit()
-            case 'historyPrev':
-                return actions.historyPrev()
-            case 'historyNext':
-                return actions.historyNext()
-            case 'clearScreen':
-                return actions.clearScreen()
-            case 'interrupt':
-                return actions.interrupt()
-            case 'eof':
-                return void actions.eof()
-            case 'complete':
-                return void actions.complete()
-            case 'historySearch':
-                return actions.historySearch()
-            case 'acceptSearch':
-                return actions.acceptSearch()
-            case 'cancel':
-                return actions.cancel()
-            case 'scroll':
-                return props.scroll(action)
-        }
-    }
 
     /** @param {KeyboardEvent} e */
     const onKeyDown = (e) => {
@@ -71,7 +41,7 @@ const HiddenInput = (props) => {
         if (!action) return
         if (action.type === 'complete' && state.editor.input === '' && !state.search) return
         e.preventDefault()
-        dispatchKeyAction(action)
+        props.dispatch(action)
     }
 
     /** @param {InputEvent} e */
@@ -99,7 +69,14 @@ const HiddenInput = (props) => {
 
     const onBlur = () => {
         setTimeout(() => {
-            if (pointerDown || !document.hasFocus() || !isFocusOnBody() || hasTextSelection()) return
+            if (
+                matchMedia('(pointer: coarse)').matches ||
+                pointerDown ||
+                !document.hasFocus() ||
+                !isFocusOnBody() ||
+                hasTextSelection()
+            )
+                return
             focus()
         }, 0)
     }
@@ -141,9 +118,10 @@ const HiddenInput = (props) => {
                 props.ref?.(input)
             }}
             type="text"
-            class="sr-only"
+            class="sr-only text-base"
             autocomplete="off"
             autocapitalize="off"
+            autocorrect="off"
             spellcheck={false}
             enterkeyhint="send"
             aria-label="Terminal input"

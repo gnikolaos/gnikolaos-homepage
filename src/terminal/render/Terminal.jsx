@@ -2,11 +2,13 @@ import { createEffect, For, on, onCleanup, onMount, Show } from 'solid-js'
 import { vfs } from '../fs/vfs'
 import { derivePromptStatus } from '../store/derivePromptStatus'
 import { terminal } from '../store/terminal'
+import { createDispatch } from './createDispatch'
 import { hasTextSelection } from './hasTextSelection'
 import HiddenInput from './HiddenInput'
 import Output from './Output'
 import Prompt from './Prompt'
 import TerminalFooter from './TerminalFooter'
+import TouchBar from './TouchBar'
 
 /** @import { ScrollAction } from '../editor/types' */
 
@@ -17,7 +19,7 @@ const PROBE_CHARS = 10
 const { state, actions } = terminal
 
 /**
- * Renders the terminal: the scrollback of blocks, the active prompt, the hidden input and the footer.
+ * Renders the terminal: the scrollback of blocks, the active prompt, the hidden input, the footer and the touch bar.
  */
 const Terminal = () => {
     /** @type {HTMLElement | undefined} */
@@ -80,6 +82,8 @@ const Terminal = () => {
         main.scrollTop += direction * distance
     }
 
+    const dispatch = createDispatch({ actions, scroll: scrollView })
+
     const measureColumns = () => {
         const cellWidth = (probe?.getBoundingClientRect().width ?? 0) / PROBE_CHARS
         if (!content || cellWidth <= 0) return
@@ -88,11 +92,12 @@ const Terminal = () => {
     }
 
     onMount(() => {
-        if (!content) return
+        if (!main || !content) return
         const observer = new ResizeObserver(() => {
             measureColumns()
             followOutput()
         })
+        observer.observe(main)
         observer.observe(content)
         onCleanup(() => observer.disconnect())
     })
@@ -140,8 +145,9 @@ const Terminal = () => {
                     </span>
                 </div>
             </main>
-            <HiddenInput ref={(el) => (input = el)} scroll={scrollView} />
+            <HiddenInput ref={(el) => (input = el)} dispatch={dispatch} />
             <TerminalFooter />
+            <TouchBar dispatch={dispatch} disabled={state.busy} />
         </div>
     )
 }
