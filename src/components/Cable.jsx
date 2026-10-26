@@ -43,24 +43,31 @@ const REEL_DAMPING = 0.93
 /** The anchor sits just above the top edge, mirroring the socket: as far from the right edge as the socket is from the left. */
 const ANCHOR_ABOVE_PX = 8
 /**
- * While seated, the cable is turned to leave the anchor along this direction (down and to the left), in unscaled px.
- * It then curves smoothly into the span instead of climbing steeply into the corner, so the dip looks even. A free
- * plug hangs straight from the anchor, so the turn eases in and out with the connection.
+ * While seated, the cable is turned to leave the anchor along the direction (`ANCHOR_LEAD_X_PX`, `ANCHOR_LEAD_Y_PX`),
+ * down and to the left, in unscaled px. It then curves smoothly into the span instead of climbing steeply into the
+ * corner, so the dip looks even. A free plug hangs straight from the anchor, so the turn eases in and out with the
+ * connection.
  */
-const ANCHOR_LEAD_PX = { x: -20, y: 30 }
+const ANCHOR_LEAD_X_PX = -20
+/** Downward part of the anchor lead direction, in unscaled px; see `ANCHOR_LEAD_X_PX`. */
+const ANCHOR_LEAD_Y_PX = 30
 /** How fast the anchor turn eases in or out, as a fraction per second. */
 const ANCHOR_LEAD_SPEED = 3
 /** How deep the plug tip sits inside the socket, in unscaled px. */
 const SOCKET_DEPTH_PX = 5
 /**
- * With a mouse or touchpad the plug moves this many times as far as the pointer, so the socket is reached with less
- * movement. Touch, and pulling a seated plug out, keep it 1:1.
+ * The plug moves this many times as far as the pointer, so the socket is reached with less movement. Pulling a seated
+ * plug out keeps it 1:1.
  */
 const DRAG_GAIN = 1.4
 /** How long the keyboard takes to carry the plug to the socket, in ms. */
 const CARRY_MS = 700
 /** Within this distance of the socket the plug clicks in, in unscaled px. */
 const SNAP_RADIUS_PX = 14
+/** A dragged plug this close to the socket is taken from the pointer and drawn in, in unscaled px. */
+const MAGNET_RADIUS_PX = 36
+/** How long the plug takes to be drawn in from the magnet radius, in ms. */
+const MAGNET_CARRY_MS = 160
 /** After a pull-out, the plug must get this far from the socket before it can click in again, in unscaled px. */
 const REARM_RADIUS_PX = 50
 /** Within this distance the plug starts turning level to meet the socket, in unscaled px. */
@@ -77,7 +84,7 @@ const REST_SPEED = 0.01
 const REST_STEPS = 60
 
 /** @param {Point} a @param {Point} b */
-const distance = (a, b) => Math.hypot(b.x - a.x, b.y - a.y)
+const measureDistance = (a, b) => Math.hypot(b.x - a.x, b.y - a.y)
 
 /** @param {Point} a @param {Point} b @param {number} t */
 const lerp = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t })
@@ -106,11 +113,33 @@ const Cable = (props) => {
     let plugRef
     /** @type {HTMLDivElement | undefined} */
     let headRef
-    /** @type {{ pointerId: number, pointer: Point, lastPointer: Point, client: Point, gain: number, offset: Point, fraction: number, canSnap: boolean } | null} */
+    /** @type {SVGSVGElement | undefined} */
+    let svgRef
+
+    /**
+     * A plug being held, by a pointer or by a keyboard carry (`pointerId` -1).
+     * @typedef {object} Grab
+     * @property {number} pointerId
+     * @property {Point} target - Where the held point of the plug is heading, after the drag gain.
+     * @property {Point} lastTarget - `target` at the previous frame, to interpolate steps between.
+     * @property {Point} client - The last pointer position on screen, before the drag gain.
+     * @property {number} gain - How many times as far as the pointer the plug moves.
+     * @property {Point} offset - From the held point on the plug to the pointer.
+     * @property {number} fraction - Where along the plug it is held, from 0 (tip) to 1 (boot).
+     * @property {boolean} canSnap - Whether the plug may click into the socket; off after a pull-out until it is rearmed.
+     */
+
+    /**
+     * A carry of the plug to the socket, from `from`, started at `start` and lasting `duration` (ms).
+     * @typedef {{ from: Point, start: number, duration: number }} Carry
+     */
+
+    /** @type {Grab | null} */
     let grab = null
     /**
-     * A keyboard connect in progress: the plug is held at its middle and carried from `from` to the socket.
-     * @type {{ from: Point, start: number } | null}
+     * A carry in progress (a keyboard connect, or a drag drawn in by the socket): the plug is held at its middle and
+     * carried from `from` to the socket.
+     * @type {Carry | null}
      */
     let carry = null
     let cableLength = 0
@@ -124,11 +153,14 @@ const Cable = (props) => {
     let lastLayout = null
 
     const measure = () => {
-        if (!props.socket || !headRef) return null
+        if (!props.socket || !headRef || !svgRef) return null
         const rect = props.socket.getBoundingClientRect()
-        const scale = props.socket.offsetWidth > 0 ? rect.width / props.socket.offsetWidth : 1
+        const scale = rect.width / props.socket.offsetWidth
+        const origin = svgRef.getBoundingClientRect()
         return {
             scale,
+            /** Where the cable's layers are positioned from, on screen; the rope itself works in screen coordinates. */
+            origin: { x: origin.left, y: origin.top },
             socket: { x: rect.right - SOCKET_DEPTH_PX * scale, y: rect.top + rect.height / 2 },
             anchor: { x: window.innerWidth - rect.left, y: -ANCHOR_ABOVE_PX },
             plugLength: headRef.offsetWidth * scale,
@@ -138,21 +170,42 @@ const Cable = (props) => {
     /** @typedef {NonNullable<ReturnType<typeof measure>>} Layout */
 
     const releaseGrab = () => {
-        if (grab && plugRef?.hasPointerCapture(grab.pointerId)) plugRef.releasePointerCapture(grab.pointerId)
+        if (grab && plugRef.hasPointerCapture(grab.pointerId)) plugRef.releasePointerCapture(grab.pointerId)
         grab = null
         carry = null
         setIsHeld(false)
     }
 
     /**
+     * Takes the plug, from the pointer if it is dragged, and carries it by its middle into the socket.
+     * @param {number} duration - In ms.
+     */
+    const startCarry = (duration) => {
+        if (grab && plugRef.hasPointerCapture(grab.pointerId)) plugRef.releasePointerCapture(grab.pointerId)
+        const middle = lerp(rope.readTip(), rope.readBoot(), 0.5)
+        grab = {
+            pointerId: -1,
+            target: middle,
+            lastTarget: middle,
+            client: middle,
+            gain: 1,
+            offset: { x: 0, y: 0 },
+            fraction: 0.5,
+            canSnap: true,
+        }
+        carry = { from: middle, start: performance.now(), duration }
+        setIsHeld(false)
+    }
+
+    /**
      * Decides how the plug is held for this step, connecting or disconnecting as the plug crosses a threshold.
      * @param {Layout} layout
-     * @param {Point} pointer
+     * @param {Point} target
      * @returns {RopeHold | null}
      */
-    const resolveHold = (layout, pointer) => {
+    const resolveHold = (layout, target) => {
         if (grab && props.connected) {
-            const heldTipX = pointer.x - grab.offset.x - grab.fraction * layout.plugLength
+            const heldTipX = target.x - grab.offset.x - grab.fraction * layout.plugLength
             const pull = Math.max(0, heldTipX - layout.socket.x)
             if (pull < PULL_OUT_PX * layout.scale) {
                 return { kind: 'seat', tip: { x: layout.socket.x + pull * PULL_RESISTANCE, y: layout.socket.y } }
@@ -162,9 +215,9 @@ const Cable = (props) => {
             playCableSound()
         }
         if (grab) {
-            const point = { x: pointer.x - grab.offset.x, y: pointer.y - grab.offset.y }
-            const tip = rope.tip()
-            const gap = distance(tip, layout.socket)
+            const point = { x: target.x - grab.offset.x, y: target.y - grab.offset.y }
+            const tip = rope.readTip()
+            const gap = measureDistance(tip, layout.socket)
             if (gap > REARM_RADIUS_PX * layout.scale) grab.canSnap = true
             if (grab.canSnap && gap < SNAP_RADIUS_PX * layout.scale) {
                 releaseGrab()
@@ -188,7 +241,7 @@ const Cable = (props) => {
      * @param {boolean} instant - Jump straight to the target (reduced motion).
      */
     const updateCableLength = (layout, isSeated, instant) => {
-        const reach = distance(layout.anchor, rope.boot())
+        const reach = measureDistance(layout.anchor, rope.readBoot())
         const rest = REST_LENGTH_PX * layout.scale
         const seated = Math.max(rest, reach * SEATED_RATIO)
         if (grab && reach > cableLength) cableLength = reach
@@ -208,21 +261,21 @@ const Cable = (props) => {
     /**
      * Advances the rope by one fixed step.
      * @param {Layout} layout
-     * @param {Point} pointer
+     * @param {Point} target
      * @param {boolean} instant - Feed or reel the cable in at once (reduced motion).
      */
-    const advance = (layout, pointer, instant) => {
-        const hold = resolveHold(layout, pointer)
+    const advance = (layout, target, instant) => {
+        const hold = resolveHold(layout, target)
         const isSeated = hold?.kind === 'seat'
         const leadTarget = isSeated ? 1 : 0
         const leadStep = ANCHOR_LEAD_SPEED * STEP_SECONDS
         leadMix = instant ? leadTarget : Math.min(leadMix + leadStep, Math.max(leadMix - leadStep, leadTarget))
         const lead = {
-            x: ANCHOR_LEAD_PX.x * layout.scale * leadMix,
-            y: ANCHOR_LEAD_PX.y * layout.scale * leadMix,
+            x: ANCHOR_LEAD_X_PX * layout.scale * leadMix,
+            y: ANCHOR_LEAD_Y_PX * layout.scale * leadMix,
         }
-        const target = updateCableLength(layout, isSeated, instant)
-        const isReeling = !grab && cableLength > target
+        const targetLength = updateCableLength(layout, isSeated, instant)
+        const isReeling = !grab && cableLength > targetLength
         rope.step(
             {
                 anchor: layout.anchor,
@@ -238,19 +291,27 @@ const Cable = (props) => {
             },
             STEP_SECONDS,
         )
-        const isResting = rope.maxSpeed() < REST_SPEED && cableLength === target && leadMix === leadTarget && !grab
+        const isResting =
+            rope.measureMaxSpeed() < REST_SPEED && cableLength === targetLength && leadMix === leadTarget && !grab
         restingSteps = isResting ? restingSteps + 1 : 0
     }
 
     /** @param {Layout} layout */
     const draw = (layout) => {
-        const tip = rope.tip()
-        const boot = rope.boot()
-        setPlug({ x: tip.x, y: tip.y, angle: Math.atan2(boot.y - tip.y, boot.x - tip.x), scale: layout.scale })
-        setPath(buildRopePath(rope.cablePoints()))
+        const tip = rope.readTip()
+        const boot = rope.readBoot()
+        const { origin } = layout
+        setPlug({
+            x: tip.x - origin.x,
+            y: tip.y - origin.y,
+            angle: Math.atan2(boot.y - tip.y, boot.x - tip.x),
+            scale: layout.scale,
+        })
+        setPath(
+            buildRopePath(rope.listCablePoints().map((point) => ({ x: point.x - origin.x, y: point.y - origin.y }))),
+        )
     }
 
-    /** @param {number} time */
     /**
      * Carries the rope along when the socket or anchor moves under it (resize, rotation), so the layout change does not
      * set it swinging. A held plug stays with the pointer instead.
@@ -283,16 +344,17 @@ const Cable = (props) => {
     /**
      * Where the carried plug's middle is at `time`, easing from where it started to its seated position.
      * @param {Layout} layout
-     * @param {{ from: Point, start: number }} carried
+     * @param {Carry} carried
      * @param {number} time
      * @returns {Point}
      */
-    const carryPoint = (layout, carried, time) => {
-        const t = reducedMotion.matches ? 1 : Math.min(1, Math.max(0, (time - carried.start) / CARRY_MS))
+    const computeCarryPoint = (layout, carried, time) => {
+        const t = reducedMotion.matches ? 1 : Math.min(1, Math.max(0, (time - carried.start) / carried.duration))
         const eased = t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2
         return lerp(carried.from, { x: layout.socket.x + layout.plugLength / 2, y: layout.socket.y }, eased)
     }
 
+    /** @param {number} time */
     const tick = (time) => {
         const layout = measure()
         if (!layout) {
@@ -300,9 +362,16 @@ const Cable = (props) => {
             return
         }
         followLayout(layout)
-        if (carry && grab) grab.pointer = carryPoint(layout, carry, time)
-        const from = grab ? grab.lastPointer : { x: 0, y: 0 }
-        const to = grab ? grab.pointer : from
+        const isDrawnIn =
+            grab &&
+            !carry &&
+            !props.connected &&
+            grab.canSnap &&
+            measureDistance(rope.readTip(), layout.socket) < MAGNET_RADIUS_PX * layout.scale
+        if (isDrawnIn) startCarry(MAGNET_CARRY_MS)
+        if (carry && grab) grab.target = computeCarryPoint(layout, carry, time)
+        const from = grab ? grab.lastTarget : { x: 0, y: 0 }
+        const to = grab ? grab.target : from
         if (reducedMotion.matches) {
             const steps = grab ? MAX_STEPS_PER_FRAME * 10 : SETTLE_STEPS
             for (let i = 0; i < steps && restingSteps < REST_STEPS; i += 1) advance(layout, to, true)
@@ -313,7 +382,7 @@ const Cable = (props) => {
             for (let i = 1; i <= steps; i += 1) advance(layout, lerp(from, to, i / steps), false)
             accumulator -= steps * STEP_SECONDS
         }
-        if (grab) grab.lastPointer = grab.pointer
+        if (grab) grab.lastTarget = grab.target
         draw(layout)
         frame = restingSteps < REST_STEPS || grab ? requestAnimationFrame(tick) : 0
     }
@@ -334,19 +403,19 @@ const Cable = (props) => {
         e.preventDefault()
         carry = null
         plugRef.setPointerCapture(e.pointerId)
-        const tip = rope.tip()
-        const boot = rope.boot()
-        const length = distance(tip, boot) || 1
+        const tip = rope.readTip()
+        const boot = rope.readBoot()
+        const length = measureDistance(tip, boot) || 1
         const pointer = { x: e.clientX, y: e.clientY }
         const along = ((pointer.x - tip.x) * (boot.x - tip.x) + (pointer.y - tip.y) * (boot.y - tip.y)) / length
         const fraction = Math.min(1, Math.max(0, along / length))
         const held = lerp(tip, boot, fraction)
         grab = {
             pointerId: e.pointerId,
-            pointer,
-            lastPointer: pointer,
+            target: pointer,
+            lastTarget: pointer,
             client: pointer,
-            gain: e.pointerType === 'mouse' ? DRAG_GAIN : 1,
+            gain: DRAG_GAIN,
             offset: { x: pointer.x - held.x, y: pointer.y - held.y },
             fraction,
             canSnap: true,
@@ -362,9 +431,9 @@ const Cable = (props) => {
         // out stays 1:1, so the pull-out resistance feels the same.
         const client = { x: e.clientX, y: e.clientY }
         const gain = props.connected ? 1 : grab.gain
-        grab.pointer = {
-            x: Math.min(window.innerWidth, Math.max(0, grab.pointer.x + (client.x - grab.client.x) * gain)),
-            y: Math.min(window.innerHeight, Math.max(0, grab.pointer.y + (client.y - grab.client.y) * gain)),
+        grab.target = {
+            x: Math.min(window.innerWidth, Math.max(0, grab.target.x + (client.x - grab.client.x) * gain)),
+            y: Math.min(window.innerHeight, Math.max(0, grab.target.y + (client.y - grab.client.y) * gain)),
         }
         grab.client = client
         wake()
@@ -389,18 +458,7 @@ const Cable = (props) => {
             props.onConnectedChange(false)
             playCableSound()
         } else {
-            const middle = lerp(rope.tip(), rope.boot(), 0.5)
-            grab = {
-                pointerId: -1,
-                pointer: middle,
-                lastPointer: middle,
-                client: middle,
-                gain: 1,
-                offset: { x: 0, y: 0 },
-                fraction: 0.5,
-                canSnap: true,
-            }
-            carry = { from: middle, start: performance.now() }
+            startCarry(CARRY_MS)
         }
         wake()
     }
@@ -408,7 +466,10 @@ const Cable = (props) => {
     onMount(() => {
         const layout = measure()
         if (layout) {
-            const hangingTip = { x: layout.anchor.x, y: layout.anchor.y + REST_LENGTH_PX * layout.scale }
+            const hangingTip = {
+                x: layout.anchor.x,
+                y: layout.anchor.y + REST_LENGTH_PX * layout.scale + layout.plugLength,
+            }
             rope.reset(props.connected ? layout.socket : hangingTip, layout.anchor)
             for (let i = 0; i < SETTLE_STEPS; i += 1) advance(layout, { x: 0, y: 0 }, true)
             draw(layout)
@@ -426,7 +487,15 @@ const Cable = (props) => {
 
     return (
         <>
-            <svg class="pointer-events-none fixed inset-0 size-full overflow-visible" aria-hidden="true">
+            {/*
+             * The cable's layers are absolute rather than fixed: iOS Safari tints its toolbars from fixed elements, and
+             * these have no background of their own. The cable draws outside its 1px box.
+             */}
+            <svg
+                ref={svgRef}
+                class="pointer-events-none absolute top-0 left-0 size-px overflow-visible"
+                aria-hidden="true"
+            >
                 <defs>
                     <filter id="cable-shadow" x="-10%" y="-10%" width="120%" height="120%">
                         <feGaussianBlur stdDeviation={2 * plug().scale} />
@@ -450,10 +519,13 @@ const Cable = (props) => {
                     />
                 </g>
             </svg>
-            {/* RJ45 plug, positioned by its tip (left middle) and rotated around it. */}
+            {/*
+             * RJ45 plug, positioned by its tip (left middle) and rotated around it. Its ::before pads the hit area to a
+             * finger-sized target.
+             */}
             <div
                 ref={plugRef}
-                class="peer fixed top-0 left-0 origin-top-left touch-none outline-none"
+                class="peer absolute top-0 left-0 origin-top-left touch-none outline-none before:absolute before:-inset-3 before:content-['']"
                 classList={{ 'cursor-grab': !isHeld(), 'cursor-grabbing': isHeld() }}
                 style={{
                     transform: `translate(${plug().x}px, ${plug().y}px) rotate(${plug().angle}rad) scale(${plug().scale}) translateY(-50%)`,
@@ -492,14 +564,11 @@ const Cable = (props) => {
              * matches the page's other focus rings.
              */}
             <div
-                class="pointer-events-none fixed top-0 left-0 hidden origin-top-left rounded-sm outline-stone-400 peer-focus-visible:block"
+                class="focus-ring-outline pointer-events-none absolute top-0 left-0 hidden origin-top-left peer-focus-visible:block"
                 style={{
                     width: `${(headRef?.offsetWidth ?? 0) * plug().scale + FOCUS_PADDING_PX * 2}px`,
                     height: `${(headRef?.offsetHeight ?? 0) * plug().scale + FOCUS_PADDING_PX * 2}px`,
                     transform: `translate(${plug().x}px, ${plug().y}px) rotate(${plug().angle}rad) translate(-${FOCUS_PADDING_PX}px, -50%)`,
-                    'outline-style': 'auto',
-                    'outline-width': '1px',
-                    'outline-offset': '1px',
                 }}
             />
         </>

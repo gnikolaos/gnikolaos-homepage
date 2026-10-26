@@ -6,12 +6,6 @@ const BOOT = 1
 const LEAD_POINTS = 8
 
 /**
- * Wraps an angle into the range [-π, π].
- * @param {number} angle
- */
-const wrapAngle = (angle) => Math.atan2(Math.sin(angle), Math.cos(angle))
-
-/**
  * Creates a Verlet rope of `count` points (at least 4) with a rigid plug at its free end. Point 0 is the plug tip,
  * point 1 the plug boot, and the last point is pinned to the anchor. The cable is pushed to leave the anchor along
  * `anchorLead`, like a cable coming out of a ceiling fitting; the turn is applied at the anchor and spread along the
@@ -79,7 +73,7 @@ const createRope = (count, plugWeight) => {
             return
         }
         const angle = Math.atan2(y[BOOT] - y[TIP], x[BOOT] - x[TIP])
-        const aligned = angle - wrapAngle(angle) * hold.align
+        const aligned = angle * (1 - hold.align)
         const along = hold.fraction * plugLength
         placePlug(
             { x: hold.point.x - Math.cos(aligned) * along, y: hold.point.y - Math.sin(aligned) * along },
@@ -169,7 +163,7 @@ const createRope = (count, plugWeight) => {
      * Largest distance any point moved during the last step.
      * @returns {number}
      */
-    const maxSpeed = () => {
+    const measureMaxSpeed = () => {
         let max = 0
         for (let i = 0; i < count; i += 1) max = Math.max(max, Math.abs(x[i] - prevX[i]), Math.abs(y[i] - prevY[i]))
         return max
@@ -179,13 +173,13 @@ const createRope = (count, plugWeight) => {
      * @param {number} i
      * @returns {Point}
      */
-    const point = (i) => ({ x: x[i], y: y[i] })
+    const readPoint = (i) => ({ x: x[i], y: y[i] })
 
     /**
      * The cable points from the plug boot to the anchor.
      * @returns {Point[]}
      */
-    const cablePoints = () => Array.from({ length: count - BOOT }, (_, i) => point(i + BOOT))
+    const listCablePoints = () => Array.from({ length: count - BOOT }, (_, i) => readPoint(i + BOOT))
 
     /**
      * Moves the rope without giving it any speed: the plug tip moves by `tipDelta`, the anchor by `anchorDelta`, and
@@ -211,7 +205,16 @@ const createRope = (count, plugWeight) => {
         prevY.set(y)
     }
 
-    return { reset, step, shift, stop, maxSpeed, tip: () => point(TIP), boot: () => point(BOOT), cablePoints }
+    return {
+        reset,
+        step,
+        shift,
+        stop,
+        measureMaxSpeed,
+        readTip: () => readPoint(TIP),
+        readBoot: () => readPoint(BOOT),
+        listCablePoints,
+    }
 }
 
 export { createRope }

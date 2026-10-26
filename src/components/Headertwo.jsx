@@ -14,11 +14,12 @@ const Headertwo = (props) => {
     const [socket, setSocket] = createSignal(/** @type {HTMLDivElement | undefined} */ (undefined))
 
     return (
-        // z-20 keeps the hanging plug above <main>, so it can still be grabbed there.
-        <header class="relative isolate z-20 flex justify-center overflow-hidden py-8 text-xs md:text-base">
+        // z-20 keeps the hanging plug above <main>, so it can still be grabbed there. No overflow clipping, as the
+        // cable's layers are positioned from the header and reach across the page.
+        <header class="relative isolate z-20 flex justify-center py-8 text-xs md:text-base">
             <div class="container ml-4 flex md:px-8">
                 <div class="group pointer-events-none relative z-10">
-                    <div class="pointer-events-none rounded-sm bg-gray-300/10 px-5 py-2 md:scale-150 md:bg-gray-300/20">
+                    <div class="rounded-sm bg-gray-300/10 px-5 py-2 md:scale-150 md:bg-gray-300/20">
                         {/* RJ45 socket, with the port opening the plug goes into on its right edge. Once connected it
                         opens the terminal. */}
                         <a
@@ -51,17 +52,10 @@ const Headertwo = (props) => {
                      * socket's on-screen box plus 8px. The socket sits at 20px/8px in the box, which md:scale-150
                      * grows by half around its centre.
                      */}
-                    <span
-                        class="pointer-events-none absolute top-0 left-3 hidden size-15 rounded-sm outline-stone-400 group-has-[a:focus-visible]:block md:-top-[11px] md:left-px md:size-[82px]"
-                        style={{ 'outline-style': 'auto', 'outline-width': '1px', 'outline-offset': '1px' }}
-                    />
+                    <span class="focus-ring-outline pointer-events-none absolute top-0 left-3 hidden size-15 group-has-[a:focus-visible]:block md:-top-[11px] md:left-px md:size-[82px]" />
                 </div>
             </div>
-            <Cable
-                socket={socket()}
-                connected={props.isConnected}
-                onConnectedChange={(connected) => props.isConnectedHandler(connected)}
-            />
+            <Cable socket={socket()} connected={props.isConnected} onConnectedChange={props.isConnectedHandler} />
             {/* Access Terminal button
                 <div
                 class={`fixed z-10 w-dvw items-center justify-center transition-all ${props.isConnected ? 'flex' : 'hidden'}`}

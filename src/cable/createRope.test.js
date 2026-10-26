@@ -34,23 +34,23 @@ const measureLength = (points) =>
 
 describe('createRope', () => {
     test('keeps the cable pinned to the anchor', () => {
-        expect(run(10).cablePoints().at(-1)).toEqual({ x: 200, y: 0 })
+        expect(run(10).listCablePoints().at(-1)).toEqual({ x: 200, y: 0 })
     })
 
     test('turns the cable towards its lead where it leaves the anchor', () => {
         /** @param {{ x: number, y: number }} anchorLead */
-        const exitAngle = (anchorLead) => {
-            const [before, anchor] = run(1500, { anchorLead }).cablePoints().slice(-2)
+        const measureExitAngle = (anchorLead) => {
+            const [before, anchor] = run(1500, { anchorLead }).listCablePoints().slice(-2)
             return (Math.atan2(before.y - anchor.y, before.x - anchor.x) * 180) / Math.PI
         }
-        expect(exitAngle({ x: 0, y: 0 })).toBeCloseTo(90, 0)
-        expect(exitAngle({ x: -30, y: 30 })).toBeGreaterThan(105)
+        expect(measureExitAngle({ x: 0, y: 0 })).toBeCloseTo(90, 0)
+        expect(measureExitAngle({ x: -30, y: 30 })).toBeGreaterThan(105)
     })
 
     test('lets a free plug hang below the anchor, pointing down', () => {
         const rope = run(2000)
-        const tip = rope.tip()
-        const boot = rope.boot()
+        const tip = rope.readTip()
+        const boot = rope.readBoot()
         expect(tip.x).toBeCloseTo(200, 0)
         expect(tip.y).toBeGreaterThan(300)
         expect(tip.y).toBeGreaterThan(boot.y)
@@ -58,21 +58,24 @@ describe('createRope', () => {
 
     test('keeps the cable and plug lengths', () => {
         const rope = run(600)
-        expect(measureLength(rope.cablePoints())).toBeGreaterThan(290)
-        expect(measureLength(rope.cablePoints())).toBeLessThan(310)
-        expect(Math.hypot(rope.boot().x - rope.tip().x, rope.boot().y - rope.tip().y)).toBeCloseTo(20, 0)
+        expect(measureLength(rope.listCablePoints())).toBeGreaterThan(290)
+        expect(measureLength(rope.listCablePoints())).toBeLessThan(310)
+        expect(Math.hypot(rope.readBoot().x - rope.readTip().x, rope.readBoot().y - rope.readTip().y)).toBeCloseTo(
+            20,
+            0,
+        )
     })
 
     test('seats the plug level at the given tip', () => {
         const rope = run(600, { hold: { kind: 'seat', tip: { x: -100, y: 50 } } })
-        expect(rope.tip()).toEqual({ x: -100, y: 50 })
-        expect(rope.boot()).toEqual({ x: -80, y: 50 })
+        expect(rope.readTip()).toEqual({ x: -100, y: 50 })
+        expect(rope.readBoot()).toEqual({ x: -80, y: 50 })
     })
 
     test('holds the grabbed point of the plug and lets it turn', () => {
         const rope = run(600, { hold: { kind: 'grab', point: { x: 0, y: 100 }, fraction: 0.5, align: 0 } })
-        const tip = rope.tip()
-        const boot = rope.boot()
+        const tip = rope.readTip()
+        const boot = rope.readBoot()
         expect((tip.x + boot.x) / 2).toBeCloseTo(0, 5)
         expect((tip.y + boot.y) / 2).toBeCloseTo(100, 5)
         expect(boot.x).toBeGreaterThan(tip.x)
@@ -81,19 +84,19 @@ describe('createRope', () => {
     test('shifts without gaining speed', () => {
         const rope = run(3000)
         rope.shift({ x: -40, y: 10 }, { x: 60, y: 0 })
-        expect(rope.maxSpeed()).toBeCloseTo(0, 9)
-        expect(rope.cablePoints().at(-1)).toEqual({ x: 260, y: 0 })
+        expect(rope.measureMaxSpeed()).toBeCloseTo(0, 9)
+        expect(rope.listCablePoints().at(-1)).toEqual({ x: 260, y: 0 })
     })
 
     test('stops all motion in place', () => {
         const rope = run(20)
-        const tip = rope.tip()
+        const tip = rope.readTip()
         rope.stop()
-        expect(rope.maxSpeed()).toBe(0)
-        expect(rope.tip()).toEqual(tip)
+        expect(rope.measureMaxSpeed()).toBe(0)
+        expect(rope.readTip()).toEqual(tip)
     })
 
     test('comes to rest', () => {
-        expect(run(3000).maxSpeed()).toBeLessThan(0.01)
+        expect(run(3000).measureMaxSpeed()).toBeLessThan(0.01)
     })
 })

@@ -20,7 +20,8 @@ const BackgroundEffect = () => {
     animate()
 
     return (
-        <div class="absolute inset-0 z-0 overflow-hidden">
+        // Hidden on phones, where blobs drifting to the top or bottom edge would break the flush fill of iOS Safari's bars.
+        <div class="absolute inset-0 z-0 hidden overflow-hidden md:block">
             <For each={positions()}>
                 {(pos) => (
                     <div

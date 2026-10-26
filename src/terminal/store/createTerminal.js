@@ -49,7 +49,7 @@ const createTerminal = ({
     host = profile.host,
     openUrl = openInNewTab,
     complete: completer = completeNothing,
-    onSessionClose = () => {},
+    onSessionClose,
 }) => {
     /** @type {[TerminalState, SetStoreFunction<TerminalState>]} */
     const [state, setState] = createStore({

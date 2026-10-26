@@ -25,7 +25,7 @@ import { HISTORY_KEY } from './HISTORY_KEY'
  */
 
 /** @param {SetupOptions} [options] */
-const setup = ({ storage = createMemoryStorage(), script, complete, history, onSessionClose } = {}) => {
+const setup = ({ storage = createMemoryStorage(), script, complete, history, onSessionClose = () => {} } = {}) => {
     if (history) storage.setItem(HISTORY_KEY, JSON.stringify(history))
     /** @type {FakeCall[]} */
     const calls = []
@@ -392,6 +392,7 @@ describe('runLine', () => {
             home: '/home/visitor',
             storage: createMemoryStorage(),
             makeShell: () => ({ run: () => Promise.reject(new Error('boom')) }),
+            onSessionClose: () => {},
         })
         await t.actions.runLine('x')
         expect(t.state.blocks[0]).toMatchObject({ status: 'ok', running: false })
@@ -514,6 +515,7 @@ describe('complete', () => {
             storage: createMemoryStorage(),
             makeShell: () => ({ run: async () => ({ exitCode: 0 }) }),
             complete: () => new Promise((r) => (resolve = r)),
+            onSessionClose: () => {},
         })
         t.actions.typeText('cat ab')
         const done = t.actions.complete()

@@ -6,6 +6,13 @@
     /* Background Images */
     --bg-image-hero-mesh: url('/images/bg-mesh.webp');
 
+    /* Colors */
+    /*
+     * The uniform colour the mesh image's top and bottom edges end in. It is also the page background, which iOS
+     * Safari fills the bars around the page with, so they sit flush with the mesh.
+     */
+    --color-mesh-edge: #64686e;
+
     /* Animations */
     --animate-move-blur: move-blur linear infinite;
     --animate-error-blink: error-blink 1.7s infinite;
@@ -85,6 +92,11 @@
     @apply select-text selection:bg-[#00212a] selection:text-green-600;
 }
 
+/* Draws the browser's native focus ring on an element standing in for a focused one. */
+@utility focus-ring-outline {
+    @apply rounded-sm outline outline-offset-1 outline-stone-400;
+}
+
 @layer base {
     @font-face {
         font-family: 'MesloLGS NF';
@@ -122,7 +134,11 @@
     }
 
     body {
-        @apply h-svh w-full overflow-hidden bg-black antialiased select-none;
+        @apply bg-mesh-edge h-svh w-full overflow-hidden antialiased select-none;
+    }
+
+    body:has(#terminal) {
+        @apply bg-black;
     }
 
     #app {

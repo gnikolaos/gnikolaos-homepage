@@ -1,4 +1,4 @@
-import { onMount } from 'solid-js'
+import { onCleanup, onMount } from 'solid-js'
 import { useNavigate, useParams } from '@solidjs/router'
 import { connection } from '@gnikolaos/connection/connection'
 import { buildBootSteps } from '@gnikolaos/terminal/intro/buildBootSteps'
@@ -14,6 +14,12 @@ const TerminalRoute = () => {
     const params = useParams()
     const navigate = useNavigate()
     terminal.actions.setNavigate((path) => navigate(path))
+
+    // The browser bars stay black around the terminal, and go back to the mesh colour when it closes.
+    const themeColor = document.querySelector('meta[name="theme-color"]')
+    const pageThemeColor = themeColor?.getAttribute('content') ?? ''
+    themeColor?.setAttribute('content', '#000000')
+    onCleanup(() => themeColor?.setAttribute('content', pageThemeColor))
 
     onMount(async () => {
         if (!connection.booted()) terminal.actions.endSession()

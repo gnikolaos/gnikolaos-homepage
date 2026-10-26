@@ -17,7 +17,7 @@ const terminal = createTerminal({
     home: vfs.home,
     storage: createBrowserStorage('sessionStorage'),
     complete: createCompleter({ fs: vfs, registry, getCwd: () => terminal.state.session.cwd }),
-    onSessionClose: () => connection.disconnect(),
+    onSessionClose: connection.disconnect,
     makeShell: (hooks) =>
         createShell({ ...hooks, registry, fs: vfs, session: { user: profile.user, host: profile.host } }),
 })

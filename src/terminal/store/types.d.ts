@@ -64,5 +64,5 @@ export interface TerminalOptions {
     openUrl?: (url: string) => void
     complete?: Completer
     /** Called when the shell closes the session (logout, exit), before navigating home. */
-    onSessionClose?: () => void
+    onSessionClose: () => void
 }
