@@ -14,14 +14,16 @@ const TOUCH_KEYS = [
 ]
 
 /**
- * Renders the row of terminal keys shown on touch devices, dispatching each key's action without taking focus.
- * @param {{ dispatch: (action: Action) => void, disabled: boolean }} props
+ * Renders the row of terminal keys shown on touch devices while the on-screen keyboard is open, dispatching each
+ * key's action without taking focus.
+ * @param {{ dispatch: (action: Action) => void, disabled: boolean, visible: boolean }} props
  */
 const TouchBar = (props) => (
     <div
         role="toolbar"
         aria-label="Terminal keys"
-        class="font-meslo hidden w-full shrink-0 gap-1 overflow-x-auto bg-[#00212a] p-1 text-sm pointer-coarse:flex"
+        class="font-meslo hidden w-full shrink-0 gap-1 overflow-x-auto bg-[#00212a] p-1 text-sm"
+        classList={{ 'pointer-coarse:flex': props.visible }}
         onPointerDown={(e) => e.preventDefault()}
     >
         <For each={TOUCH_KEYS}>

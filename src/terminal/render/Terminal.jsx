@@ -1,4 +1,4 @@
-import { createEffect, For, on, onCleanup, onMount, Show } from 'solid-js'
+import { createEffect, createSignal, For, on, onCleanup, onMount, Show } from 'solid-js'
 import { vfs } from '../fs/vfs'
 import { derivePromptStatus } from '../store/derivePromptStatus'
 import { terminal } from '../store/terminal'
@@ -15,6 +15,7 @@ import TouchBar from './TouchBar'
 const BOTTOM_THRESHOLD_PX = 8
 const MIN_COLUMNS = 20
 const PROBE_CHARS = 10
+const KEYBOARD_MIN_HEIGHT_PX = 150
 
 const { state, actions } = terminal
 
@@ -31,6 +32,7 @@ const Terminal = () => {
     /** @type {HTMLSpanElement | undefined} */
     let probe
     let atBottom = true
+    const [keyboardOpen, setKeyboardOpen] = createSignal(false)
     const findLastPrompt = () => state.blocks.findLast((block) => block.kind === 'prompt')
     let settledPromptId = findLastPrompt()?.id
 
@@ -107,16 +109,24 @@ const Terminal = () => {
         const viewport = window.visualViewport
         if (!viewport) return
         const root = document.documentElement
-        const fitViewport = () => {
+        /** @type {Map<number, number>} */
+        const tallestHeightByWidth = new Map()
+        const syncViewport = () => {
+            if (viewport.scale === 1) {
+                const width = Math.round(viewport.width)
+                const tallestHeight = Math.max(tallestHeightByWidth.get(width) ?? 0, viewport.height)
+                tallestHeightByWidth.set(width, tallestHeight)
+                setKeyboardOpen(tallestHeight - viewport.height > KEYBOARD_MIN_HEIGHT_PX)
+            }
             root.style.setProperty('--terminal-height', `${viewport.height}px`)
             window.scrollTo(0, 0)
         }
-        fitViewport()
-        viewport.addEventListener('resize', fitViewport)
-        viewport.addEventListener('scroll', fitViewport)
+        syncViewport()
+        viewport.addEventListener('resize', syncViewport)
+        viewport.addEventListener('scroll', syncViewport)
         onCleanup(() => {
-            viewport.removeEventListener('resize', fitViewport)
-            viewport.removeEventListener('scroll', fitViewport)
+            viewport.removeEventListener('resize', syncViewport)
+            viewport.removeEventListener('scroll', syncViewport)
             root.style.removeProperty('--terminal-height')
         })
     })
@@ -166,7 +176,7 @@ const Terminal = () => {
             </main>
             <HiddenInput ref={(el) => (input = el)} dispatch={dispatch} />
             <TerminalFooter />
-            <TouchBar dispatch={dispatch} disabled={state.busy} />
+            <TouchBar dispatch={dispatch} disabled={state.busy} visible={keyboardOpen()} />
         </div>
     )
 }
