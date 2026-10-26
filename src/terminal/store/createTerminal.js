@@ -413,7 +413,7 @@ const createTerminal = ({
     }
 
     const complete = async () => {
-        if (state.busy) return
+        if (state.busy || (state.editor.input === '' && !state.search)) return
         acceptSearch()
         const before = { ...state.editor }
         let completion

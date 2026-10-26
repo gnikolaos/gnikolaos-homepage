@@ -408,6 +408,14 @@ describe('runLine', () => {
 const lastWord = (candidates) => (input) => ({ start: input.lastIndexOf(' ') + 1, end: input.length, candidates })
 
 describe('complete', () => {
+    test('does nothing on an empty line', async () => {
+        const t = setup({ complete: lastWord(['cat', 'cd']) })
+        await t.actions.complete()
+        await t.actions.complete()
+        expect(t.completeCalls).toEqual([])
+        expect(t.state.blocks).toEqual([])
+    })
+
     test('passes the editor input and cursor to the completer', async () => {
         const t = setup()
         t.actions.typeText('cat po')
