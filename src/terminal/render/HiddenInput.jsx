@@ -61,6 +61,7 @@ const onKeyDown = (e) => {
     }
     const action = resolveKey(e)
     if (!action) return
+    if (action.type === 'complete' && state.editor.input === '' && !state.search) return
     e.preventDefault()
     dispatchKeyAction(action)
 }
