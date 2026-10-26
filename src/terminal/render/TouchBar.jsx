@@ -6,6 +6,7 @@ import { For } from 'solid-js'
 const TOUCH_KEYS = [
     { label: 'help', ariaLabel: 'Run help', action: { type: 'run', line: 'help' } },
     { label: 'ls', ariaLabel: 'Run ls', action: { type: 'run', line: 'ls' } },
+    { label: 'cat', ariaLabel: 'Type cat', action: { type: 'insert', text: 'cat ' } },
     { label: 'clear', ariaLabel: 'Clear the screen', action: { type: 'clearScreen' } },
     { label: '↑', ariaLabel: 'Previous command', action: { type: 'historyPrev' } },
     { label: '↓', ariaLabel: 'Next command', action: { type: 'historyNext' } },
